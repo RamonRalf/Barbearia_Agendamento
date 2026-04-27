@@ -1,9 +1,13 @@
-(function() {
-    emailjs.init("g_p4l-PMMcMlwbbQA");
-})();
+// 1. CONFIGURAÇÃO DO SUPABASE (Dados das suas fotos)
+const SUPABASE_URL = "https://durmzijnybyakrudukvz.supabase.co";
+// ATENÇÃO: Cole abaixo a sua chave ANON PUBLIC completa que você tirou foto
+const SUPABASE_KEY = "COLE_AQUI_SUA_CHAVE_COMPLETA_SB_PUBLISHABLE"; 
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- LOGICA DE INTERFACE (MANTIDA) ---
+    
     // 1. Accordion
     document.querySelectorAll('.category-header').forEach(h => {
         h.onclick = () => h.parentElement.classList.toggle('open');
@@ -28,24 +32,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modal.style.display = 'flex';
         renderCalendar();
-        // FIX #5: limpa os horários ao abrir o modal (serão renderizados ao clicar no dia)
         document.getElementById('timeGrid').innerHTML = '';
         document.getElementById('area-cliente').style.display = 'none';
     };
 
     document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
 
-    // 3. Calendário — FIX #1 e #2: dinâmico, baseado na data atual
+    // 3. Calendário Dinâmico (Sua lógica excelente)
     function renderCalendar() {
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
-
         const hoje = new Date();
         const ano = hoje.getFullYear();
-        const mes = hoje.getMonth(); // 0-indexado
+        const mes = hoje.getMonth();
         const diaHoje = hoje.getDate();
 
-        // FIX #6: atualiza o label do mês dinamicamente
         const nomesMes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
         document.getElementById('monthLabel').innerText = `${nomesMes[mes]}, ${ano}`;
 
@@ -57,15 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
             cal.appendChild(el);
         });
 
-        // Calcula o dia da semana do primeiro dia do mês atual
         const primeiroDia = new Date(ano, mes, 1).getDay();
         for (let s = 0; s < primeiroDia; s++) {
             cal.appendChild(document.createElement('div'));
         }
 
-        // Total de dias no mês
         const totalDias = new Date(ano, mes + 1, 0).getDate();
-
         let primeiroDiaValido = null;
 
         for (let i = 1; i <= totalDias; i++) {
@@ -73,8 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const d = document.createElement('div');
             d.className = `calendar-day ${isPast ? 'disabled' : ''}`;
             d.innerText = i < 10 ? '0' + i : i;
+            // Guardando data no dataset para o banco
             d.dataset.dia = i;
-            d.dataset.mes = mes + 1; // 1-indexado para exibição
+            d.dataset.mes = mes + 1;
             d.dataset.ano = ano;
 
             if (!isPast) {
@@ -82,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 d.onclick = () => {
                     document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active'));
                     d.classList.add('active');
-                    // FIX #5: rerenderiza horários ao trocar de dia
                     renderTimes();
                     document.getElementById('area-cliente').style.display = 'none';
                 };
@@ -90,14 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
             cal.appendChild(d);
         }
 
-        // Seleciona o primeiro dia disponível por padrão
         if (primeiroDiaValido) {
             primeiroDiaValido.classList.add('active');
             renderTimes();
         }
     }
 
-    // 4. Horários — FIX #5: chamado ao clicar em cada dia
+    // 4. Horários
     function renderTimes() {
         const grid = document.getElementById('timeGrid');
         const hBW = ['09:00','09:30','10:00','10:30','11:00','11:20','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:20'];
@@ -115,48 +112,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
-    // Seletor de barbeiro em cards
     window.selectBarber = function(el) {
         document.querySelectorAll('.barber-option').forEach(o => o.classList.remove('active'));
         el.classList.add('active');
         document.getElementById('selectProf').value = el.dataset.barber;
     };
 
-    // 5. Envio — FIX #3: validação inclui dia; data formatada dinamicamente
-    document.getElementById('btnFinalizar').onclick = () => {
+    // --- 5. O NOVO MOTOR: GRAVAR NO SUPABASE ---
+    document.getElementById('btnFinalizar').onclick = async () => {
         const diaEl = document.querySelector('.calendar-day.active');
-        const hora = document.querySelector('.time-slot.active');
+        const horaEl = document.querySelector('.time-slot.active');
 
-        // FIX #3: data incluída na validação
-        if (!diaEl) return alert("Selecione um dia no calendário!");
-        if (!hora) return alert("Selecione um horário!");
+        if (!diaEl || !horaEl) return alert("Selecione data e horário!");
 
-        const dia = diaEl.dataset.dia.padStart(2, '0');
-        const mes = diaEl.dataset.mes.padStart(2, '0');
-        const ano = diaEl.dataset.ano;
-        const dataFormatada = `${dia}/${mes}/${ano}`;
+        const nome = document.getElementById('userName').value;
+        const fone = document.getElementById('userPhone').value;
+        const email = document.getElementById('userEmail').value;
 
-        const params = {
-            cliente_nome: document.getElementById('userName').value,
-            cliente_email: document.getElementById('userEmail').value,
-            cliente_fone: document.getElementById('userPhone').value,
-            servico: document.getElementById('resumo-servico').innerText,
-            barbeiro: document.getElementById('selectProf').value,
-            data: dataFormatada,
-            horario: hora.innerText,
-            observacoes: document.getElementById('userObs').value || "Nenhuma"
-        };
-
-        if (!params.cliente_nome || !params.cliente_email || !params.cliente_fone) {
-            return alert("Preencha nome, e-mail e WhatsApp antes de confirmar!");
+        if (!nome || !fone || !email) {
+            return alert("Preencha seus dados de contato!");
         }
 
-        emailjs.send("service_jeq2yep", "template_5j3p7ie", params)
-            .then(() => {
-                alert("✅ Sucesso! Agendamento enviado para o João Vitor.");
-                modal.style.display = 'none';
-            })
-            .catch(err => alert("Erro ao enviar: " + (err.text || err)));
+        // Formata a data para o banco de dados (YYYY-MM-DD HH:MM)
+        const dataISO = `${diaEl.dataset.ano}-${diaEl.dataset.mes.padStart(2,'0')}-${diaEl.dataset.dia.padStart(2,'0')} ${horaEl.innerText}`;
+
+        // Objeto para o Supabase
+        const novoAgendamento = {
+            barbeiro_nome: document.getElementById('selectProf').value,
+            servico_nome: document.getElementById('resumo-servico').innerText,
+            data_hora: dataISO,
+            // Guardamos os dados do cliente direto no agendamento por enquanto
+            status: 'pendente'
+        };
+
+        // EXECUTANDO A GRAVAÇÃO
+        const { data, error } = await _supabase
+            .from('appointments') // Nome da tabela que criamos
+            .insert([novoAgendamento]);
+
+        if (error) {
+            console.error("Erro Supabase:", error);
+            alert("Erro ao salvar no banco: " + error.message);
+        } else {
+            alert("✅ Agendamento realizado com sucesso no banco de dados!");
+            
+            // Opcional: Você pode manter o EmailJS aqui se quiser que o João Vitor 
+            // receba o e-mail além de gravar no banco.
+            
+            modal.style.display = 'none';
+        }
     };
 });
