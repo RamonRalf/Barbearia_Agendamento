@@ -1,14 +1,15 @@
 (function() {
-    emailjs.init("g_p4l-PMMcMlwbbQA");
+    // Inicialização obrigatória com a sua chave pública exata
+    emailjs.init("g_p4l-PMMcMlwbbQA"); 
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Accordion
+    // 1. Lógica do Accordion (Para abrir as categorias)
     document.querySelectorAll('.category-header').forEach(h => {
         h.onclick = () => h.parentElement.classList.toggle('open');
     });
 
-    // Seleção de Serviço
+    // 2. Seleção de Serviço
     document.querySelectorAll('.service-card').forEach(c => {
         c.onclick = () => {
             document.querySelectorAll('.service-card').forEach(el => el.classList.remove('active'));
@@ -16,36 +17,37 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
+    // 3. Abrir o Modal
     const modal = document.getElementById('modal');
-    document.getElementById('btnAgendar').onclick = () => {
-        const ativo = document.querySelector('.service-card.active');
-        if(!ativo) return alert("Por favor, selecione um serviço!");
-        document.getElementById('resumo-servico').innerText = ativo.querySelector('h3').innerText;
-        document.getElementById('resumo-detalhes').innerText = `${ativo.dataset.duration} • R$ ${ativo.dataset.price}`;
-        modal.style.display = 'flex';
-        renderCalendar();
-        renderTimes();
-    };
+    const btnAgendar = document.getElementById('btnAgendar');
+    
+    if(btnAgendar) {
+        btnAgendar.onclick = () => {
+            const ativo = document.querySelector('.service-card.active');
+            if(!ativo) return alert("Por favor, selecione um serviço primeiro!");
+            
+            document.getElementById('resumo-servico').innerText = ativo.querySelector('h3').innerText;
+            document.getElementById('resumo-detalhes').innerText = `${ativo.dataset.duration} • R$ ${ativo.dataset.price}`;
+            
+            modal.style.display = 'flex';
+            renderCalendar();
+            renderTimes();
+        };
+    }
 
     document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
 
+    // 4. Calendário em Grade (7 colunas)
     function renderCalendar() {
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
-        
         const diasSemana = ['D','S','T','Q','Q','S','S'];
-        diasSemana.forEach(d => {
-            cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#666; padding-bottom:10px;">${d}</div>`;
-        });
+        diasSemana.forEach(d => cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#666; padding-bottom:10px;">${d}</div>`);
         
-        // Abril 2026 começa na quarta-feira (3 dias vazios antes)
-        for(let space=0; space<3; space++){
-            cal.innerHTML += `<div></div>`;
-        }
+        for(let space=0; space<3; space++){ cal.innerHTML += `<div></div>`; }
 
-        // Abril tem 30 dias. Hoje é 26/04.
         for(let i=1; i<=30; i++) {
-            const isPast = i < 26;
+            const isPast = i < 26; // Hoje é dia 26/04
             const d = document.createElement('div');
             d.className = `calendar-day ${isPast ? 'disabled' : ''}`;
             d.innerText = i < 10 ? '0' + i : i;
@@ -54,12 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active'));
                     d.classList.add('active');
                 };
-                if(i === 28) d.classList.add('active'); // Pré-selecionado conforme print
+                if(i === 28) d.classList.add('active');
             }
             cal.appendChild(d);
         }
     }
 
+    // 5. Horários
     function renderTimes() {
         const grid = document.getElementById('timeGrid');
         const hBW = ['09:00','09:30','10:00','10:30','11:00','11:20','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:20'];
@@ -77,29 +80,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 6. ENVIO REAL (Onde estava o erro)
     document.getElementById('btnFinalizar').onclick = () => {
         const dia = document.querySelector('.calendar-day.active');
         const hora = document.querySelector('.time-slot.active');
-        const barbeiro = document.getElementById('selectProf').value;
 
         const params = {
             cliente_nome: document.getElementById('userName').value,
             cliente_email: document.getElementById('userEmail').value,
             cliente_fone: document.getElementById('userPhone').value,
             servico: document.getElementById('resumo-servico').innerText,
-            barbeiro: barbeiro,
+            barbeiro: document.getElementById('selectProf').value,
             data: dia ? dia.innerText + "/04/2026" : "",
             horario: hora ? hora.innerText : "",
             observacoes: document.getElementById('userObs').value || "Nenhuma"
         };
 
-        if(!params.cliente_nome || !params.cliente_email || !params.horario) return alert("Preencha todos os campos!");
+        if(!params.cliente_nome || !params.cliente_email || !params.horario) {
+            return alert("Por favor, preencha nome, e-mail e escolha um horário!");
+        }
 
+        // Usando seus IDs confirmados nos prints anteriores
         emailjs.send("service_jeq2yep", "template_5j3p7le", params)
             .then(() => {
-                alert("Pedido enviado! O barbeiro analisará seu horário.");
+                alert("✅ Sucesso! O João Vitor recebeu seu pedido.");
                 modal.style.display = 'none';
             })
-            .catch(err => alert("Erro: " + err.text));
+            .catch(err => {
+                // Se der erro, ele vai te dizer exatamente o que o EmailJS respondeu
+                alert("Erro ao agendar: " + (err.text || "Verifique sua Public Key"));
+                console.error(err);
+            });
     };
 });
