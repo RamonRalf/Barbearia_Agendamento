@@ -696,3 +696,21 @@ header p {
     font-weight: 600;
     text-decoration: underline;
 }
+
+/* HORÁRIO OCUPADO */
+.time-slot.ocupado {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--dim2);
+    cursor: not-allowed;
+    position: relative;
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+
+.time-slot.ocupado::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+}
