@@ -10,6 +10,7 @@
 </head>
 <body>
 
+<!-- TELA PRINCIPAL -->
 <div class="container">
     <header>
         <div class="header-eyebrow">Agendamento Online</div>
@@ -17,11 +18,115 @@
         <p>Rua José Narciso Silva, 997 — Fábricas</p>
     </header>
 
+    <!-- Barra do usuário logado -->
+    <div class="user-bar" id="userBar" style="display:none">
+        <div class="user-bar-info">
+            <div class="user-bar-avatar" id="userBarAvatar">?</div>
+            <div>
+                <div class="user-bar-name" id="userBarName">Carregando...</div>
+                <div class="user-bar-sub">Cliente</div>
+            </div>
+        </div>
+        <button class="user-bar-logout" id="btnLogout">Sair</button>
+    </div>
+
     <main id="lista-servicos">
         <!-- Serviços carregados dinamicamente do Supabase -->
     </main>
 </div>
 
+<!-- ================================ -->
+<!-- MODAL AUTH (Login / Cadastro)    -->
+<!-- ================================ -->
+<div class="modal-overlay" id="modalAuth">
+    <div class="modal-content">
+
+        <!-- Etapa 1: Escolha -->
+        <div id="authEtapa1">
+            <div class="modal-header">
+                <h2>Entrar</h2>
+                <span class="close-modal" id="closeModalAuth">&times;</span>
+            </div>
+            <p class="auth-subtitle">Para agendar, entre ou crie sua conta</p>
+
+            <div class="auth-options">
+                <button class="auth-opt-btn" id="btnIrLogin">
+                    <span class="auth-opt-icon">👤</span>
+                    <div>
+                        <div class="auth-opt-title">Já tenho conta</div>
+                        <div class="auth-opt-sub">Entrar com e-mail e senha</div>
+                    </div>
+                    <span class="auth-opt-arrow">›</span>
+                </button>
+                <button class="auth-opt-btn" id="btnIrCadastro">
+                    <span class="auth-opt-icon">✨</span>
+                    <div>
+                        <div class="auth-opt-title">Criar conta</div>
+                        <div class="auth-opt-sub">Cadastro rápido e gratuito</div>
+                    </div>
+                    <span class="auth-opt-arrow">›</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Etapa 2a: Login -->
+        <div id="authEtapaLogin" style="display:none">
+            <div class="modal-header">
+                <button class="back-btn" id="btnVoltarLogin">‹</button>
+                <h2>Entrar</h2>
+                <span class="close-modal" id="closeModalAuth2">&times;</span>
+            </div>
+            <p class="auth-subtitle">Entre com sua conta Barbearia BW</p>
+
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="loginEmail" placeholder="seu@email.com">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="loginSenha" placeholder="••••••••">
+            </div>
+            <div id="loginErro" class="auth-erro" style="display:none"></div>
+            <button class="btn-confirm" id="btnLogin">Entrar</button>
+            <p class="auth-switch">Não tem conta? <span id="btnIrCadastro2">Criar agora</span></p>
+        </div>
+
+        <!-- Etapa 2b: Cadastro -->
+        <div id="authEtapaCadastro" style="display:none">
+            <div class="modal-header">
+                <button class="back-btn" id="btnVoltarCadastro">‹</button>
+                <h2>Criar Conta</h2>
+                <span class="close-modal" id="closeModalAuth3">&times;</span>
+            </div>
+            <p class="auth-subtitle">Rápido e gratuito</p>
+
+            <div class="input-group">
+                <label>Nome completo</label>
+                <input type="text" id="cadNome" placeholder="Seu nome">
+            </div>
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="cadEmail" placeholder="seu@email.com">
+            </div>
+            <div class="input-group">
+                <label>WhatsApp</label>
+                <input type="tel" id="cadTelefone" placeholder="(32) 9 9999-9999">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="cadSenha" placeholder="Mínimo 6 caracteres">
+            </div>
+            <div id="cadErro" class="auth-erro" style="display:none"></div>
+            <button class="btn-confirm" id="btnCadastrar">Criar Conta</button>
+            <p class="auth-switch">Já tem conta? <span id="btnIrLogin2">Entrar</span></p>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================================ -->
+<!-- MODAL AGENDAMENTO                -->
+<!-- ================================ -->
 <div class="modal-overlay" id="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -30,11 +135,10 @@
         </div>
 
         <div class="summary-box">
-            <div><h3 id="resumo-servico">Corte Degradê</h3><p id="resumo-detalhes">40m • R$ 35,00</p></div>
+            <div><h3 id="resumo-servico">-</h3><p id="resumo-detalhes">-</p></div>
         </div>
 
         <div class="calendar-wrapper">
-            <!-- FIX #6: month-label agora é gerado dinamicamente pelo JS -->
             <div class="month-label" id="monthLabel"></div>
             <div id="calendar" class="calendar-grid"></div>
         </div>
@@ -61,14 +165,11 @@
         <div class="input-group">
             <input type="text" id="userObs" placeholder="Adicionar Observações">
         </div>
-        
+
         <div class="section-title">Horários Disponíveis</div>
         <div id="timeGrid" class="time-grid"></div>
 
-        <div id="area-cliente" style="display: none; border-top: 1px solid #2a2a2a; padding-top: 20px;">
-            <div class="input-group"><label>Seu Nome</label><input type="text" id="userName"></div>
-            <div class="input-group"><label>Seu E-mail</label><input type="email" id="userEmail" placeholder="Para confirmação"></div>
-            <div class="input-group"><label>Seu WhatsApp</label><input type="tel" id="userPhone" placeholder="(32) 9 9999-9999"></div>
+        <div id="area-confirmar" style="display:none; border-top:1px solid #2a2a2a; padding-top:20px;">
             <button class="btn-confirm" id="btnFinalizar">Confirmar Agendamento</button>
         </div>
     </div>
