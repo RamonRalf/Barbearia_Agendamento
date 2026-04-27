@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbearia BW | Painel do Barbeiro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --surface2: #1a1a1a;
+            --border: #242424;
+            --accent: #d4af37;
+            --accent-dim: rgba(212,175,55,0.12);
+            --accent-dim2: rgba(212,175,55,0.06);
+            --text: #f0f0f0;
+            --dim: #666;
+            --dim2: #444;
+            --green: #2ecc71;
+            --green-dim: rgba(46,204,113,0.12);
+            --red: #e74c3c;
+            --red-dim: rgba(231,76,60,0.12);
+            --blue: #3498db;
+            --blue-dim: rgba(52,152,219,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0;
+            width: 240px;
+            height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            padding: 28px 24px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            color: var(--accent);
+            letter-spacing: 3px;
+        }
+
+        .sidebar-logo p {
+            font-size: 0.7rem;
+            color: var(--dim);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--dim);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover { color: var(--text); background: var(--surface2); }
+        .nav-item.active { color: var(--accent); background: var(--accent-dim); border-color: rgba(212,175,55,0.2); }
+
+        .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+        .nav-section-label {
+            font-size: 0.65rem;
+            color: var(--dim2);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 16px 14px 6px;
+            font-weight: 600;
+        }
+
+        .sidebar-bottom {
+            padding: 16px 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .barber-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--surface2);
+        }
+
+        .barber-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        .barber-info p { font-size: 0.8rem; font-weight: 600; }
+        .barber-info span { font-size: 0.7rem; color: var(--dim); }
+
+        /* Main content */
+        .main {
+            margin-left: 240px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: var(--text);
+        }
+
+        .topbar-left p { font-size: 0.8rem; color: var(--dim); margin-top: 2px; }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px 8px;
+        }
+
+        .date-nav button {
+            background: none; border: none; color: var(--dim);
+            cursor: pointer; font-size: 1rem; padding: 4px 8px;
+            border-radius: 6px; transition: all 0.2s;
+        }
+        .date-nav button:hover { color: var(--accent); background: var(--accent-dim); }
+
+        .date-nav span {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+            min-width: 130px;
+            text-align: center;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: none; border: none;
+            color: var(--dim); cursor: pointer;
+            font-size: 0.8rem; font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+        }
+        .view-btn.active { background: var(--accent); color: #000; }
+
+        .content { padding: 28px 32px; flex: 1; }
+
+        /* Stats cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .stat-card:hover { border-color: var(--accent); }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            opacity: 0.05;
+            transform: translate(20px, -20px);
+        }
+
+        .stat-card.gold::before { background: var(--accent); }
+        .stat-card.green::before { background: var(--green); }
+        .stat-card.blue::before { background: var(--blue); }
+        .stat-card.red::before { background: var(--red); }
+
+        .stat-icon { font-size: 1.4rem; margin-bottom: 12px; }
+        .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 1px; }
+        .stat-card.gold .stat-value { color: var(--accent); }
+        .stat-card.green .stat-value { color: var(--green); }
+        .stat-card.blue .stat-value { color: var(--blue); }
+        .stat-card.red .stat-value { color: var(--red); }
+        .stat-label { font-size: 0.75rem; color: var(--dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Panel layout */
+        .panel-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+        }
+
+        /* Agendamentos */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-header .badge {
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+
+        /* Timeline de agendamentos */
+        .timeline { padding: 8px 0; }
+
+        .time-block {
+            display: flex;
+            gap: 0;
+            position: relative;
+        }
+
+        .time-label {
+            width: 60px;
+            flex-shrink: 0;
+            padding: 12px 16px 12px 22px;
+            font-size: 0.75rem;
+            color: var(--dim);
+            font-weight: 500;
+            text-align: right;
+            padding-right: 14px;
+        }
+
+        .time-line {
+            width: 1px;
+            background: var(--border);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .time-line::before {
+            content: '';
+            position: absolute;
+            top: 18px; left: -3px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .time-content { flex: 1; padding: 8px 16px; }
+
+        .appointment-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            animation: slideIn 0.3s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .appointment-card:hover { border-color: var(--accent); background: #1e1e1e; }
+        .appointment-card.confirmado { border-left-color: var(--green); }
+        .appointment-card.pendente { border-left-color: var(--accent); }
+        .appointment-card.cancelado { border-left-color: var(--red); opacity: 0.5; }
+        .appointment-card.bloqueado { border-left-color: var(--dim2); background: #131313; }
+
+        .appt-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+
+        .appt-avatar {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--accent-dim);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: var(--accent);
+            flex-shrink: 0;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .appt-info { min-width: 0; }
+        .appt-name { font-size: 0.875rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .appt-service { font-size: 0.75rem; color: var(--dim); margin-top: 2px; }
+
+        .appt-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .appt-duration { font-size: 0.72rem; color: var(--dim); }
+        .appt-price { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+
+        .status-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.confirmado { background: var(--green-dim); color: var(--green); }
+        .status-badge.pendente { background: var(--accent-dim); color: var(--accent); }
+        .status-badge.cancelado { background: var(--red-dim); color: var(--red); }
+        .status-badge.bloqueado { background: #1e1e1e; color: var(--dim); }
+
+        .empty-slot {
+            padding: 10px 16px;
+            font-size: 0.75rem;
+            color: var(--dim2);
+            font-style: italic;
+        }
+
+        /* Painel lateral */
+        .side-panels { display: flex; flex-direction: column; gap: 16px; }
+
+        /* Detalhes do agendamento selecionado */
+        .detail-panel { }
+
+        .detail-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--dim);
+            font-size: 0.85rem;
+        }
+
+        .detail-empty .icon { font-size: 2rem; margin-bottom: 10px; opacity: 0.3; }
+
+        .detail-content { padding: 20px; display: none; }
+        .detail-content.visible { display: block; }
+
+        .detail-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+        }
+
+        .detail-avatar {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: var(--accent-dim);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem; color: var(--accent); letter-spacing: 1px;
+        }
+
+        .detail-name { font-size: 1rem; font-weight: 600; }
+        .detail-sub { font-size: 0.75rem; color: var(--dim); margin-top: 2px; }
+
+        .detail-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.82rem;
+        }
+
+        .detail-row:last-of-type { border-bottom: none; }
+        .detail-row span:first-child { color: var(--dim); }
+        .detail-row span:last-child { font-weight: 500; }
+
+        .action-buttons { display: flex; gap: 8px; margin-top: 16px; }
+
+        .btn {
+            flex: 1; padding: 10px; border: none; border-radius: 10px;
+            font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .btn-confirm { background: var(--green); color: #000; }
+        .btn-confirm:hover { background: #27ae60; }
+        .btn-cancel { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+        .btn-cancel:hover { background: var(--red); color: #fff; }
+        .btn-whats { background: var(--accent); color: #000; }
+        .btn-whats:hover { opacity: 0.85; }
+
+        /* Bloquear horário */
+        .block-form { padding: 18px 20px; }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.72rem; color: var(--dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select {
+            width: 100%; background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text); padding: 10px 12px; border-radius: 10px;
+            font-size: 0.85rem; font-family: 'DM Sans', sans-serif; outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+
+        .btn-block {
+            width: 100%; padding: 11px; background: var(--surface2);
+            border: 1px solid var(--border); border-radius: 10px;
+            color: var(--dim); font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn-block:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+        /* Semana view */
+        .week-view { display: none; }
+        .week-view.active { display: block; }
+        .day-view { display: block; }
+        .day-view.hidden { display: none; }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: 50px repeat(7, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .week-header {
+            background: var(--surface2);
+            padding: 10px 8px;
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .week-header.today { color: var(--accent); }
+        .week-header span { display: block; font-size: 1.1rem; font-family: 'Bebas Neue', sans-serif; }
+
+        .week-cell {
+            background: var(--surface);
+            min-height: 48px;
+            padding: 4px;
+            position: relative;
+        }
+
+        .week-cell.time-col {
+            background: var(--surface2);
+            display: flex; align-items: flex-start; justify-content: flex-end;
+            padding: 8px 6px 0;
+            font-size: 0.65rem; color: var(--dim);
+        }
+
+        .week-event {
+            background: var(--accent-dim);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 6px;
+            padding: 4px 6px;
+            font-size: 0.65rem;
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .week-event:hover { background: rgba(212,175,55,0.2); }
+        .week-event.green { background: var(--green-dim); border-color: rgba(46,204,113,0.3); color: var(--green); }
+
+        /* Histórico */
+        .history-list { padding: 8px 0; }
+
+        .history-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.82rem;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+
+        .history-item:hover { background: var(--surface2); }
+        .history-item:last-child { border-bottom: none; }
+
+        .history-left { display: flex; align-items: center; gap: 10px; }
+        .history-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .history-dot.green { background: var(--green); }
+        .history-dot.red { background: var(--red); }
+        .history-dot.gold { background: var(--accent); }
+
+        .history-name { font-weight: 500; }
+        .history-service { font-size: 0.72rem; color: var(--dim); margin-top: 1px; }
+        .history-right { text-align: right; }
+        .history-date { font-size: 0.72rem; color: var(--dim); }
+        .history-price { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-top: 2px; }
+
+        /* Mobile sidebar toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed; top: 16px; left: 16px; z-index: 200;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 8px 12px; cursor: pointer;
+            font-size: 1.1rem; color: var(--text);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); z-index: 99;
+        }
+
+        /* Notification toast */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.85rem;
+            display: flex; align-items: center; gap: 10px;
+            transform: translateY(100px); opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 300;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-color: var(--green); }
+        .toast.error { border-color: var(--red); }
+
+        @media (max-width: 1100px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .panel-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main { margin-left: 0; }
+            .menu-toggle { display: flex; }
+            .content { padding: 16px; }
+            .topbar { padding: 16px 16px 16px 60px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <h1>BARBEARIA BW</h1>
+        <p>Painel do Barbeiro</p>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item active" onclick="setView('agenda')">
+            <span class="icon">📅</span> Agenda
+        </div>
+        <div class="nav-item" onclick="setView('historico')">
+            <span class="icon">📋</span> Histórico
+        </div>
+        <div class="nav-item" onclick="setView('clientes')">
+            <span class="icon">👥</span> Clientes
+        </div>
+
+        <div class="nav-section-label">Configurações</div>
+        <div class="nav-item" onclick="setView('bloquear')">
+            <span class="icon">🔒</span> Bloquear Horários
+        </div>
+        <div class="nav-item" onclick="alert('Em breve: notificações por WhatsApp')">
+            <span class="icon">🔔</span> Notificações
+        </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <div class="barber-profile">
+            <div class="barber-avatar">JV</div>
+            <div class="barber-info">
+                <p>João Vitor</p>
+                <span>Barbeiro Principal</span>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+    <div class="topbar">
+        <div class="topbar-left">
+            <h2 id="pageTitle">AGENDA DO DIA</h2>
+            <p id="pageSubtitle">Gerencie seus agendamentos</p>
+        </div>
+        <div class="topbar-right">
+            <div class="date-nav" id="dateNav">
+                <button onclick="changeDate(-1)">‹</button>
+                <span id="dateLabel">Carregando...</span>
+                <button onclick="changeDate(1)">›</button>
+            </div>
+            <div class="view-toggle" id="viewToggle">
+                <button class="view-btn active" onclick="setDayWeek('day', this)">Dia</button>
+                <button class="view-btn" onclick="setDayWeek('week', this)">Semana</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- Estatísticas -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card gold">
+                <div class="stat-icon">✂️</div>
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Agendamentos hoje</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="statConfirmados">0</div>
+                <div class="stat-label">Confirmados</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value" id="statPendentes">0</div>
+                <div class="stat-label">Pendentes</div>
+            </div>
+            <div class="stat-card red" style="cursor:pointer" onclick="setView('agenda')">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="statReceita">R$0</div>
+                <div class="stat-label">Receita do dia</div>
+            </div>
+        </div>
+
+        <!-- Agenda -->
+        <div id="viewAgenda">
+            <div class="panel-grid">
+                <!-- Timeline -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>⏰ CRONOGRAMA</h3>
+                        <span class="badge" id="totalBadge">0 agendamentos</span>
+                    </div>
+
+                    <div class="day-view" id="dayView">
+                        <div class="timeline" id="timeline"></div>
+                    </div>
+
+                    <div class="week-view" id="weekView">
+                        <div style="padding:16px;">
+                            <div class="week-grid" id="weekGrid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel lateral -->
+                <div class="side-panels">
+                    <!-- Detalhes -->
+                    <div class="panel detail-panel">
+                        <div class="panel-header">
+                            <h3>📋 DETALHES</h3>
+                        </div>
+                        <div class="detail-empty" id="detailEmpty">
+                            <div class="icon">👆</div>
+                            <p>Clique em um agendamento para ver os detalhes</p>
+                        </div>
+                        <div class="detail-content" id="detailContent"></div>
+                    </div>
+
+                    <!-- Bloquear -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3>🔒 BLOQUEAR HORÁRIO</h3>
+                        </div>
+                        <div class="block-form">
+                            <div class="form-group">
+                                <label>Horário</label>
+                                <select id="blockTime">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Motivo</label>
+                                <input type="text" id="blockReason" placeholder="Ex: Almoço, Compromisso...">
+                            </div>
+                            <button class="btn-block" onclick="bloquearHorario()">🔒 Bloquear Horário</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico -->
+        <div id="viewHistorico" style="display:none">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>📋 HISTÓRICO DE AGENDAMENTOS</h3>
+                    <span class="badge">Últimos 30 dias</span>
+                </div>
+                <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+
+        <!-- Clientes -->
+        <div id="viewClientes" style="display:none">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>👥 CLIENTES</h3>
+                    <span class="badge" id="clientesBadge">0 clientes</span>
+                </div>
+                <div class="history-list" id="clientesList"></div>
+            </div>
+        </div>
+
+        <!-- Bloquear (mobile/nav) -->
+        <div id="viewBloquear" style="display:none">
+            <div class="panel" style="max-width:400px">
+                <div class="panel-header"><h3>🔒 BLOQUEAR HORÁRIOS</h3></div>
+                <div class="block-form">
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="blockDate2">
+                    </div>
+                    <div class="form-group">
+                        <label>Horário</label>
+                        <select id="blockTime2">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo</label>
+                        <input type="text" id="blockReason2" placeholder="Ex: Almoço, Compromisso...">
+                    </div>
+                    <button class="btn-block" onclick="bloquearHorario2()">🔒 Bloquear Horário</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// DADOS SIMULADOS (substituir por Firebase depois)
+// =============================================
+
+const HORARIOS = ['09:00','09:30','10:00','10:30','11:00','11:20','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:20'];
+
+let currentDate = new Date();
+let selectedAppt = null;
+let viewMode = 'day';
+
+// Agendamentos simulados
+let agendamentos = [
+    { id: 1, nome: 'Carlos Silva', servico: 'Corte Degradê', horario: '09:00', duracao: '40m', preco: 35, status: 'confirmado', whatsapp: '32998000001', obs: 'Nenhuma' },
+    { id: 2, nome: 'Pedro Alves', servico: 'Barba Completa', horario: '10:00', duracao: '30m', preco: 35, status: 'pendente', whatsapp: '32998000002', obs: 'Toalha quente' },
+    { id: 3, nome: 'Rafael Costa', servico: 'Corte + Barba + Sobrancelha', horario: '11:00', duracao: '1h', preco: 60, status: 'confirmado', whatsapp: '32998000003', obs: 'Nenhuma' },
+    { id: 4, nome: 'Bruno Lima', servico: 'Corte Social', horario: '13:00', duracao: '30m', preco: 25, status: 'pendente', whatsapp: '32998000004', obs: 'Primeira vez' },
+    { id: 5, nome: 'Marcelo Souza', servico: 'Pigmentação', horario: '14:00', duracao: '20m', preco: 20, status: 'confirmado', whatsapp: '32998000005', obs: 'Nenhuma' },
+    { id: 6, nome: 'BLOQUEADO', servico: 'Almoço', horario: '12:00', duracao: '1h', preco: 0, status: 'bloqueado', whatsapp: '', obs: '' },
+    { id: 7, nome: 'Lucas Ferreira', servico: 'Corte Degradê', horario: '15:30', duracao: '40m', preco: 35, status: 'cancelado', whatsapp: '32998000007', obs: 'Cliente cancelou' },
+];
+
+let historico = [
+    { nome: 'Carlos Silva', servico: 'Corte Degradê', data: '25/04/2026', preco: 35, status: 'confirmado' },
+    { nome: 'Ana Lima', servico: 'Colorimetria', data: '25/04/2026', preco: 80, status: 'confirmado' },
+    { nome: 'Pedro Alves', servico: 'Barba Completa', data: '24/04/2026', preco: 35, status: 'confirmado' },
+    { nome: 'João Santos', servico: 'Corte Social', data: '24/04/2026', preco: 25, status: 'cancelado' },
+    { nome: 'Rafael Costa', servico: 'Luzes e Corte', data: '23/04/2026', preco: 120, status: 'confirmado' },
+    { nome: 'Bruno Lima', servico: 'Pigmentação', data: '23/04/2026', preco: 20, status: 'confirmado' },
+    { nome: 'Fernanda Silva', servico: 'Corte Infantil', data: '22/04/2026', preco: 35, status: 'confirmado' },
+    { nome: 'Marcelo Souza', servico: 'Design de Barba', data: '22/04/2026', preco: 25, status: 'confirmado' },
+];
+
+// =============================================
+// UTILITÁRIOS
+// =============================================
+
+function formatDate(date) {
+    const dias = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return `${dias[date.getDay()]}, ${date.getDate()} ${meses[date.getMonth()]}`;
+}
+
+function getInitials(nome) {
+    return nome.split(' ').slice(0,2).map(n => n[0]).join('').toUpperCase();
+}
+
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 3000);
+}
+
+function changeDate(delta) {
+    currentDate.setDate(currentDate.getDate() + delta);
+    renderAll();
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+
+// =============================================
+// VIEWS
+// =============================================
+
+function setView(view) {
+    ['viewAgenda','viewHistorico','viewClientes','viewBloquear'].forEach(v => {
+        document.getElementById(v).style.display = 'none';
+    });
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    const titles = { agenda: 'AGENDA DO DIA', historico: 'HISTÓRICO', clientes: 'CLIENTES', bloquear: 'BLOQUEAR HORÁRIOS' };
+    const subs = { agenda: 'Gerencie seus agendamentos', historico: 'Seus últimos atendimentos', clientes: 'Cadastro de clientes', bloquear: 'Bloqueie horários indisponíveis' };
+
+    document.getElementById('viewAgenda').style.display = view === 'agenda' ? 'block' : 'none';
+    document.getElementById('viewHistorico').style.display = view === 'historico' ? 'block' : 'none';
+    document.getElementById('viewClientes').style.display = view === 'clientes' ? 'block' : 'none';
+    document.getElementById('viewBloquear').style.display = view === 'bloquear' ? 'block' : 'none';
+    document.getElementById('dateNav').style.display = view === 'agenda' ? 'flex' : 'none';
+    document.getElementById('viewToggle').style.display = view === 'agenda' ? 'flex' : 'none';
+    document.getElementById('statsRow').style.display = view === 'agenda' ? 'grid' : 'none';
+
+    document.getElementById('pageTitle').innerText = titles[view] || 'PAINEL';
+    document.getElementById('pageSubtitle').innerText = subs[view] || '';
+
+    if (view === 'historico') renderHistorico();
+    if (view === 'clientes') renderClientes();
+    if (view === 'bloquear') populateBlockSelects();
+
+    if (window.innerWidth < 768) toggleSidebar();
+}
+
+function setDayWeek(mode, btn) {
+    viewMode = mode;
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('dayView').classList.toggle('hidden', mode === 'week');
+    document.getElementById('weekView').classList.toggle('active', mode === 'week');
+    if (mode === 'week') renderWeek();
+}
+
+// =============================================
+// RENDER AGENDA
+// =============================================
+
+function renderAll() {
+    document.getElementById('dateLabel').innerText = formatDate(currentDate);
+    renderTimeline();
+    updateStats();
+    populateBlockSelects();
+}
+
+function renderTimeline() {
+    const timeline = document.getElementById('timeline');
+    timeline.innerHTML = '';
+
+    const ativos = agendamentos.filter(a => a.status !== 'cancelado');
+    document.getElementById('totalBadge').innerText = `${ativos.length} agendamentos`;
+
+    HORARIOS.forEach((h, i) => {
+        const appts = agendamentos.filter(a => a.horario === h);
+        const block = document.createElement('div');
+        block.className = 'time-block';
+
+        const label = document.createElement('div');
+        label.className = 'time-label';
+        label.innerText = h;
+
+        const line = document.createElement('div');
+        line.className = 'time-line';
+
+        const content = document.createElement('div');
+        content.className = 'time-content';
+
+        if (appts.length > 0) {
+            appts.forEach((a, idx) => {
+                const card = document.createElement('div');
+                card.className = `appointment-card ${a.status}`;
+                card.style.animationDelay = `${idx * 0.05}s`;
+
+                if (a.status === 'bloqueado') {
+                    card.innerHTML = `
+                        <div class="appt-left">
+                            <div class="appt-avatar" style="background:#1e1e1e;color:var(--dim)">🔒</div>
+                            <div class="appt-info">
+                                <div class="appt-name" style="color:var(--dim)">${a.servico}</div>
+                                <div class="appt-service">Horário bloqueado</div>
+                            </div>
+                        </div>
+                        <div class="appt-right">
+                            <span class="status-badge bloqueado">Bloqueado</span>
+                        </div>`;
+                } else {
+                    card.innerHTML = `
+                        <div class="appt-left">
+                            <div class="appt-avatar">${getInitials(a.nome)}</div>
+                            <div class="appt-info">
+                                <div class="appt-name">${a.nome}</div>
+                                <div class="appt-service">${a.servico}</div>
+                            </div>
+                        </div>
+                        <div class="appt-right">
+                            <span class="appt-duration">${a.duracao}</span>
+                            <span class="appt-price">R$ ${a.preco}</span>
+                            <span class="status-badge ${a.status}">${a.status}</span>
+                        </div>`;
+                    card.onclick = () => selectAppt(a);
+                }
+
+                content.appendChild(card);
+            });
+        } else {
+            const empty = document.createElement('div');
+            empty.className = 'empty-slot';
+            empty.innerText = 'Disponível';
+            content.appendChild(empty);
+        }
+
+        block.appendChild(label);
+        block.appendChild(line);
+        block.appendChild(content);
+        timeline.appendChild(block);
+    });
+}
+
+function updateStats() {
+    const hoje = agendamentos.filter(a => a.status !== 'bloqueado');
+    const confirmados = hoje.filter(a => a.status === 'confirmado');
+    const pendentes = hoje.filter(a => a.status === 'pendente');
+    const receita = confirmados.reduce((s, a) => s + a.preco, 0);
+
+    document.getElementById('statTotal').innerText = hoje.length;
+    document.getElementById('statConfirmados').innerText = confirmados.length;
+    document.getElementById('statPendentes').innerText = pendentes.length;
+    document.getElementById('statReceita').innerText = `R$${receita}`;
+}
+
+// =============================================
+// DETALHES DO AGENDAMENTO
+// =============================================
+
+function selectAppt(appt) {
+    selectedAppt = appt;
+    document.getElementById('detailEmpty').style.display = 'none';
+    const content = document.getElementById('detailContent');
+    content.className = 'detail-content visible';
+
+    content.innerHTML = `
+        <div class="detail-header">
+            <div class="detail-avatar">${getInitials(appt.nome)}</div>
+            <div>
+                <div class="detail-name">${appt.nome}</div>
+                <div class="detail-sub">${appt.whatsapp}</div>
+            </div>
+        </div>
+        <div class="detail-row"><span>Serviço</span><span>${appt.servico}</span></div>
+        <div class="detail-row"><span>Horário</span><span>${appt.horario} • ${appt.duracao}</span></div>
+        <div class="detail-row"><span>Data</span><span>${formatDate(currentDate)}</span></div>
+        <div class="detail-row"><span>Valor</span><span style="color:var(--accent)">R$ ${appt.preco},00</span></div>
+        <div class="detail-row"><span>Status</span><span class="status-badge ${appt.status}">${appt.status}</span></div>
+        ${appt.obs && appt.obs !== 'Nenhuma' ? `<div class="detail-row"><span>Obs</span><span>${appt.obs}</span></div>` : ''}
+        <div class="action-buttons">
+            ${appt.status === 'pendente' ? `<button class="btn btn-confirm" onclick="confirmarAppt(${appt.id})">✅ Confirmar</button>` : ''}
+            ${appt.status !== 'cancelado' ? `<button class="btn btn-cancel" onclick="cancelarAppt(${appt.id})">✕ Cancelar</button>` : ''}
+        </div>
+        ${appt.whatsapp ? `<button class="btn btn-whats" style="width:100%;margin-top:8px" onclick="abrirWhats('${appt.whatsapp}','${appt.nome}','${appt.horario}')">📱 WhatsApp</button>` : ''}
+    `;
+}
+
+function confirmarAppt(id) {
+    const a = agendamentos.find(x => x.id === id);
+    if (a) { a.status = 'confirmado'; renderAll(); selectAppt(a); showToast(`${a.nome} confirmado!`); }
+}
+
+function cancelarAppt(id) {
+    if (!confirm('Cancelar este agendamento?')) return;
+    const a = agendamentos.find(x => x.id === id);
+    if (a) { a.status = 'cancelado'; renderAll(); document.getElementById('detailContent').className = 'detail-content'; document.getElementById('detailEmpty').style.display = 'block'; showToast(`Agendamento cancelado`, 'error'); }
+}
+
+function abrirWhats(fone, nome, hora) {
+    const msg = encodeURIComponent(`Olá ${nome}! Confirmando seu agendamento na Barbearia BW às ${hora}. Até logo! ✂️`);
+    window.open(`https://wa.me/55${fone.replace(/\D/g,'')}?text=${msg}`, '_blank');
+}
+
+// =============================================
+// BLOQUEAR HORÁRIOS
+// =============================================
+
+function populateBlockSelects() {
+    ['blockTime','blockTime2'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.innerHTML = '<option value="">Selecione...</option>';
+        HORARIOS.forEach(h => {
+            const ocupado = agendamentos.find(a => a.horario === h);
+            const opt = document.createElement('option');
+            opt.value = h;
+            opt.innerText = h + (ocupado ? ' (ocupado)' : '');
+            sel.appendChild(opt);
+        });
+    });
+
+    const bd = document.getElementById('blockDate2');
+    if (bd) bd.value = currentDate.toISOString().split('T')[0];
+}
+
+function bloquearHorario() {
+    const hora = document.getElementById('blockTime').value;
+    const motivo = document.getElementById('blockReason').value || 'Bloqueado';
+    if (!hora) return showToast('Selecione um horário', 'error');
+    const existe = agendamentos.find(a => a.horario === hora && a.status !== 'cancelado');
+    if (existe) return showToast('Esse horário já está ocupado', 'error');
+    agendamentos.push({ id: Date.now(), nome: 'BLOQUEADO', servico: motivo, horario: hora, duracao: '—', preco: 0, status: 'bloqueado', whatsapp: '', obs: '' });
+    document.getElementById('blockReason').value = '';
+    renderAll();
+    showToast(`Horário ${hora} bloqueado!`);
+}
+
+function bloquearHorario2() {
+    const hora = document.getElementById('blockTime2').value;
+    const motivo = document.getElementById('blockReason2').value || 'Bloqueado';
+    if (!hora) return showToast('Selecione um horário', 'error');
+    agendamentos.push({ id: Date.now(), nome: 'BLOQUEADO', servico: motivo, horario: hora, duracao: '—', preco: 0, status: 'bloqueado', whatsapp: '', obs: '' });
+    document.getElementById('blockReason2').value = '';
+    renderAll();
+    showToast(`Horário ${hora} bloqueado!`);
+}
+
+// =============================================
+// HISTÓRICO
+// =============================================
+
+function renderHistorico() {
+    const list = document.getElementById('historyList');
+    list.innerHTML = '';
+    historico.forEach(h => {
+        const dotColor = h.status === 'confirmado' ? 'green' : 'red';
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+            <div class="history-left">
+                <div class="history-dot ${dotColor}"></div>
+                <div>
+                    <div class="history-name">${h.nome}</div>
+                    <div class="history-service">${h.servico}</div>
+                </div>
+            </div>
+            <div class="history-right">
+                <div class="history-date">${h.data}</div>
+                <div class="history-price">${h.status === 'confirmado' ? 'R$ ' + h.preco : 'Cancelado'}</div>
+            </div>`;
+        list.appendChild(div);
+    });
+}
+
+// =============================================
+// CLIENTES
+// =============================================
+
+function renderClientes() {
+    const clientesMap = {};
+    [...agendamentos.filter(a => a.status !== 'bloqueado'), ...historico].forEach(a => {
+        if (!a.nome || a.nome === 'BLOQUEADO') return;
+        if (!clientesMap[a.nome]) clientesMap[a.nome] = { nome: a.nome, visitas: 0, gasto: 0, ultimo: '' };
+        if (a.status === 'confirmado') { clientesMap[a.nome].visitas++; clientesMap[a.nome].gasto += a.preco || 0; }
+        if (a.data) clientesMap[a.nome].ultimo = a.data;
+    });
+
+    const clientes = Object.values(clientesMap).sort((a,b) => b.gasto - a.gasto);
+    document.getElementById('clientesBadge').innerText = `${clientes.length} clientes`;
+
+    const list = document.getElementById('clientesList');
+    list.innerHTML = '';
+    clientes.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+            <div class="history-left">
+                <div class="appt-avatar" style="width:36px;height:36px;border-radius:10px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:var(--accent);flex-shrink:0">${getInitials(c.nome)}</div>
+                <div>
+                    <div class="history-name">${c.nome}</div>
+                    <div class="history-service">${c.visitas} visita${c.visitas !== 1 ? 's' : ''} ${c.ultimo ? '• Último: ' + c.ultimo : ''}</div>
+                </div>
+            </div>
+            <div class="history-right">
+                <div class="history-price">R$ ${c.gasto}</div>
+                <div class="history-date">total gasto</div>
+            </div>`;
+        list.appendChild(div);
+    });
+}
+
+// =============================================
+// SEMANA
+// =============================================
+
+function renderWeek() {
+    const grid = document.getElementById('weekGrid');
+    grid.innerHTML = '';
+    const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const hoje = new Date();
+
+    // Header
+    grid.appendChild(Object.assign(document.createElement('div'), { className: 'week-header', innerHTML: '' }));
+    for (let d = 0; d < 7; d++) {
+        const dt = new Date(currentDate);
+        dt.setDate(dt.getDate() - dt.getDay() + d);
+        const isToday = dt.toDateString() === hoje.toDateString();
+        const div = document.createElement('div');
+        div.className = `week-header ${isToday ? 'today' : ''}`;
+        div.innerHTML = `${dias[d]}<span>${dt.getDate()}</span>`;
+        grid.appendChild(div);
+    }
+
+    // Linhas de horário
+    HORARIOS.forEach(h => {
+        const timeCell = document.createElement('div');
+        timeCell.className = 'week-cell time-col';
+        timeCell.innerText = h;
+        grid.appendChild(timeCell);
+
+        for (let d = 0; d < 7; d++) {
+            const cell = document.createElement('div');
+            cell.className = 'week-cell';
+            const appt = agendamentos.find(a => a.horario === h && a.status !== 'cancelado');
+            if (appt && d === currentDate.getDay()) {
+                const ev = document.createElement('div');
+                ev.className = `week-event ${appt.status === 'confirmado' ? 'green' : ''}`;
+                ev.innerText = appt.status === 'bloqueado' ? '🔒' : appt.nome.split(' ')[0];
+                ev.onclick = () => { setDayWeek('day', document.querySelector('.view-btn')); selectAppt(appt); };
+                cell.appendChild(ev);
+            }
+            grid.appendChild(cell);
+        }
+    });
+}
+
+// =============================================
+// INIT
+// =============================================
+renderAll();
+</script>
+</body>
+</html>
