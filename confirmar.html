@@ -29,11 +29,27 @@
             horario: urlParams.get('hora')
         };
 
-        // Envia para o Cliente
-        emailjs.send("service_jeq2yep", "template_uvobw0r", dados)
-            .then(() => {
-                document.getElementById('msg').innerHTML = "<h2 style='color:#d4af37'>✔️ Confirmado!</h2><p>O cliente recebeu o e-mail de confirmação.</p>";
-            });
+        // FIX #7: valida parâmetros antes de disparar o e-mail
+        if (!dados.cliente_nome || !dados.cliente_email || !dados.servico || !dados.data || !dados.horario) {
+            document.getElementById('msg').innerHTML = `
+                <h2 style='color:#d4af37'>⚠️ Acesso Inválido</h2>
+                <p style='margin-top:10px; color:#a0a0a0'>Esta página só pode ser acessada através do sistema de agendamento.</p>
+            `;
+        } else {
+            emailjs.send("service_jeq2yep", "template_uvobw0r", dados)
+                .then(() => {
+                    document.getElementById('msg').innerHTML = `
+                        <h2 style='color:#d4af37'>✔️ Confirmado!</h2>
+                        <p style='margin-top:10px; color:#a0a0a0'>O cliente recebeu o e-mail de confirmação.</p>
+                    `;
+                })
+                .catch(err => {
+                    document.getElementById('msg').innerHTML = `
+                        <h2 style='color:#ff4444'>❌ Erro ao Confirmar</h2>
+                        <p style='margin-top:10px; color:#a0a0a0'>Tente novamente ou contate o suporte.<br><small>${err.text || err}</small></p>
+                    `;
+                });
+        }
     </script>
 </body>
 </html>
