@@ -1,10 +1,10 @@
 (function() {
-    // Chave pública exata da sua imagem
+    // Inicialização com sua Public Key das imagens
     emailjs.init("g_p4l-PMMcMlwbbQA"); 
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Accordion das Categorias
+    // 1. Accordion
     document.querySelectorAll('.category-header').forEach(h => {
         h.onclick = () => h.parentElement.classList.toggle('open');
     });
@@ -17,37 +17,32 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    // 3. Controle do Modal
     const modal = document.getElementById('modal');
-    const btnAgendar = document.getElementById('btnAgendar');
-    
-    if(btnAgendar) {
-        btnAgendar.onclick = () => {
-            const ativo = document.querySelector('.service-card.active');
-            if(!ativo) return alert("Por favor, selecione um serviço!");
-            
-            document.getElementById('resumo-servico').innerText = ativo.querySelector('h3').innerText;
-            document.getElementById('resumo-detalhes').innerText = `${ativo.dataset.duration} • R$ ${ativo.dataset.price}`;
-            
-            modal.style.display = 'flex';
-            renderCalendar();
-            renderTimes();
-        };
-    }
+    document.getElementById('btnAgendar').onclick = () => {
+        const ativo = document.querySelector('.service-card.active');
+        if(!ativo) return alert("Selecione um serviço primeiro!");
+        
+        document.getElementById('resumo-servico').innerText = ativo.querySelector('h3').innerText;
+        document.getElementById('resumo-detalhes').innerText = `${ativo.dataset.duration} • R$ ${ativo.dataset.price}`;
+        
+        modal.style.display = 'flex';
+        renderCalendar();
+        renderTimes();
+    };
 
     document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
 
-    // 4. Calendário em Grade (7 colunas)
+    // 3. Calendário (Grade de 7 colunas)
     function renderCalendar() {
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
         const diasSemana = ['D','S','T','Q','Q','S','S'];
-        diasSemana.forEach(d => cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#666; padding-bottom:10px; text-align:center;">${d}</div>`);
+        diasSemana.forEach(d => cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#666; padding-bottom:10px;">${d}</div>`);
         
         for(let space=0; space<3; space++){ cal.innerHTML += `<div></div>`; }
 
         for(let i=1; i<=30; i++) {
-            const isPast = i < 26; 
+            const isPast = i < 26; // Hoje 26/04/2026
             const d = document.createElement('div');
             d.className = `calendar-day ${isPast ? 'disabled' : ''}`;
             d.innerText = i < 10 ? '0' + i : i;
@@ -62,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 5. Horários
+    // 4. Horários
     function renderTimes() {
         const grid = document.getElementById('timeGrid');
         const hBW = ['09:00','09:30','10:00','10:30','11:00','11:20','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:20'];
@@ -80,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. ENVIO (Ajustado com os IDs da Imagem)
+    // 5. Envio (IDs atualizados conforme imagens)
     document.getElementById('btnFinalizar').onclick = () => {
         const dia = document.querySelector('.calendar-day.active');
         const hora = document.querySelector('.time-slot.active');
@@ -97,18 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if(!params.cliente_nome || !params.cliente_email || !params.horario) {
-            return alert("Preencha o nome, e-mail e escolha o horário!");
+            return alert("Preencha todos os campos e escolha um horário!");
         }
 
-        // IDs corrigidos conforme sua imagem: template_5j3p7ie (com "i")
+        // Usando o Template ID que aparece na sua URL: template_5j3p7ie
         emailjs.send("service_jeq2yep", "template_5j3p7ie", params)
             .then(() => {
                 alert("✅ Sucesso! Agendamento enviado para o João Vitor.");
                 modal.style.display = 'none';
             })
-            .catch(err => {
-                alert("Erro: " + err.text);
-                console.error("Erro completo:", err);
-            });
+            .catch(err => alert("Erro: " + err.text));
     };
 });
