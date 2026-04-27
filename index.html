@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbearia BW | Agendamento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>BARBEARIA BW</h1>
+            <p>Rua José Narciso Silva, 997 - Fábricas</p>
+        </header>
+
+        <main>
+            <div class="category-item">
+                <div class="category-header">
+                    <span>Combos</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="category-content">
+                    <div class="services-grid">
+                        <div class="service-card" data-duration="1h" data-price="60,00">
+                            <div class="service-info">
+                                <h3>Corte Barba Sobrancelha</h3>
+                                <p>Visual completo</p>
+                            </div>
+                            <div class="price">R$ 60,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <div class="category-header"><span>Corte</span><span class="arrow">▼</span></div>
+                <div class="category-content">
+                    <div class="services-grid">
+                        <div class="service-card" data-duration="40m" data-price="35,00">
+                            <div class="service-info">
+                                <h3>Corte Degradê</h3>
+                                <p>Moderno e navalhado</p>
+                            </div>
+                            <div class="price">R$ 35,00</div>
+                        </div>
+                        <div class="service-card" data-duration="30m" data-price="25,00">
+                            <div class="service-info">
+                                <h3>Corte Social</h3>
+                                <p>Estilo clássico</p>
+                            </div>
+                            <div class="price">R$ 25,00</div>
+                        </div>
+                        <div class="service-card" data-duration="45m" data-price="35,00">
+                            <div class="service-info">
+                                <h3>Corte Infantil</h3>
+                                <p>Para os pequenos</p>
+                            </div>
+                            <div class="price">R$ 35,00</div>
+                        </div>
+                        <div class="service-card" data-duration="45m" data-price="40,00">
+                            <div class="service-info">
+                                <h3>Corte Todo na Tesoura</h3>
+                                <p>Artesanal</p>
+                            </div>
+                            <div class="price">R$ 40,00</div>
+                        </div>
+                        <div class="service-card" data-duration="10m" data-price="10,00">
+                            <div class="service-info">
+                                <h3>Pezinho</h3>
+                                <p>Apenas contorno</p>
+                            </div>
+                            <div class="price">R$ 10,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <div class="category-header"><span>Barba</span><span class="arrow">▼</span></div>
+                <div class="category-content">
+                    <div class="services-grid">
+                        <div class="service-card" data-duration="30m" data-price="35,00">
+                            <div class="service-info">
+                                <h3>Barba Completa</h3>
+                                <p>Toalha quente</p>
+                            </div>
+                            <div class="price">R$ 35,00</div>
+                        </div>
+                        <div class="service-card" data-duration="30m" data-price="25,00">
+                            <div class="service-info">
+                                <h3>Design de Barba Navalha</h3>
+                                <p>Alinhamento</p>
+                            </div>
+                            <div class="price">R$ 25,00</div>
+                        </div>
+                        <div class="service-card" data-duration="5m" data-price="5,00">
+                            <div class="service-info">
+                                <h3>Afinar Bigode</h3>
+                                <p>Ajuste fino</p>
+                            </div>
+                            <div class="price">R$ 5,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <div class="category-header"><span>Química Cabelo</span><span class="arrow">▼</span></div>
+                <div class="category-content">
+                    <div class="services-grid">
+                        <div class="service-card" data-duration="1h" data-price="150,00">
+                            <div class="service-info">
+                                <h3>Nevou</h3>
+                                <p>Descoloração Global</p>
+                            </div>
+                            <div class="price">R$ 150,00+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-item">
+                <div class="category-header"><span>Serviços Adicionais</span><span class="arrow">▼</span></div>
+                <div class="category-content">
+                    <div class="services-grid">
+                        <div class="service-card" data-duration="5m" data-price="5,00">
+                            <div class="service-info">
+                                <h3>Design Sobrancelha</h3>
+                                <p>Navalha</p>
+                            </div>
+                            <div class="price">R$ 5,00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-action">
+                <button class="btn-confirm" id="btnAgendar">Agendar Agora</button>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Agendar</h2>
+                <span class="close-modal" id="closeModal">&times;</span>
+            </div>
+
+            <div class="summary-box">
+                <div>
+                    <h3 id="resumo-servico">-</h3>
+                    <p id="resumo-detalhes">-</p>
+                </div>
+                <div class="prof-view">
+                    <img src="https://via.placeholder.com/40" id="prof-img" alt="Barbeiro">
+                    <select id="selectProf">
+                        <option value="Joao Victor">Joao Victor</option>
+                        <option value="Cristo">Cristo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="calendar-nav">
+                <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
+                <div id="monthDisplay">Abril, 2026</div>
+                <button class="nav-btn" onclick="changeMonth(1)">❯</button>
+            </div>
+            <div class="calendar-grid" id="calendar"></div>
+
+            <div class="date-summary" id="dateDisplay">
+                Para Dom, 26/Abr/2026
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="userObs" placeholder="Adicionar Observações">
+            </div>
+
+            <div id="area-horarios">
+                <div class="time-grid" id="timeGrid"></div>
+                <p class="more-times">MAIS HORÁRIOS LIVRES 🔍</p>
+            </div>
+
+            <div id="area-cliente" style="display: none;">
+                <div class="input-group">
+                    <label>Nome</label>
+                    <input type="text" id="userName" placeholder="Seu nome completo">
+                </div>
+                <div class="input-group">
+                    <label>WhatsApp</label>
+                    <input type="tel" id="userPhone" placeholder="(32) 9 9999-9999">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-sec" onclick="fecharModal()">Fechar</button>
+                <button class="btn-prim" id="btnFinalizar">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
