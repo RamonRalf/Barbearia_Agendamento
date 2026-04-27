@@ -1,10 +1,10 @@
 (function() {
-    // Inicialização obrigatória com a sua chave pública exata
+    // Sua Public Key exata da imagem
     emailjs.init("g_p4l-PMMcMlwbbQA"); 
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Lógica do Accordion (Para abrir as categorias)
+    // 1. Accordion
     document.querySelectorAll('.category-header').forEach(h => {
         h.onclick = () => h.parentElement.classList.toggle('open');
     });
@@ -17,14 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    // 3. Abrir o Modal
     const modal = document.getElementById('modal');
     const btnAgendar = document.getElementById('btnAgendar');
     
     if(btnAgendar) {
         btnAgendar.onclick = () => {
             const ativo = document.querySelector('.service-card.active');
-            if(!ativo) return alert("Por favor, selecione um serviço primeiro!");
+            if(!ativo) return alert("Por favor, selecione um serviço!");
             
             document.getElementById('resumo-servico').innerText = ativo.querySelector('h3').innerText;
             document.getElementById('resumo-detalhes').innerText = `${ativo.dataset.duration} • R$ ${ativo.dataset.price}`;
@@ -37,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
 
-    // 4. Calendário em Grade (7 colunas)
     function renderCalendar() {
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
@@ -47,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for(let space=0; space<3; space++){ cal.innerHTML += `<div></div>`; }
 
         for(let i=1; i<=30; i++) {
-            const isPast = i < 26; // Hoje é dia 26/04
+            const isPast = i < 26; // Hoje é 26/04
             const d = document.createElement('div');
             d.className = `calendar-day ${isPast ? 'disabled' : ''}`;
             d.innerText = i < 10 ? '0' + i : i;
@@ -62,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 5. Horários
     function renderTimes() {
         const grid = document.getElementById('timeGrid');
         const hBW = ['09:00','09:30','10:00','10:30','11:00','11:20','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:20'];
@@ -80,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. ENVIO REAL (Onde estava o erro)
+    // ENVIO COM OS IDs CORRIGIDOS
     document.getElementById('btnFinalizar').onclick = () => {
         const dia = document.querySelector('.calendar-day.active');
         const hora = document.querySelector('.time-slot.active');
@@ -100,16 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return alert("Por favor, preencha nome, e-mail e escolha um horário!");
         }
 
-        // Usando seus IDs confirmados nos prints anteriores
-        emailjs.send("service_jeq2yep", "template_5j3p7le", params)
+        // Enviando para o João Vitor (Template corrigido: 5j3p7ie)
+        emailjs.send("service_jeq2yep", "template_5j3p7ie", params)
             .then(() => {
                 alert("✅ Sucesso! O João Vitor recebeu seu pedido.");
                 modal.style.display = 'none';
             })
             .catch(err => {
-                // Se der erro, ele vai te dizer exatamente o que o EmailJS respondeu
-                alert("Erro ao agendar: " + (err.text || "Verifique sua Public Key"));
-                console.error(err);
+                alert("Erro: " + err.text);
             });
     };
 });
