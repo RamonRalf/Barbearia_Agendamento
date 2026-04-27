@@ -32,20 +32,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCalendar() {
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
-        const diasSemana = ['dom','seg','ter','qua','qui','sex','sáb'];
-        diasSemana.forEach(d => cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#d4af37; text-align:center;">${d}</div>`);
         
-        // Hoje é 26/04/2026
+        const diasSemana = ['D','S','T','Q','Q','S','S'];
+        diasSemana.forEach(d => {
+            cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#666; padding-bottom:10px;">${d}</div>`;
+        });
+        
+        // Abril 2026 começa na quarta-feira (3 dias vazios antes)
+        for(let space=0; space<3; space++){
+            cal.innerHTML += `<div></div>`;
+        }
+
+        // Abril tem 30 dias. Hoje é 26/04.
         for(let i=1; i<=30; i++) {
             const isPast = i < 26;
             const d = document.createElement('div');
             d.className = `calendar-day ${isPast ? 'disabled' : ''}`;
-            d.innerText = i;
+            d.innerText = i < 10 ? '0' + i : i;
             if(!isPast) {
                 d.onclick = () => {
                     document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active'));
                     d.classList.add('active');
                 };
+                if(i === 28) d.classList.add('active'); // Pré-selecionado conforme print
             }
             cal.appendChild(d);
         }
