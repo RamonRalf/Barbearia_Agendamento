@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return alert("Preencha nome, e-mail e WhatsApp antes de confirmar!");
         }
 
-        emailjs.send("service_jeq2yep", "template_5j3p7ie", params)
+        emailjs.send("service_jeq2yep", "template_uvobw0r", params)
             .then(() => {
                 alert("✅ Sucesso! Agendamento enviado para o João Vitor.");
                 modal.style.display = 'none';
