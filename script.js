@@ -336,28 +336,31 @@ function iniciarEventosAgendamento() {
     };
 }
 
-function abrirModalAgendamento() {
+async function abrirModalAgendamento() {
     document.getElementById('resumo-servico').innerText = servicoSelecionado.querySelector('h3').innerText;
     document.getElementById('resumo-detalhes').innerText = `${servicoSelecionado.dataset.duration} • R$ ${servicoSelecionado.dataset.price}`;
     document.getElementById('timeGrid').innerHTML = '';
     document.getElementById('area-confirmar').style.display = 'none';
     document.getElementById('modal').style.display = 'flex';
-    renderCalendar();
+    await renderCalendar();
 }
 
 // ================================================
 // CARROSSEL DE BARBEIROS
 // ================================================
-window.selectBarber = function(el) {
+window.selectBarber = async function(el) {
     document.querySelectorAll('.barber-card').forEach(o => o.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('selectProf').value = el.dataset.barber;
+    // Re-renderiza horários para o barbeiro selecionado
+    document.getElementById('area-confirmar').style.display = 'none';
+    await renderTimes();
 };
 
 // ================================================
 // CALENDÁRIO
 // ================================================
-function renderCalendar() {
+async function renderCalendar() {
     const cal = document.getElementById('calendar');
     cal.innerHTML = '';
     const hoje = new Date();
@@ -404,25 +407,61 @@ function renderCalendar() {
 
     if (primeiroDiaValido) {
         primeiroDiaValido.classList.add('active');
-        renderTimes();
+        await renderTimes();
     }
 }
 
 // ================================================
-// HORÁRIOS
+// HORÁRIOS — com verificação de ocupados
 // ================================================
-function renderTimes() {
+async function renderTimes() {
     const grid = document.getElementById('timeGrid');
+    grid.innerHTML = '<div style="grid-column:span 4;text-align:center;color:#666;padding:16px;font-size:0.8rem;">Verificando horários...</div>';
+
+    const diaEl = document.querySelector('.calendar-day.active');
+    if (!diaEl) return;
+
+    const dia = diaEl.dataset.dia.padStart(2, '0');
+    const mes = diaEl.dataset.mes.padStart(2, '0');
+    const ano = diaEl.dataset.ano;
+    const dataInicio = `${ano}-${mes}-${dia}T00:00:00`;
+    const dataFim    = `${ano}-${mes}-${dia}T23:59:59`;
+
+    // Busca agendamentos do dia no Supabase
+    const { data: agendamentos } = await _supabase
+        .from('appointments')
+        .select('data_hora, barbeiro_nome')
+        .gte('data_hora', dataInicio)
+        .lte('data_hora', dataFim)
+        .neq('status', 'cancelado');
+
+    // Monta set de horários ocupados
+    const barbeiro = document.getElementById('selectProf').value;
+    const ocupados = new Set();
+    (agendamentos || []).forEach(a => {
+        // Bloqueia apenas se for o mesmo barbeiro
+        if (a.barbeiro_nome === barbeiro) {
+            const hora = new Date(a.data_hora).toTimeString().slice(0, 5);
+            ocupados.add(hora);
+        }
+    });
+
     grid.innerHTML = '';
     HORARIOS.forEach(h => {
         const div = document.createElement('div');
-        div.className = 'time-slot';
+        const isOcupado = ocupados.has(h);
+        div.className = `time-slot ${isOcupado ? 'ocupado' : ''}`;
         div.innerText = h;
-        div.onclick = () => {
-            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('active'));
-            div.classList.add('active');
-            document.getElementById('area-confirmar').style.display = 'block';
-        };
+
+        if (isOcupado) {
+            div.title = 'Horário indisponível';
+        } else {
+            div.onclick = () => {
+                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('active'));
+                div.classList.add('active');
+                document.getElementById('area-confirmar').style.display = 'block';
+            };
+        }
         grid.appendChild(div);
     });
 }
