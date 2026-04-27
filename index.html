@@ -6,7 +6,7 @@
     <title>Barbearia BW | Agendamento Online</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -17,126 +17,8 @@
         <p>Rua José Narciso Silva, 997 — Fábricas</p>
     </header>
 
-    <main>
-        <div class="category-item">
-            <div class="category-header"><span>Combos</span><span class="arrow">▼</span></div>
-            <div class="category-content">
-                <div class="services-grid">
-                    <div class="service-card" data-duration="1h" data-price="60,00">
-                        <div class="service-info"><h3>Corte Barba Sobrancelha</h3><p>O pacote completo</p></div>
-                        <div class="price">R$ 60,00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="category-item">
-            <div class="category-header"><span>Corte</span><span class="arrow">▼</span></div>
-            <div class="category-content">
-                <div class="services-grid">
-                    <div class="service-card" data-duration="40m" data-price="35,00">
-                        <div class="service-info"><h3>Corte Degradê</h3><p>Moderno e navalhado</p></div>
-                        <div class="price">R$ 35,00</div>
-                    </div>
-                    <div class="service-card" data-duration="30m" data-price="25,00">
-                        <div class="service-info"><h3>Corte Social</h3><p>Clássico e alinhado</p></div>
-                        <div class="price">R$ 25,00</div>
-                    </div>
-                    <div class="service-card" data-duration="45m" data-price="35,00">
-                        <div class="service-info"><h3>Corte Infantil</h3><p>Cuidado especial</p></div>
-                        <div class="price">R$ 35,00</div>
-                    </div>
-                    <div class="service-card" data-duration="45m" data-price="40,00">
-                        <div class="service-info"><h3>Corte Todo na Tesoura</h3><p>Artesanal</p></div>
-                        <div class="price">R$ 40,00</div>
-                    </div>
-                    <div class="service-card" data-duration="30m" data-price="20,00">
-                        <div class="service-info"><h3>Corte 1 Máquina</h3><p>Praticidade</p></div>
-                        <div class="price">R$ 20,00</div>
-                    </div>
-                    <div class="service-card" data-duration="15m" data-price="10,00">
-                        <div class="service-info"><h3>Navalhar</h3><p>Acabamento na navalha</p></div>
-                        <div class="price">R$ 10,00</div>
-                    </div>
-                    <div class="service-card" data-duration="10m" data-price="10,00">
-                        <div class="service-info"><h3>Pezinho</h3><p>Apenas o contorno</p></div>
-                        <div class="price">R$ 10,00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="category-item">
-            <div class="category-header"><span>Barba</span><span class="arrow">▼</span></div>
-            <div class="category-content">
-                <div class="services-grid">
-                    <div class="service-card" data-duration="30m" data-price="35,00">
-                        <div class="service-info"><h3>Barba Completa (Toalha Quente)</h3><p>Barboterapia</p></div>
-                        <div class="price">R$ 35,00</div>
-                    </div>
-                    <div class="service-card" data-duration="30m" data-price="25,00">
-                        <div class="service-info"><h3>Design de Barba Navalha</h3><p>Alinhamento</p></div>
-                        <div class="price">R$ 25,00</div>
-                    </div>
-                    <div class="service-card" data-duration="15m" data-price="15,00">
-                        <div class="service-info"><h3>Barba na Máquina</h3><p>Aparo rápido</p></div>
-                        <div class="price">R$ 15,00</div>
-                    </div>
-                    <div class="service-card" data-duration="5m" data-price="5,00">
-                        <div class="service-info"><h3>Afinar Bigode</h3><p>Ajuste fino</p></div>
-                        <div class="price">R$ 5,00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="category-item">
-            <div class="category-header"><span>Química Cabelo</span><span class="arrow">▼</span></div>
-            <div class="category-content">
-                <div class="services-grid">
-                    <div class="service-card" data-duration="1h" data-price="120,00">
-                        <div class="service-info"><h3>Luzes e Corte</h3><p>Aprox. 3 horas</p></div>
-                        <div class="price">R$ 120,00</div>
-                    </div>
-                    <div class="service-card" data-duration="1h" data-price="150,00">
-                        <div class="service-info"><h3>Nevou</h3><p>Descoloração Global</p></div>
-                        <div class="price">R$ 150,00+</div>
-                    </div>
-                    <div class="service-card" data-duration="45m" data-price="80,00">
-                        <div class="service-info"><h3>Colorimetria</h3><p>Aplicação de cor</p></div>
-                        <div class="price">R$ 80,00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="category-item">
-            <div class="category-header"><span>Serviços Adicionais</span><span class="arrow">▼</span></div>
-            <div class="category-content">
-                <div class="services-grid">
-                    <div class="service-card" data-duration="30m" data-price="25,00">
-                        <div class="service-info"><h3>Limpeza de Pele</h3><p>Remoção impurezas</p></div>
-                        <div class="price">R$ 25,00</div>
-                    </div>
-                    <div class="service-card" data-duration="20m" data-price="20,00">
-                        <div class="service-info"><h3>Pigmentação</h3><p>Cobertura de falhas</p></div>
-                        <div class="price">R$ 20,00</div>
-                    </div>
-                    <div class="service-card" data-duration="10m" data-price="15,00">
-                        <div class="service-info"><h3>Limpeza Auricular/Nasal</h3><p>Remoção pelos</p></div>
-                        <div class="price">R$ 15,00</div>
-                    </div>
-                    <div class="service-card" data-duration="5m" data-price="5,00">
-                        <div class="service-info"><h3>Design Sobrancelha</h3><p>Na navalha</p></div>
-                        <div class="price">R$ 5,00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-action">
-            <button class="btn-confirm" id="btnAgendar">Agendar Agora</button>
-        </div>
+    <main id="lista-servicos">
+        <!-- Serviços carregados dinamicamente do Supabase -->
     </main>
 </div>
 
