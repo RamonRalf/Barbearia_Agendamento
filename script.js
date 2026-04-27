@@ -1,5 +1,5 @@
 (function() {
-    emailjs.init("g_p4l-PMMcMlwbbQA"); 
+    emailjs.init("g_p4l-PMMcMlwbbQA");
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modal');
     document.getElementById('btnAgendar').onclick = () => {
         const ativo = document.querySelector('.service-card.active');
-        if(!ativo) return alert("Selecione um serviço!");
+        if(!ativo) return alert("Por favor, selecione um serviço!");
         document.getElementById('resumo-servico').innerText = ativo.querySelector('h3').innerText;
         document.getElementById('resumo-detalhes').innerText = `${ativo.dataset.duration} • R$ ${ativo.dataset.price}`;
         modal.style.display = 'flex';
@@ -32,14 +32,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCalendar() {
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
-        for(let i=26; i<=30; i++) {
+        const diasSemana = ['dom','seg','ter','qua','qui','sex','sáb'];
+        diasSemana.forEach(d => cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#d4af37; text-align:center;">${d}</div>`);
+        
+        // Hoje é 26/04/2026
+        for(let i=1; i<=30; i++) {
+            const isPast = i < 26;
             const d = document.createElement('div');
-            d.className = 'calendar-day';
+            d.className = `calendar-day ${isPast ? 'disabled' : ''}`;
             d.innerText = i;
-            d.onclick = () => {
-                document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active'));
-                d.classList.add('active');
-            };
+            if(!isPast) {
+                d.onclick = () => {
+                    document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active'));
+                    d.classList.add('active');
+                };
+            }
             cal.appendChild(d);
         }
     }
@@ -64,23 +71,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnFinalizar').onclick = () => {
         const dia = document.querySelector('.calendar-day.active');
         const hora = document.querySelector('.time-slot.active');
+        const barbeiro = document.getElementById('selectProf').value;
 
         const params = {
             cliente_nome: document.getElementById('userName').value,
             cliente_email: document.getElementById('userEmail').value,
             cliente_fone: document.getElementById('userPhone').value,
             servico: document.getElementById('resumo-servico').innerText,
+            barbeiro: barbeiro,
             data: dia ? dia.innerText + "/04/2026" : "",
             horario: hora ? hora.innerText : "",
             observacoes: document.getElementById('userObs').value || "Nenhuma"
         };
 
-        if(!params.cliente_nome || !params.cliente_email || !params.horario) return alert("Preencha tudo!");
+        if(!params.cliente_nome || !params.cliente_email || !params.horario) return alert("Preencha todos os campos!");
 
-        // Envia para o João Vitor
         emailjs.send("service_jeq2yep", "template_5j3p7le", params)
             .then(() => {
-                alert("Pedido enviado! João Vitor analisará seu horário.");
+                alert("Pedido enviado! O barbeiro analisará seu horário.");
                 modal.style.display = 'none';
             })
             .catch(err => alert("Erro: " + err.text));
