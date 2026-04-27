@@ -200,7 +200,7 @@ function iniciarEventosAuth() {
         btn.disabled = true;
         btn.innerText = 'Entrando...';
 
-        const { error } = await _supabase.auth.signInWithPassword({ email, password: senha });
+        const { data: loginData, error } = await _supabase.auth.signInWithPassword({ email, password: senha });
 
         btn.disabled = false;
         btn.innerText = 'Entrar';
@@ -208,6 +208,13 @@ function iniciarEventosAuth() {
         if (error) {
             mostrarErro(erroEl, 'E-mail ou senha incorretos.');
         } else {
+            // Garante que o perfil existe no banco
+            if (loginData.user) {
+                await _supabase.from('profiles').upsert({
+                    id: loginData.user.id,
+                    tipo_usuario: 'cliente'
+                }, { onConflict: 'id', ignoreDuplicates: true });
+            }
             fecharModalAuth();
             setTimeout(() => abrirModalAgendamento(), 300);
         }
@@ -301,6 +308,12 @@ function iniciarEventosAgendamento() {
         const dia = diaEl.dataset.dia.padStart(2, '0');
         const mes = diaEl.dataset.mes.padStart(2, '0');
         const dataISO = `${diaEl.dataset.ano}-${mes}-${dia}T${horaEl.innerText}:00`;
+
+        // Garante que o perfil existe antes de inserir o agendamento
+        await _supabase.from('profiles').upsert({
+            id: usuarioLogado.id,
+            tipo_usuario: 'cliente'
+        }, { onConflict: 'id', ignoreDuplicates: true });
 
         const { error } = await _supabase.from('appointments').insert([{
             cliente_id:    usuarioLogado.id,
