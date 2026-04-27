@@ -2,22 +2,23 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Confirmando Agendamento - Barbearia BW</title>
+    <title>Barbearia BW | Confirmando...</title>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        body { background: #0b0b0b; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
-        .box { border: 1px solid #d4af37; padding: 40px; border-radius: 20px; text-align: center; }
+        body { background: #0b0b0b; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; font-family: sans-serif; }
+        .box { border: 1px solid #d4af37; padding: 40px; border-radius: 20px; }
+        .loader { border: 4px solid #161616; border-top: 4px solid #d4af37; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="box" id="status">
-        <h2>A processar confirmação...</h2>
+    <div class="box" id="msg">
+        <h2>Confirmando Agendamento...</h2>
+        <div class="loader"></div>
     </div>
 
     <script>
-        (function(){ 
-            emailjs.init("SUA_PUBLIC_KEY_AQUI"); 
-        })();
+        (function(){ emailjs.init("g_p4l-PMMcMlwbbQA"); })();
 
         const urlParams = new URLSearchParams(window.location.search);
         const dados = {
@@ -28,16 +29,10 @@
             horario: urlParams.get('hora')
         };
 
-        // Envia o e-mail FINAL para o cliente (Usa o Template ID do Cliente)
-        emailjs.send("service_jeq2yep", "ID_DO_TEMPLATE_CLIENTE", dados)
+        // Envia para o Cliente
+        emailjs.send("service_jeq2yep", "template_uvobw0r", dados)
             .then(() => {
-                document.getElementById('status').innerHTML = `
-                    <h2 style='color:#d4af37'>✔️ Confirmado!</h2>
-                    <p>O cliente ${dados.cliente_nome} recebeu o e-mail de confirmação.</p>
-                `;
-            })
-            .catch(err => {
-                document.getElementById('status').innerHTML = "<h2>Erro na confirmação.</h2>";
+                document.getElementById('msg').innerHTML = "<h2 style='color:#d4af37'>✔️ Confirmado!</h2><p>O cliente recebeu o e-mail de confirmação.</p>";
             });
     </script>
 </body>
