@@ -1,51 +1,54 @@
-(function() {
-    // ATENÇÃO: Substitui pelo teu Public Key (está no menu "Account" do EmailJS)
-    emailjs.init("SUA_PUBLIC_KEY_AQUI"); 
-})();
+// ATENÇÃO: Substitua pelas suas chaves do EmailJS
+const PUBLIC_KEY = "SUA_PUBLIC_KEY";
+const SERVICE_ID = "service_jeq2yep";
+const TEMPLATE_BARBEIRO = "TEMPLATE_BARBEIRO_ID";
+
+(function() { emailjs.init(PUBLIC_KEY); })();
+
+let currentMonth = 3; // Abril
+let currentYear = 2026;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Accordion das Categorias
-    document.querySelectorAll('.category-header').forEach(header => {
-        header.onclick = () => header.parentElement.classList.toggle('open');
+    // 1. Accordion
+    document.querySelectorAll('.category-header').forEach(h => {
+        h.onclick = () => h.parentElement.classList.toggle('open');
     });
 
     // 2. Seleção de Serviço
-    const serviceCards = document.querySelectorAll('.service-card');
-    serviceCards.forEach(card => {
-        card.addEventListener('click', () => {
-            serviceCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-        });
+    document.querySelectorAll('.service-card').forEach(c => {
+        c.onclick = () => {
+            document.querySelectorAll('.service-card').forEach(el => el.classList.remove('active'));
+            c.classList.add('active');
+        };
     });
 
-    // 3. Controlo do Modal
+    // 3. Abrir Modal
     const modal = document.getElementById('modal');
-    const btnAgendar = document.getElementById('btnAgendar');
-    const btnClose = document.getElementById('closeModal');
-
-    btnAgendar.onclick = () => {
+    document.getElementById('btnAgendar').onclick = () => {
         const ativo = document.querySelector('.service-card.active');
-        if (!ativo) return alert("Por favor, selecione um serviço primeiro!");
+        if(!ativo) return alert("Selecione um serviço primeiro!");
         
         document.getElementById('resumo-servico').innerText = ativo.querySelector('h3').innerText;
         document.getElementById('resumo-detalhes').innerText = `${ativo.dataset.duration} • R$ ${ativo.dataset.price}`;
-        
         modal.style.display = 'flex';
         renderCalendar();
         renderTimes();
     };
 
-    btnClose.onclick = () => modal.style.display = 'none';
+    document.getElementById('closeModal').onclick = fecharModal;
 
-    // 4. Lógica do Calendário (Abril 2026)
-    function renderCalendar() {
+    // 4. Calendário Dinâmico
+    window.renderCalendar = function() {
         const cal = document.getElementById('calendar');
         cal.innerHTML = '';
+        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        document.getElementById('monthDisplay').innerText = `${meses[currentMonth]}, ${currentYear}`;
+
         const diasSemana = ['dom','seg','ter','qua','qui','sex','sáb'];
-        diasSemana.forEach(d => cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:#d4af37">${d}</div>`);
+        diasSemana.forEach(d => cal.innerHTML += `<div style="font-weight:bold; font-size:0.7rem; color:var(--accent)">${d}</div>`);
         
         for(let i = 1; i <= 30; i++) {
-            const isPast = i < 26; // Simulação de hoje ser dia 26
+            const isPast = (i < 26 && currentMonth === 3); 
             const dEl = document.createElement('div');
             dEl.className = `calendar-day ${isPast ? 'disabled' : ''}`;
             dEl.innerText = i;
@@ -53,18 +56,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 dEl.onclick = () => {
                     document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active'));
                     dEl.classList.add('active');
+                    document.getElementById('dateDisplay').innerText = `Para ${i}/${currentMonth+1}/${currentYear}`;
                 };
             }
             cal.appendChild(dEl);
         }
     }
 
-    // 5. Renderizar Horários Reais
-    function renderTimes() {
+    window.changeMonth = function(dir) {
+        currentMonth += dir;
+        if(currentMonth > 11) { currentMonth = 0; currentYear++; }
+        else if(currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar();
+    }
+
+    // 5. Horários (BW Style)
+    window.renderTimes = function() {
         const grid = document.getElementById('timeGrid');
-        const horarios = ['09:00','09:30','10:00','10:30','11:00','11:20','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:20'];
+        const hBW = ['09:00','09:30','10:00','11:20','13:00','14:30','16:00','17:30','18:20'];
         grid.innerHTML = '';
-        horarios.forEach(h => {
+        hBW.forEach(h => {
             const div = document.createElement('div');
             div.className = 'time-slot';
             div.innerText = h;
@@ -72,33 +83,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('active'));
                 div.classList.add('active');
                 document.getElementById('area-cliente').style.display = 'block';
+                document.getElementById('btnFinalizar').classList.add('ready');
             };
             grid.appendChild(div);
         });
     }
 
-    // 6. Envio do E-mail para o Barbeiro (João Vitor)
+    // 6. Enviar Agendamento
     document.getElementById('btnFinalizar').onclick = () => {
+        const ativo = document.querySelector('.service-card.active');
+        const horaAtiva = document.querySelector('.time-slot.active');
+        const diaAtivo = document.querySelector('.calendar-day.active');
+
         const params = {
             cliente_nome: document.getElementById('userName').value,
             cliente_email: document.getElementById('userEmail').value,
             cliente_fone: document.getElementById('userPhone').value,
             servico: document.getElementById('resumo-servico').innerText,
-            data: document.querySelector('.calendar-day.active').innerText + "/04/2026",
-            horario: document.querySelector('.time-slot.active').innerText,
-            observacoes: document.getElementById('userObs').value
+            data: diaAtivo ? diaAtivo.innerText + "/" + (currentMonth+1) : "",
+            horario: horaAtiva ? horaAtiva.innerText : "",
+            observacoes: document.getElementById('userObs').value,
+            barbeiro: document.getElementById('selectProf').value
         };
 
-        if(!params.cliente_nome || !params.cliente_email || !params.cliente_fone) {
-            return alert("Preencha todos os campos para agendar!");
+        if(!params.cliente_nome || !params.cliente_email || !params.horario) {
+            return alert("Verifique se preencheu tudo!");
         }
 
-        // Envia para o João Vitor (Usa o Template ID do Barbeiro)
-        emailjs.send("service_jeq2yep", "ID_DO_TEMPLATE_BARBEIRO", params)
+        emailjs.send(SERVICE_ID, TEMPLATE_BARBEIRO, params)
             .then(() => {
-                alert("Pedido enviado! O João Vitor recebeu a sua solicitação.");
-                modal.style.display = 'none';
+                alert("Pedido enviado! João Vitor analisará e você receberá a confirmação por e-mail.");
+                fecharModal();
             })
-            .catch(err => alert("Erro ao enviar: " + JSON.stringify(err)));
+            .catch(err => alert("Erro ao enviar. Verifique suas chaves do EmailJS."));
     };
 });
+
+function fecharModal() { document.getElementById('modal').style.display = 'none'; }
