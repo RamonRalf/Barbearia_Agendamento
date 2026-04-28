@@ -655,6 +655,7 @@ async function renderTimeline() {
         .select('*, profiles(nome_completo, telefone)')
         .gte('data_hora', dataInicio)
         .lte('data_hora', dataFim)
+        .eq('barbeiro_nome', barbeiroPerfil.nome_completo)
         .order('data_hora');
 
     agendamentosHoje = appts || [];
@@ -857,6 +858,7 @@ async function renderClientes() {
         .from('appointments')
         .select('*, profiles(nome_completo)')
         .neq('status','bloqueado')
+        .eq('barbeiro_nome', barbeiroPerfil.nome_completo)
         .order('data_hora', { ascending: false });
 
     if (!data?.length) {
@@ -953,6 +955,7 @@ async function renderHistorico() {
         .from('appointments')
         .select('*, profiles(nome_completo)')
         .gte('data_hora', trinta.toISOString())
+        .eq('barbeiro_nome', barbeiroPerfil.nome_completo)
         .order('data_hora', { ascending: false });
 
     if (!data?.length) {
