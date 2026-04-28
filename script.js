@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (session) {
             usuarioLogado = session.user;
             await atualizarBarraUsuario();
+            iniciarRealtimeCliente();
         } else {
             usuarioLogado = null;
             document.getElementById('userBar').style.display = 'none';
@@ -69,6 +70,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     iniciarEventosAuth();
     iniciarEventosAgendamento();
 });
+
+// ================================================
+// REALTIME — atualiza status para o cliente
+// ================================================
+function iniciarRealtimeCliente() {
+    _supabase
+        .channel('client-appointments')
+        .on('postgres_changes', {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'appointments'
+        }, (payload) => {
+            // Se a tela de agendamentos estiver aberta, recarrega
+            const tela = document.getElementById('telaAgendamentos');
+            if (tela && tela.style.display !== 'none') {
+                carregarMeusAgendamentos();
+            }
+        })
+        .subscribe();
+}
 
 // ================================================
 // BARRA DO USUÁRIO LOGADO
@@ -467,20 +488,24 @@ async function renderTimes() {
     const dataInicio = `${ano}-${mes}-${dia}T00:00:00+00:00`;
     const dataFim    = `${ano}-${mes}-${dia}T23:59:59+00:00`;
 
-    // Busca agendamentos do dia no Supabase
+    // Busca agendamentos do dia no Supabase (todos os barbeiros)
     const { data: agendamentos } = await _supabase
         .from('appointments')
-        .select('data_hora, barbeiro_nome')
+        .select('data_hora, barbeiro_nome, status')
         .gte('data_hora', dataInicio)
         .lte('data_hora', dataFim)
         .neq('status', 'cancelado');
 
-    // Monta set de horários ocupados por barbeiro
+    // Bloqueia horários ocupados para o barbeiro selecionado
     const barbeiro = document.getElementById('selectProf').value;
     const ocupados = new Set();
     (agendamentos || []).forEach(a => {
-        if (a.barbeiro_nome === barbeiro && ['pendente','confirmado','bloqueado'].includes(a.status)) {
-            // Extrai hora direto da string para evitar timezone
+        // Normaliza o nome para comparação (ignora maiúsculas/minúsculas e espaços extras)
+        const nomeBarbeiro = (a.barbeiro_nome || '').trim().toLowerCase();
+        const barbeiroSelecionado = (barbeiro || '').trim().toLowerCase();
+        const mesmoB = nomeBarbeiro === barbeiroSelecionado;
+        const statusOcupado = ['pendente','confirmado','bloqueado'].includes(a.status);
+        if (mesmoB && statusOcupado) {
             const hora = a.data_hora.slice(11, 16);
             ocupados.add(hora);
         }
