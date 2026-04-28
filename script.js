@@ -465,3 +465,173 @@ async function renderTimes() {
         grid.appendChild(div);
     });
 }
+
+// ================================================
+// MEUS AGENDAMENTOS
+// ================================================
+
+let filtroAtual = 'atuais';
+
+function abrirMeusAgendamentos() {
+    document.getElementById('telaAgendamentos').style.display = 'flex';
+    document.getElementById('telaAgendamentos').style.flexDirection = 'column';
+    carregarMeusAgendamentos();
+}
+
+function fecharMeusAgendamentos() {
+    document.getElementById('telaAgendamentos').style.display = 'none';
+}
+
+async function carregarMeusAgendamentos() {
+    if (!usuarioLogado) return;
+
+    const lista = document.getElementById('agendamentosLista');
+    lista.innerHTML = '<div class="agendamentos-loading">Carregando...</div>';
+
+    const agora = new Date().toISOString();
+
+    let query = _supabase
+        .from('appointments')
+        .select('*')
+        .eq('cliente_id', usuarioLogado.id)
+        .order('data_hora', { ascending: filtroAtual === 'atuais' });
+
+    if (filtroAtual === 'atuais') {
+        query = query.gte('data_hora', agora).neq('status', 'cancelado');
+    } else {
+        query = query.or(`data_hora.lt.${agora},status.eq.cancelado`);
+    }
+
+    const { data: agendamentos, error } = await query;
+
+    if (error || !agendamentos?.length) {
+        lista.innerHTML = `
+            <div class="agendamentos-vazio">
+                <div class="vazio-icon">📅</div>
+                <p>${filtroAtual === 'atuais' ? 'Nenhum agendamento futuro.' : 'Nenhum agendamento passado.'}</p>
+            </div>`;
+        return;
+    }
+
+    lista.innerHTML = '';
+    agendamentos.forEach(a => {
+        const dataHora = new Date(a.data_hora);
+        const dia = dataHora.getDate();
+        const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        const mes = meses[dataHora.getMonth()];
+        const ano = dataHora.getFullYear();
+        const hora = dataHora.toTimeString().slice(0,5);
+
+        const statusLabel = { pendente: 'Pendente', confirmado: '✓ Confirmado', cancelado: 'Cancelado' };
+        const statusClass = a.status || 'pendente';
+
+        const card = document.createElement('div');
+        card.className = 'appt-card';
+        card.innerHTML = `
+            <div class="appt-card-top">
+                <div>
+                    <div class="appt-card-data">${dia} ${mes} ${ano}</div>
+                    <div class="appt-card-hora">às ${hora}</div>
+                </div>
+                <span class="appt-status ${statusClass}">${statusLabel[statusClass] || statusClass}</span>
+            </div>
+            <div class="appt-card-divider"></div>
+            <div class="appt-card-servico">${a.servico_nome}</div>
+            <div class="appt-card-info">✂️ ${a.barbeiro_nome}</div>
+            ${filtroAtual === 'atuais' && a.status !== 'cancelado' ? `
+            <div class="appt-card-actions">
+                <button class="btn-cancelar-appt" onclick="cancelarAgendamento('${a.id}')">Cancelar Agendamento</button>
+                <span class="appt-card-ver">Toque para detalhes ›</span>
+            </div>` : ''}
+        `;
+
+        card.onclick = (e) => {
+            if (e.target.classList.contains('btn-cancelar-appt')) return;
+            abrirDetalhe(a);
+        };
+
+        lista.appendChild(card);
+    });
+}
+
+function abrirDetalhe(a) {
+    const dataHora = new Date(a.data_hora);
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    const dataStr = `${dataHora.getDate()} ${meses[dataHora.getMonth()]} ${dataHora.getFullYear()}`;
+    const hora = dataHora.toTimeString().slice(0,5);
+    const statusLabel = { pendente: 'Pendente ⏳', confirmado: '✓ Confirmado', cancelado: '✕ Cancelado' };
+    const criado = new Date(a.created_at || a.data_hora);
+
+    document.getElementById('modalDetalheContent').innerHTML = `
+        <div class="detalhe-header">
+            <div>
+                <div class="detalhe-data">${dataStr}<br>Às ${hora}</div>
+            </div>
+            <span class="appt-status ${a.status || 'pendente'}">${statusLabel[a.status] || 'Pendente'}</span>
+        </div>
+        <div class="detalhe-row">
+            <span class="detalhe-icon">✂️</span>
+            <div>
+                <div class="detalhe-row-title">Barbearia BW</div>
+                <div class="detalhe-row-sub">Rua José Narciso Silva, 997 — Fábricas</div>
+            </div>
+        </div>
+        <div class="detalhe-row">
+            <span class="detalhe-icon">📋</span>
+            <div>
+                <div class="detalhe-row-title">${a.servico_nome}</div>
+                <div class="detalhe-row-sub">Profissional: ${a.barbeiro_nome}</div>
+                ${a.status !== 'cancelado' && a.status !== 'confirmado' ? `<button class="btn-cancelar-detalhe" onclick="cancelarAgendamento('${a.id}')">Cancelar Agendamento</button>` : ''}
+            </div>
+        </div>
+        <div class="historico-item">
+            🕐 Marcado em ${criado.toLocaleDateString('pt-BR')} às ${criado.toTimeString().slice(0,5)}
+        </div>
+        <button class="btn-confirm" style="margin-top:20px" onclick="fecharDetalhe()">Fechar</button>
+    `;
+
+    document.getElementById('modalDetalhe').style.display = 'flex';
+}
+
+function fecharDetalhe() {
+    document.getElementById('modalDetalhe').style.display = 'none';
+}
+
+async function cancelarAgendamento(id) {
+    if (!confirm('Deseja cancelar este agendamento?')) return;
+
+    const { error } = await _supabase
+        .from('appointments')
+        .update({ status: 'cancelado' })
+        .eq('id', id)
+        .eq('cliente_id', usuarioLogado.id);
+
+    if (error) return alert('Erro ao cancelar: ' + error.message);
+
+    fecharDetalhe();
+    carregarMeusAgendamentos();
+}
+
+// Eventos da tela de agendamentos
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btnMeusAgendamentos').onclick = abrirMeusAgendamentos;
+    document.getElementById('btnFecharAgendamentos').onclick = fecharMeusAgendamentos;
+    document.getElementById('btnRefreshAgendamentos').onclick = carregarMeusAgendamentos;
+    document.getElementById('modalDetalhe').onclick = (e) => {
+        if (e.target === document.getElementById('modalDetalhe')) fecharDetalhe();
+    };
+
+    document.getElementById('tabAtuais').onclick = () => {
+        filtroAtual = 'atuais';
+        document.getElementById('tabAtuais').classList.add('active');
+        document.getElementById('tabPassados').classList.remove('active');
+        carregarMeusAgendamentos();
+    };
+
+    document.getElementById('tabPassados').onclick = () => {
+        filtroAtual = 'passados';
+        document.getElementById('tabPassados').classList.add('active');
+        document.getElementById('tabAtuais').classList.remove('active');
+        carregarMeusAgendamentos();
+    };
+});
