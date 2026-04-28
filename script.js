@@ -3,8 +3,8 @@
 // Supabase Auth + Agendamento
 // ================================================
 
-const SUPABASE_URL = "https://durmzijnybyakrudukvz.supabase.co";
-const SUPABASE_KEY = "sb_publishable_aOq2nOXVTWWGGRDxLxkJzw_quoaVYVv";
+const SUPABASE_URL = "https://ufczmjdgfbavfnuhmtwc.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmY3ptamRnZmJhdmZudWhtdHdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczOTQ1NzUsImV4cCI6MjA5Mjk3MDU3NX0.a7QqxHoMFXvbRaIOZMkpmZEswWyxrtuUK1ub63obiCU";
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const CATEGORIAS = {
