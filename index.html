@@ -27,7 +27,10 @@
                 <div class="user-bar-sub">Cliente</div>
             </div>
         </div>
-        <button class="user-bar-logout" id="btnLogout">Sair</button>
+        <div class="user-bar-actions">
+            <button class="user-bar-appts" id="btnMeusAgendamentos">📅</button>
+            <button class="user-bar-logout" id="btnLogout">Sair</button>
+        </div>
     </div>
 
     <main id="lista-servicos">
@@ -173,6 +176,38 @@
             <button class="btn-confirm" id="btnFinalizar">Confirmar Agendamento</button>
         </div>
     </div>
+</div>
+
+
+<!-- ================================ -->
+<!-- TELA MEUS AGENDAMENTOS           -->
+<!-- ================================ -->
+<div class="tela-agendamentos" id="telaAgendamentos" style="display:none">
+    <div class="tela-header">
+        <button class="tela-back" id="btnFecharAgendamentos">‹</button>
+        <h2>Meus Agendamentos</h2>
+        <button class="tela-refresh" id="btnRefreshAgendamentos">↻</button>
+    </div>
+
+    <!-- Filtro Atuais/Passados -->
+    <div class="filtro-tabs">
+        <label class="filtro-tab active" id="tabAtuais">
+            <input type="radio" name="filtro" value="atuais" checked> Atuais
+        </label>
+        <label class="filtro-tab" id="tabPassados">
+            <input type="radio" name="filtro" value="passados"> Passados
+        </label>
+    </div>
+
+    <!-- Lista -->
+    <div class="agendamentos-lista" id="agendamentosLista">
+        <div class="agendamentos-loading">Carregando...</div>
+    </div>
+</div>
+
+<!-- Modal detalhe do agendamento -->
+<div class="modal-overlay" id="modalDetalhe">
+    <div class="modal-content" id="modalDetalheContent"></div>
 </div>
 
 <script src="script.js"></script>
