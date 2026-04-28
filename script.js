@@ -594,8 +594,7 @@ async function carregarMeusAgendamentos() {
         query = query.or(`data_hora.lt.${agora},status.eq.cancelado`);
     }
 
-    const { data: agendamentos2, error } = agendamentos !== undefined ? { data: agendamentos, error: null } : await query;
-    const agendamentosFinal = agendamentos2 || agendamentos || [];
+    const { data: agendamentosFinal, error = null } = await query;
 
     if (error || !agendamentosFinal?.length) {
         lista.innerHTML = `
