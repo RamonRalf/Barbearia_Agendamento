@@ -149,20 +149,9 @@
         <div class="input-row">
             <label class="label-p">Escolha o Barbeiro</label>
             <div class="barber-carousel" id="barberPicker">
-                <div class="barber-card active" data-barber="Joao Victor" onclick="selectBarber(this)">
-                    <div class="barber-card-avatar">JV</div>
-                    <div class="barber-card-name">João Victor</div>
-                    <div class="barber-card-role">Principal</div>
-                    <div class="barber-card-dot"></div>
-                </div>
-                <div class="barber-card" data-barber="Cristo" onclick="selectBarber(this)">
-                    <div class="barber-card-avatar">CR</div>
-                    <div class="barber-card-name">Cristo</div>
-                    <div class="barber-card-role">Barbeiro</div>
-                    <div class="barber-card-dot"></div>
-                </div>
+                <!-- Barbeiros carregados dinamicamente do Supabase -->
             </div>
-            <input type="hidden" id="selectProf" value="Joao Victor">
+            <input type="hidden" id="selectProf" value="">
         </div>
 
         <div class="input-group">
