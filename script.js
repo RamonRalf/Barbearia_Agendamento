@@ -343,7 +343,46 @@ async function abrirModalAgendamento() {
     document.getElementById('timeGrid').innerHTML = '';
     document.getElementById('area-confirmar').style.display = 'none';
     document.getElementById('modal').style.display = 'flex';
+    await carregarBarbeiros();
     await renderCalendar();
+}
+
+async function carregarBarbeiros() {
+    const picker = document.getElementById('barberPicker');
+    picker.innerHTML = '<p style="color:var(--dim);font-size:0.8rem;padding:8px">Carregando...</p>';
+
+    const { data: barbeiros, error } = await _supabase
+        .from('profiles')
+        .select('id, nome_completo')
+        .eq('tipo_usuario', 'barbeiro')
+        .order('nome_completo');
+
+    if (error || !barbeiros?.length) {
+        picker.innerHTML = '<p style="color:var(--dim);font-size:0.8rem;padding:8px">Nenhum barbeiro disponível.</p>';
+        return;
+    }
+
+    picker.innerHTML = '';
+    barbeiros.forEach((b, idx) => {
+        const nome = b.nome_completo || 'Barbeiro';
+        const iniciais = nome.split(' ').slice(0,2).map(n => n[0]).join('').toUpperCase();
+        const card = document.createElement('div');
+        card.className = `barber-card ${idx === 0 ? 'active' : ''}`;
+        card.dataset.barber = nome;
+        card.onclick = () => selectBarber(card);
+        card.innerHTML = `
+            <div class="barber-card-avatar">${iniciais}</div>
+            <div class="barber-card-name">${nome.split(' ')[0]}</div>
+            <div class="barber-card-role">Barbeiro</div>
+            <div class="barber-card-dot"></div>
+        `;
+        picker.appendChild(card);
+
+        // Seleciona o primeiro por padrão
+        if (idx === 0) {
+            document.getElementById('selectProf').value = nome;
+        }
+    });
 }
 
 // ================================================
