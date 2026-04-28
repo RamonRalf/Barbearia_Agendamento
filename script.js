@@ -307,7 +307,8 @@ function iniciarEventosAgendamento() {
 
         const dia = diaEl.dataset.dia.padStart(2, '0');
         const mes = diaEl.dataset.mes.padStart(2, '0');
-        const dataISO = `${diaEl.dataset.ano}-${mes}-${dia}T${horaEl.innerText}:00`;
+        // Salva sem timezone para evitar conversão UTC
+        const dataISO = `${diaEl.dataset.ano}-${mes}-${dia}T${horaEl.innerText}:00+00:00`;
 
         // Garante que o perfil existe antes de inserir o agendamento
         await _supabase.from('profiles').upsert({
@@ -424,8 +425,8 @@ async function renderTimes() {
     const dia = diaEl.dataset.dia.padStart(2, '0');
     const mes = diaEl.dataset.mes.padStart(2, '0');
     const ano = diaEl.dataset.ano;
-    const dataInicio = `${ano}-${mes}-${dia}T00:00:00`;
-    const dataFim    = `${ano}-${mes}-${dia}T23:59:59`;
+    const dataInicio = `${ano}-${mes}-${dia}T00:00:00+00:00`;
+    const dataFim    = `${ano}-${mes}-${dia}T23:59:59+00:00`;
 
     // Busca agendamentos do dia no Supabase
     const { data: agendamentos } = await _supabase
@@ -435,13 +436,13 @@ async function renderTimes() {
         .lte('data_hora', dataFim)
         .neq('status', 'cancelado');
 
-    // Monta set de horários ocupados
+    // Monta set de horários ocupados por barbeiro
     const barbeiro = document.getElementById('selectProf').value;
     const ocupados = new Set();
     (agendamentos || []).forEach(a => {
-        // Bloqueia apenas se for o mesmo barbeiro
-        if (a.barbeiro_nome === barbeiro) {
-            const hora = new Date(a.data_hora).toTimeString().slice(0, 5);
+        if (a.barbeiro_nome === barbeiro && ['pendente','confirmado','bloqueado'].includes(a.status)) {
+            // Extrai hora direto da string para evitar timezone
+            const hora = a.data_hora.slice(11, 16);
             ocupados.add(hora);
         }
     });
