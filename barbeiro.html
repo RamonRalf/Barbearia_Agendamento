@@ -565,9 +565,16 @@ function iniciarPainel() {
 function iniciarRealtime() {
     _supabase
         .channel('appointments-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, (payload) => {
             renderTimeline();
-            showToast('Agenda atualizada!', 'success');
+            showToast('Novo agendamento recebido! ✂️', 'success');
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'appointments' }, (payload) => {
+            const novo = payload.new;
+            if (novo.status === 'cancelado') {
+                showToast('Agendamento cancelado pelo cliente ❌', 'error');
+            }
+            renderTimeline();
         })
         .subscribe();
 }
