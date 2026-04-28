@@ -298,6 +298,16 @@
         .realtime-dot { width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; margin-right:6px; animation:pulse 2s infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
+        /* Week view */
+        .week-grid { display:grid; grid-template-columns:50px repeat(7,1fr); gap:1px; background:var(--border); border-radius:12px; overflow:hidden; }
+        .week-header { background:var(--surface2); padding:10px 8px; text-align:center; font-size:0.72rem; font-weight:600; }
+        .week-header.today { color:var(--accent); }
+        .week-header span { display:block; font-size:1.1rem; font-family:'Bebas Neue',sans-serif; }
+        .week-cell { background:var(--surface); min-height:48px; padding:4px; }
+        .week-cell.time-col { background:var(--surface2); display:flex; align-items:flex-start; justify-content:flex-end; padding:8px 6px 0; font-size:0.65rem; color:var(--dim); }
+        .week-event { background:var(--accent-dim); border:1px solid rgba(212,175,55,0.3); border-radius:6px; padding:4px 6px; font-size:0.65rem; color:var(--accent); font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .week-event.green { background:var(--green-dim); border-color:rgba(46,204,113,0.3); color:var(--green); }
+
         @media(max-width:1100px) { .stats-row{grid-template-columns:repeat(2,1fr)} .panel-grid{grid-template-columns:1fr} }
         @media(max-width:768px) {
             .sidebar{transform:translateX(-100%)} .sidebar.open{transform:translateX(0)}
@@ -347,6 +357,7 @@
             <div class="nav-section-label">Principal</div>
             <div class="nav-item active" onclick="setView('agenda')"><span class="icon">📅</span> Agenda</div>
             <div class="nav-item" onclick="setView('historico')"><span class="icon">📋</span> Histórico</div>
+            <div class="nav-item" onclick="setView('clientes')"><span class="icon">👥</span> Clientes</div>
             <div class="nav-section-label">Configurações</div>
             <div class="nav-item" onclick="setView('bloquear')"><span class="icon">🔒</span> Bloquear Horários</div>
         </nav>
@@ -398,8 +409,15 @@
                             <h3>⏰ CRONOGRAMA</h3>
                             <span class="badge" id="totalBadge">0 agendamentos</span>
                         </div>
-                        <div class="timeline" id="timeline">
-                            <div class="timeline-loading">Carregando agendamentos...</div>
+                        <div class="day-view" id="dayView">
+                            <div class="timeline" id="timeline">
+                                <div class="timeline-loading">Carregando agendamentos...</div>
+                            </div>
+                        </div>
+                        <div class="week-view" id="weekView" style="display:none">
+                            <div style="padding:16px;">
+                                <div class="week-grid" id="weekGrid"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="side-panels">
@@ -425,6 +443,14 @@
                 <div class="panel">
                     <div class="panel-header"><h3>📋 HISTÓRICO</h3><span class="badge">Últimos 30 dias</span></div>
                     <div class="history-list" id="historyList"><div class="timeline-loading">Carregando...</div></div>
+                </div>
+            </div>
+
+            <!-- Clientes -->
+            <div id="viewClientes" style="display:none">
+                <div class="panel">
+                    <div class="panel-header"><h3>👥 CLIENTES</h3><span class="badge" id="clientesBadge">0 clientes</span></div>
+                    <div class="history-list" id="clientesList"><div class="timeline-loading">Carregando...</div></div>
                 </div>
             </div>
 
@@ -576,15 +602,17 @@ function toggleSidebar() {
 
 // ── VIEWS ─────────────────────────────────────
 function setView(view) {
-    ['viewAgenda','viewHistorico','viewBloquear'].forEach(v => {
+    ['viewAgenda','viewHistorico','viewClientes','viewBloquear'].forEach(v => {
         document.getElementById(v).style.display = 'none';
     });
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    event?.currentTarget?.classList?.add('active');
 
-    const titles = { agenda:'AGENDA DO DIA', historico:'HISTÓRICO', bloquear:'BLOQUEAR HORÁRIOS' };
+    const titles = { agenda:'AGENDA DO DIA', historico:'HISTÓRICO', clientes:'CLIENTES', bloquear:'BLOQUEAR HORÁRIOS' };
     document.getElementById('pageTitle').innerText = titles[view] || '';
     document.getElementById('viewAgenda').style.display    = view==='agenda'    ? 'block':'none';
     document.getElementById('viewHistorico').style.display = view==='historico' ? 'block':'none';
+    document.getElementById('viewClientes').style.display  = view==='clientes'  ? 'block':'none';
     document.getElementById('viewBloquear').style.display  = view==='bloquear'  ? 'block':'none';
     document.getElementById('dateNav').style.display    = view==='agenda' ? 'flex':'none';
     document.getElementById('viewToggle').style.display = view==='agenda' ? 'flex':'none';
@@ -592,6 +620,7 @@ function setView(view) {
     document.getElementById('pageSubtitle').style.display = view==='agenda' ? 'block':'none';
 
     if (view==='historico') renderHistorico();
+    if (view==='clientes')  renderClientes();
     if (view==='bloquear')  populateBlockSelects();
     if (window.innerWidth < 768) toggleSidebar();
 }
@@ -599,6 +628,9 @@ function setView(view) {
 function setDayWeek(mode, btn) {
     document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    document.getElementById('dayView').style.display  = mode==='day'  ? 'block':'none';
+    document.getElementById('weekView').style.display = mode==='week' ? 'block':'none';
+    if (mode==='week') renderWeek();
 }
 
 // ── RENDER ────────────────────────────────────
@@ -768,8 +800,10 @@ function populateBlockSelects() {
         if (!sel) return;
         sel.innerHTML = '<option value="">Selecione...</option>';
         HORARIOS.forEach(h => {
+            const ocupado = agendamentosHoje.find(a => a.data_hora.slice(11,16)===h && a.status!=='cancelado');
             const opt = document.createElement('option');
-            opt.value = h; opt.innerText = h;
+            opt.value = h;
+            opt.innerText = h + (ocupado ? ' (ocupado)' : '');
             sel.appendChild(opt);
         });
     });
@@ -812,6 +846,99 @@ async function bloquearHorario2() {
     if (error) return showToast('Erro: ' + error.message, 'error');
     document.getElementById('blockReason2').value = '';
     showToast(`Horário ${hora} bloqueado!`);
+}
+
+// ── CLIENTES ──────────────────────────────────
+async function renderClientes() {
+    const list = document.getElementById('clientesList');
+    list.innerHTML = '<div class="timeline-loading">Carregando...</div>';
+
+    const { data } = await _supabase
+        .from('appointments')
+        .select('*, profiles(nome_completo)')
+        .neq('status','bloqueado')
+        .order('data_hora', { ascending: false });
+
+    if (!data?.length) {
+        list.innerHTML = '<div class="timeline-loading">Nenhum cliente encontrado.</div>';
+        return;
+    }
+
+    const clientesMap = {};
+    data.forEach(a => {
+        const nome = a.profiles?.nome_completo || 'Cliente';
+        if (!clientesMap[nome]) clientesMap[nome] = { nome, visitas:0, gasto:0, ultimo:'' };
+        if (a.status === 'confirmado') {
+            clientesMap[nome].visitas++;
+            clientesMap[nome].gasto += parseFloat(a.preco||0);
+        }
+        if (!clientesMap[nome].ultimo) clientesMap[nome].ultimo = a.data_hora.slice(0,10);
+    });
+
+    const clientes = Object.values(clientesMap).sort((a,b) => b.gasto - a.gasto);
+    document.getElementById('clientesBadge').innerText = `${clientes.length} clientes`;
+
+    list.innerHTML = '';
+    clientes.forEach(c => {
+        const [y,m,d] = (c.ultimo||'').split('-');
+        const ultimoStr = c.ultimo ? `${parseInt(d)}/${m}/${y}` : '';
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+            <div class="history-left">
+                <div class="appt-avatar" style="width:36px;height:36px;border-radius:10px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:var(--accent);flex-shrink:0">${getInitials(c.nome)}</div>
+                <div>
+                    <div class="history-name">${c.nome}</div>
+                    <div class="history-service">${c.visitas} visita${c.visitas!==1?'s':''} ${ultimoStr ? '• Último: '+ultimoStr : ''}</div>
+                </div>
+            </div>
+            <div class="history-right">
+                <div class="history-price">R$ ${c.gasto.toFixed(2)}</div>
+                <div class="history-date">total gasto</div>
+            </div>`;
+        list.appendChild(div);
+    });
+}
+
+// ── SEMANA ────────────────────────────────────
+function renderWeek() {
+    const grid = document.getElementById('weekGrid');
+    grid.innerHTML = '';
+    const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const hoje = new Date();
+
+    grid.appendChild(Object.assign(document.createElement('div'), { className:'week-header', innerHTML:'' }));
+    for (let d = 0; d < 7; d++) {
+        const dt = new Date(currentDate);
+        dt.setDate(dt.getDate() - dt.getDay() + d);
+        const isToday = dt.toDateString() === hoje.toDateString();
+        const div = document.createElement('div');
+        div.className = `week-header ${isToday?'today':''}`;
+        div.innerHTML = `${dias[d]}<span>${dt.getDate()}</span>`;
+        grid.appendChild(div);
+    }
+
+    HORARIOS.forEach(h => {
+        const timeCell = document.createElement('div');
+        timeCell.className = 'week-cell time-col';
+        timeCell.innerText = h;
+        grid.appendChild(timeCell);
+
+        for (let d = 0; d < 7; d++) {
+            const cell = document.createElement('div');
+            cell.className = 'week-cell';
+            const appt = agendamentosHoje.find(a => a.data_hora.slice(11,16)===h && a.status!=='cancelado');
+            if (appt && d === currentDate.getDay()) {
+                const nome = appt.profiles?.nome_completo || 'Cliente';
+                const ev = document.createElement('div');
+                ev.className = `week-event ${appt.status==='confirmado'?'green':''}`;
+                ev.innerText = appt.status==='bloqueado' ? '🔒' : nome.split(' ')[0];
+                ev.onclick = () => { setDayWeek('day', document.querySelector('.view-btn')); selectAppt(appt, nome, appt.profiles?.telefone||''); };
+                cell.appendChild(ev);
+            }
+            grid.appendChild(cell);
+        }
+    });
 }
 
 // ── HISTÓRICO ─────────────────────────────────
