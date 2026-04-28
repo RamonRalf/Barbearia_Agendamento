@@ -714,3 +714,263 @@ header p {
     inset: 0;
     border-radius: inherit;
 }
+
+/* ── TELA MEUS AGENDAMENTOS ── */
+.tela-agendamentos {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    animation: slideInRight 0.3s ease both;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.tela-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--surface);
+}
+
+.tela-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+}
+
+.tela-back, .tela-refresh {
+    background: none; border: none;
+    color: var(--dim); font-size: 1.5rem;
+    cursor: pointer; padding: 4px 8px;
+    border-radius: 8px; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.tela-back:hover, .tela-refresh:hover { color: var(--accent); }
+
+/* Filtro tabs */
+.filtro-tabs {
+    display: flex;
+    gap: 0;
+    padding: 16px 20px 0;
+    border-bottom: 1px solid var(--border2);
+}
+
+.filtro-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.filtro-tab input { display: none; }
+
+.filtro-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* Lista */
+.agendamentos-lista {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+}
+
+.agendamentos-loading {
+    text-align: center;
+    color: var(--dim);
+    padding: 40px;
+    font-size: 0.85rem;
+}
+
+.agendamentos-vazio {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.agendamentos-vazio .vazio-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.3; }
+.agendamentos-vazio p { color: var(--dim); font-size: 0.85rem; }
+
+/* Card de agendamento */
+.appt-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    animation: fadeUp 0.3s ease both;
+}
+
+.appt-card:hover { border-color: var(--accent); }
+
+.appt-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.appt-card-data {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    color: var(--text);
+}
+
+.appt-card-hora {
+    font-size: 0.75rem;
+    color: var(--dim);
+    margin-top: 2px;
+}
+
+.appt-status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.appt-status.pendente   { background: rgba(212,175,55,0.15); color: var(--accent); }
+.appt-status.confirmado { background: rgba(46,204,113,0.15); color: #2ecc71; }
+.appt-status.cancelado  { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+
+.appt-card-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 12px;
+}
+
+.appt-card-servico {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.appt-card-info {
+    font-size: 0.75rem;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.appt-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.btn-cancelar-appt {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0;
+    transition: opacity 0.2s;
+}
+
+.btn-cancelar-appt:hover { opacity: 0.7; }
+
+.appt-card-ver {
+    font-size: 0.75rem;
+    color: var(--dim);
+}
+
+/* Modal detalhe */
+.detalhe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.detalhe-data {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    line-height: 1.1;
+}
+
+.detalhe-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border2);
+}
+
+.detalhe-row:last-of-type { border-bottom: none; }
+
+.detalhe-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+
+.detalhe-row-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 3px; }
+.detalhe-row-sub   { font-size: 0.75rem; color: var(--dim); }
+
+.btn-cancelar-detalhe {
+    width: 100%;
+    background: rgba(231,76,60,0.1);
+    border: 1px solid rgba(231,76,60,0.3);
+    color: #e74c3c;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 16px;
+    transition: all 0.2s;
+}
+
+.btn-cancelar-detalhe:hover { background: rgba(231,76,60,0.2); }
+
+.historico-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--dim);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+/* User bar actions */
+.user-bar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.user-bar-appts {
+    background: var(--accent-dim);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.user-bar-appts:hover { background: rgba(212,175,55,0.2); }
