@@ -473,8 +473,13 @@ async function renderTimes() {
 let filtroAtual = 'atuais';
 
 function abrirMeusAgendamentos() {
-    document.getElementById('telaAgendamentos').style.display = 'flex';
-    document.getElementById('telaAgendamentos').style.flexDirection = 'column';
+    const tela = document.getElementById('telaAgendamentos');
+    tela.style.display = 'flex';
+    tela.style.flexDirection = 'column';
+    // Reset filtro
+    filtroAtual = 'atuais';
+    document.getElementById('tabAtuais').classList.add('active');
+    document.getElementById('tabPassados').classList.remove('active');
     carregarMeusAgendamentos();
 }
 
@@ -515,12 +520,15 @@ async function carregarMeusAgendamentos() {
 
     lista.innerHTML = '';
     agendamentos.forEach(a => {
-        const dataHora = new Date(a.data_hora);
-        const dia = dataHora.getDate();
+        // Extrai data/hora direto da string ISO para evitar problema de timezone
+        const dataStr2 = a.data_hora.slice(0,16); // "2026-04-27T13:30"
+        const [datePart, timePart] = dataStr2.split('T');
+        const [anoR, mesR, diaR] = datePart.split('-');
         const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-        const mes = meses[dataHora.getMonth()];
-        const ano = dataHora.getFullYear();
-        const hora = dataHora.toTimeString().slice(0,5);
+        const dia = parseInt(diaR);
+        const mes = meses[parseInt(mesR) - 1];
+        const ano = anoR;
+        const hora = timePart;
 
         const statusLabel = { pendente: 'Pendente', confirmado: '✓ Confirmado', cancelado: 'Cancelado' };
         const statusClass = a.status || 'pendente';
@@ -555,12 +563,14 @@ async function carregarMeusAgendamentos() {
 }
 
 function abrirDetalhe(a) {
-    const dataHora = new Date(a.data_hora);
+    const dataStr2b = a.data_hora.slice(0,16);
+    const [datePart2, timePart2] = dataStr2b.split('T');
+    const [anoD, mesD, diaD] = datePart2.split('-');
     const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    const dataStr = `${dataHora.getDate()} ${meses[dataHora.getMonth()]} ${dataHora.getFullYear()}`;
-    const hora = dataHora.toTimeString().slice(0,5);
+    const dataStr = `${parseInt(diaD)} ${meses[parseInt(mesD)-1]} ${anoD}`;
+    const hora = timePart2;
     const statusLabel = { pendente: 'Pendente ⏳', confirmado: '✓ Confirmado', cancelado: '✕ Cancelado' };
-    const criado = new Date(a.created_at || a.data_hora);
+    const criado = new Date(a.data_hora);
 
     document.getElementById('modalDetalheContent').innerHTML = `
         <div class="detalhe-header">
@@ -585,7 +595,7 @@ function abrirDetalhe(a) {
             </div>
         </div>
         <div class="historico-item">
-            🕐 Marcado em ${criado.toLocaleDateString('pt-BR')} às ${criado.toTimeString().slice(0,5)}
+            🕐 Agendado para ${dataStr} às ${hora}
         </div>
         <button class="btn-confirm" style="margin-top:20px" onclick="fecharDetalhe()">Fechar</button>
     `;
