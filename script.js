@@ -337,12 +337,17 @@ function iniciarEventosAgendamento() {
             tipo_usuario: 'cliente'
         }, { onConflict: 'id', ignoreDuplicates: true });
 
+        // Busca o preço do serviço selecionado
+        const precoTexto = servicoSelecionado?.dataset.price || '0';
+        const preco = parseFloat(precoTexto.replace(',', '.')) || 0;
+
         const { error } = await _supabase.from('appointments').insert([{
             cliente_id:    usuarioLogado.id,
             barbeiro_nome: document.getElementById('selectProf').value,
             servico_nome:  document.getElementById('resumo-servico').innerText,
             data_hora:     dataISO,
-            status:        'pendente'
+            status:        'pendente',
+            preco:         preco
         }]);
 
         btn.disabled = false;
@@ -363,6 +368,8 @@ async function abrirModalAgendamento() {
     document.getElementById('resumo-detalhes').innerText = `${servicoSelecionado.dataset.duration} • R$ ${servicoSelecionado.dataset.price}`;
     document.getElementById('timeGrid').innerHTML = '';
     document.getElementById('area-confirmar').style.display = 'none';
+    // Esconde seção de horários até barbeiro ser selecionado
+    document.getElementById('secaoHorarios').style.display = 'none';
     document.getElementById('modal').style.display = 'flex';
     await carregarBarbeiros();
     await renderCalendar();
@@ -413,8 +420,8 @@ window.selectBarber = async function(el) {
     document.querySelectorAll('.barber-card').forEach(o => o.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('selectProf').value = el.dataset.barber;
-    // Re-renderiza horários para o barbeiro selecionado
     document.getElementById('area-confirmar').style.display = 'none';
+    document.getElementById('secaoHorarios').style.display = 'block';
     await renderTimes();
 };
 
@@ -511,15 +518,30 @@ async function renderTimes() {
         }
     });
 
+    // Verifica horários passados no dia atual
+    const agora = new Date();
+    const diaEl2 = document.querySelector('.calendar-day.active');
+    const isDiaHoje = diaEl2 &&
+        parseInt(diaEl2.dataset.dia) === agora.getDate() &&
+        parseInt(diaEl2.dataset.mes) === agora.getMonth() + 1 &&
+        parseInt(diaEl2.dataset.ano) === agora.getFullYear();
+
+    const horaAgora = agora.getHours() * 60 + agora.getMinutes();
+
     grid.innerHTML = '';
     HORARIOS.forEach(h => {
-        const div = document.createElement('div');
+        const [hh, mm] = h.split(':').map(Number);
+        const minutos = hh * 60 + mm;
+        const isPast = isDiaHoje && minutos <= horaAgora;
         const isOcupado = ocupados.has(h);
-        div.className = `time-slot ${isOcupado ? 'ocupado' : ''}`;
+        const indisponivel = isPast || isOcupado;
+
+        const div = document.createElement('div');
+        div.className = `time-slot ${indisponivel ? 'ocupado' : ''}`;
         div.innerText = h;
 
-        if (isOcupado) {
-            div.title = 'Horário indisponível';
+        if (indisponivel) {
+            div.title = isPast ? 'Horário já passou' : 'Horário indisponível';
         } else {
             div.onclick = () => {
                 document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('active'));
@@ -572,9 +594,10 @@ async function carregarMeusAgendamentos() {
         query = query.or(`data_hora.lt.${agora},status.eq.cancelado`);
     }
 
-    const { data: agendamentos, error } = await query;
+    const { data: agendamentos2, error } = agendamentos !== undefined ? { data: agendamentos, error: null } : await query;
+    const agendamentosFinal = agendamentos2 || agendamentos || [];
 
-    if (error || !agendamentos?.length) {
+    if (error || !agendamentosFinal?.length) {
         lista.innerHTML = `
             <div class="agendamentos-vazio">
                 <div class="vazio-icon">📅</div>
@@ -584,7 +607,7 @@ async function carregarMeusAgendamentos() {
     }
 
     lista.innerHTML = '';
-    agendamentos.forEach(a => {
+    agendamentosFinal.forEach(a => {
         // Extrai data/hora direto da string ISO para evitar problema de timezone
         const dataStr2 = a.data_hora.slice(0,16); // "2026-04-27T13:30"
         const [datePart, timePart] = dataStr2.split('T');
@@ -600,6 +623,7 @@ async function carregarMeusAgendamentos() {
 
         const card = document.createElement('div');
         card.className = 'appt-card';
+        const podeCancel = filtroAtual === 'atuais' && a.status !== 'cancelado';
         card.innerHTML = `
             <div class="appt-card-top">
                 <div>
@@ -611,12 +635,21 @@ async function carregarMeusAgendamentos() {
             <div class="appt-card-divider"></div>
             <div class="appt-card-servico">${a.servico_nome}</div>
             <div class="appt-card-info">✂️ ${a.barbeiro_nome}</div>
-            ${filtroAtual === 'atuais' && a.status !== 'cancelado' ? `
+            ${podeCancel ? `
             <div class="appt-card-actions">
-                <button class="btn-cancelar-appt" onclick="cancelarAgendamento('${a.id}')">Cancelar Agendamento</button>
+                <button class="btn-cancelar-appt" data-id="${a.id}">Cancelar Agendamento</button>
                 <span class="appt-card-ver">Toque para detalhes ›</span>
             </div>` : ''}
         `;
+
+        // Evento do botão cancelar
+        const btnCancel = card.querySelector('.btn-cancelar-appt');
+        if (btnCancel) {
+            btnCancel.onclick = (e) => {
+                e.stopPropagation();
+                cancelarAgendamento(a.id);
+            };
+        }
 
         card.onclick = (e) => {
             if (e.target.classList.contains('btn-cancelar-appt')) return;
