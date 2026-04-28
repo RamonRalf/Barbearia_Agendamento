@@ -328,8 +328,8 @@ function iniciarEventosAgendamento() {
 
         const dia = diaEl.dataset.dia.padStart(2, '0');
         const mes = diaEl.dataset.mes.padStart(2, '0');
-        // Salva sem timezone para evitar conversão UTC
-        const dataISO = `${diaEl.dataset.ano}-${mes}-${dia}T${horaEl.innerText}:00+00:00`;
+        // Salva no horário local sem conversão UTC
+        const dataISO = `${diaEl.dataset.ano}-${mes}-${dia}T${horaEl.innerText}:00`;
 
         // Garante que o perfil existe antes de inserir o agendamento
         await _supabase.from('profiles').upsert({
@@ -485,8 +485,8 @@ async function renderTimes() {
     const dia = diaEl.dataset.dia.padStart(2, '0');
     const mes = diaEl.dataset.mes.padStart(2, '0');
     const ano = diaEl.dataset.ano;
-    const dataInicio = `${ano}-${mes}-${dia}T00:00:00+00:00`;
-    const dataFim    = `${ano}-${mes}-${dia}T23:59:59+00:00`;
+    const dataInicio = `${ano}-${mes}-${dia}T00:00:00`;
+    const dataFim    = `${ano}-${mes}-${dia}T23:59:59`;
 
     // Busca agendamentos do dia no Supabase (todos os barbeiros)
     const { data: agendamentos } = await _supabase
