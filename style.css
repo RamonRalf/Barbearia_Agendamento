@@ -975,3 +975,31 @@ header p {
 }
 
 .user-bar-appts:hover { background: rgba(212,175,55,0.2); }
+
+/* ── HEADER LOGIN BTN ── */
+.header-top {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.btn-header-login {
+    background: transparent;
+    border: 1px solid rgba(212,175,55,0.4);
+    color: var(--accent);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+}
+
+.btn-header-login:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+header { position: relative; }
