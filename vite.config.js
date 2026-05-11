@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // Nome do repositório no GitHub Pages
-  base: 'https://ramonralf.github.io/Barbearia_Agendamento/',
+  base: '/Barbearia_Agendamento/',
 })
