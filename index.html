@@ -333,37 +333,64 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   <div class="cli-body">
     <div class="card" style="margin-bottom:1.25rem">
       <h2 style="font-family:var(--serif);font-weight:400;font-size:1.4rem;margin-bottom:4px">Agendar horário</h2>
-      <p style="font-size:0.85rem;margin-bottom:1.25rem;color:var(--gray-4)">Escolha o serviço e o melhor horário.</p>
+      <p style="font-size:0.85rem;margin-bottom:1.25rem;color:var(--gray-4)">Escolha o barbeiro, serviço e horário disponível.</p>
       <div class="steps-bar">
         <div class="step-seg on" id="s1"></div>
         <div class="step-seg" id="s2"></div>
         <div class="step-seg" id="s3"></div>
+        <div class="step-seg" id="s4"></div>
       </div>
       <div id="cli-msg"></div>
+
+      <!-- Etapa 1: Barbeiro -->
       <div id="etapa-1">
-        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Selecione o serviço</p>
-        <div id="svcs-cli"></div>
-        <button class="btn btn-dark btn-full" style="margin-top:10px" id="btn-e1" onclick="irE2()" disabled>Continuar →</button>
+        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o barbeiro</p>
+        <div id="barbs-cli"></div>
+        <button class="btn btn-dark btn-full" style="margin-top:10px" id="btn-e1" onclick="irE(2)" disabled>Continuar →</button>
       </div>
+
+      <!-- Etapa 2: Serviço -->
       <div id="etapa-2" style="display:none">
-        <div class="field"><label>Data e horário</label><input class="inp" type="datetime-local" id="cli-data"/></div>
-        <div style="display:flex;gap:10px;margin-top:4px">
+        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o serviço</p>
+        <div id="svcs-cli"></div>
+        <div style="display:flex;gap:10px;margin-top:10px">
           <button class="btn btn-line" onclick="irE(1)">← Voltar</button>
-          <button class="btn btn-dark" style="flex:1" onclick="irE3()">Continuar →</button>
+          <button class="btn btn-dark" style="flex:1" id="btn-e2" onclick="irE(3)" disabled>Continuar →</button>
         </div>
       </div>
+
+      <!-- Etapa 3: Agenda visual -->
       <div id="etapa-3" style="display:none">
-        <div class="resumo-box">
-          <div class="rl">Resumo</div>
-          <div class="rv" id="res-sv"></div>
-          <small id="res-det"></small>
+        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o dia</p>
+        <div class="field"><label>Data</label><input class="inp" type="date" id="cli-dia" onchange="renderHorarios()"/></div>
+        <div id="horarios-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0"></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--white);border:1.5px solid var(--gray-2);display:inline-block"></span>Disponível</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--black);display:inline-block"></span>Selecionado</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--gray-2);display:inline-block"></span>Ocupado</span>
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-line" onclick="irE(2)">← Voltar</button>
+          <button class="btn btn-dark" style="flex:1" id="btn-e3" onclick="irE(4)" disabled>Continuar →</button>
+        </div>
+      </div>
+
+      <!-- Etapa 4: Confirmar -->
+      <div id="etapa-4" style="display:none">
+        <div class="resumo-box">
+          <div class="rl">Resumo do agendamento</div>
+          <div class="rv" id="res-barb"></div>
+          <div class="rv" id="res-sv"></div>
+          <small id="res-det"></small>
+        </div>
+        <div id="cli-msg-conf"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-line" onclick="irE(3)">← Voltar</button>
           <button class="btn btn-dark" style="flex:1" id="btn-conf" onclick="confirmar()">Confirmar agendamento</button>
         </div>
       </div>
     </div>
+
     <div class="card">
       <h2 style="font-family:var(--serif);font-weight:400;font-size:1.4rem;margin-bottom:1rem">Meus agendamentos</h2>
       <div id="meus-ags"><p style="color:var(--gray-4);font-size:0.88rem;text-align:center;padding:1rem">Nenhum agendamento ainda.</p></div>
@@ -550,6 +577,8 @@ async function bloquear(){
 async function remBlq(id){ await sb.from('horarios_bloqueados').delete().eq('id',id); await recarregar() }
 
 // ── CLIENTE ──
+let barbeiros=[], selBarb=null, selSv=null, selHora=null, agsBarb=[], blqsBarb=[]
+
 async function loadCliente(){
   showView('cliente')
   document.getElementById('cli-email').textContent=session.user.email
@@ -560,50 +589,190 @@ async function loadCliente(){
   barbearia=b
   document.getElementById('cli-nome').textContent=b.nome
   document.getElementById('cli-end').textContent=b.endereco||''
-  const [{data:sv},{data:ag}]=await Promise.all([
+
+  const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id',b.id),
-    sb.from('agendamentos').select('*,servicos(nome)').eq('user_id',session.user.id).order('data_hora')
+    sb.from('barbeiros').select('*').eq('barbearia_id',b.id),
+    sb.from('agendamentos').select('*,servicos(nome),barbeiros(nome)').eq('user_id',session.user.id).order('data_hora',{ascending:false})
   ])
-  servicos=sv||[]
-  renderSvCli(); renderMeusAgs(ag||[])
+  servicos=sv||[]; barbeiros=barb||[]
+  renderBarbsCli(); renderMeusAgs(ag||[])
+
+  // data mínima = hoje
+  const hoje=new Date().toISOString().split('T')[0]
+  document.getElementById('cli-dia').min=hoje
+  document.getElementById('cli-dia').value=hoje
+}
+
+function renderBarbsCli(){
+  const el=document.getElementById('barbs-cli')
+  if(!barbeiros.length){
+    el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum barbeiro cadastrado.</p>'
+    return
+  }
+  el.innerHTML=barbeiros.map(b=>`
+    <div class="sel-card" id="barb-${b.id}" onclick="selBarb2('${b.id}')">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--gray-1);border:1px solid var(--gray-2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">✂</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${b.nome}</div>
+        <div style="font-size:0.78rem;color:var(--gray-4)">${b.especialidade||'Especialista em cortes'}</div>
+      </div>
+    </div>`).join('')
+}
+
+function selBarb2(id){
+  selBarb=barbeiros.find(b=>b.id===id)
+  document.querySelectorAll('[id^="barb-"]').forEach(c=>c.classList.remove('picked'))
+  document.getElementById('barb-'+id).classList.add('picked')
+  document.getElementById('btn-e1').disabled=false
 }
 
 function renderSvCli(){
   const el=document.getElementById('svcs-cli')
   if(!servicos.length){el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum serviço disponível.</p>';return}
-  el.innerHTML=servicos.map(s=>`<div class="sel-card" id="sc-${s.id}" onclick="selSvc('${s.id}')"><div style="flex:1"><div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${s.nome}</div><div style="font-size:0.8rem;color:var(--gray-4)">${s.duracao_minutos} min</div></div><span style="font-weight:500">${s.preco?'R$ '+s.preco:''}</span></div>`).join('')
+  el.innerHTML=servicos.map(s=>`
+    <div class="sel-card" id="sc-${s.id}" onclick="selSvc('${s.id}')">
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${s.nome}</div>
+        <div style="font-size:0.78rem;color:var(--gray-4)">${s.duracao_minutos} min</div>
+      </div>
+      <span style="font-weight:500;font-size:0.9rem">R$ ${s.preco}</span>
+    </div>`).join('')
 }
 
 function selSvc(id){
   selSv=servicos.find(s=>s.id===id)
-  document.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('picked'))
+  document.querySelectorAll('[id^="sc-"]').forEach(c=>c.classList.remove('picked'))
   document.getElementById('sc-'+id).classList.add('picked')
-  document.getElementById('btn-e1').disabled=false
+  document.getElementById('btn-e2').disabled=false
 }
 
-function irE2(){ if(!selSv)return; irE(2) }
-function irE3(){
-  const d=document.getElementById('cli-data').value
-  if(!d){document.getElementById('cli-msg').innerHTML='<div class="msg msg-err">Selecione um horário.</div>';return}
-  document.getElementById('cli-msg').innerHTML=''
-  irE(3)
-  document.getElementById('res-sv').textContent=selSv.nome
-  document.getElementById('res-det').textContent=`${new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · R$ ${selSv.preco} · ${selSv.duracao_minutos} min`
+async function renderHorarios(){
+  const dia=document.getElementById('cli-dia').value
+  if(!dia||!selBarb) return
+  selHora=null
+  document.getElementById('btn-e3').disabled=true
+
+  // Busca agendamentos e bloqueios do barbeiro nesse dia
+  const inicio=dia+'T00:00:00'
+  const fim=dia+'T23:59:59'
+  const [{data:ags},{data:blqs}]=await Promise.all([
+    sb.from('agendamentos').select('data_hora,status').eq('barbeiro_id',selBarb.id).gte('data_hora',inicio).lte('data_hora',fim),
+    sb.from('horarios_bloqueados').select('data_hora_inicio,data_hora_fim').eq('barbearia_id',barbearia.id).gte('data_hora_inicio',inicio).lte('data_hora_fim',fim)
+  ])
+  agsBarb=ags||[]; blqsBarb=blqs||[]
+
+  // Gera slots de 30 min das 08:00 às 19:30
+  const slots=[]
+  for(let h=8;h<20;h++){
+    for(let m=0;m<60;m+=30){
+      const hStr=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')
+      slots.push(hStr)
+    }
+  }
+
+  const el=document.getElementById('horarios-grid')
+  el.innerHTML=slots.map(slot=>{
+    const dtSlot=new Date(dia+'T'+slot+':00')
+    // Verifica se está ocupado por agendamento ativo
+    const ocupado=agsBarb.some(a=>{
+      if(a.status==='cancelado') return false
+      const dtAg=new Date(a.data_hora)
+      return Math.abs(dtAg-dtSlot)<60000
+    })
+    // Verifica se está bloqueado
+    const bloqueado=blqsBarb.some(b=>{
+      return dtSlot>=new Date(b.data_hora_inicio) && dtSlot<new Date(b.data_hora_fim)
+    })
+    // Verifica se é no passado
+    const passado=dtSlot<new Date()
+
+    if(ocupado||bloqueado||passado){
+      return `<div style="padding:10px;border-radius:8px;background:var(--gray-1);border:1px solid var(--gray-2);text-align:center;font-size:0.82rem;color:var(--gray-3);text-decoration:${ocupado?'line-through':'none'};cursor:not-allowed">${slot}</div>`
+    }
+    return `<div id="slot-${slot.replace(':','-')}" onclick="selSlot('${slot}')" style="padding:10px;border-radius:8px;background:var(--white);border:1.5px solid var(--gray-2);text-align:center;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--black)'" onmouseout="if(!this.classList.contains('picked'))this.style.borderColor='var(--gray-2)'">${slot}</div>`
+  }).join('')
 }
-function irE(n){ for(let i=1;i<=3;i++){ document.getElementById('etapa-'+i).style.display=i===n?'block':'none'; document.getElementById('s'+i).classList.toggle('on',i<=n) } }
+
+function selSlot(hora){
+  selHora=hora
+  document.querySelectorAll('[id^="slot-"]').forEach(el=>{
+    el.style.background='var(--white)'
+    el.style.color='var(--black)'
+    el.style.borderColor='var(--gray-2)'
+    el.classList.remove('picked')
+  })
+  const id='slot-'+hora.replace(':','-')
+  const el=document.getElementById(id)
+  if(el){
+    el.style.background='var(--black)'
+    el.style.color='var(--white)'
+    el.style.borderColor='var(--black)'
+    el.classList.add('picked')
+  }
+  document.getElementById('btn-e3').disabled=false
+}
+
+function irE(n){
+  const total=4
+  for(let i=1;i<=total;i++){
+    const et=document.getElementById('etapa-'+i)
+    if(et) et.style.display=i===n?'block':'none'
+    const st=document.getElementById('s'+i)
+    if(st) st.classList.toggle('on',i<=n)
+  }
+  // Ao entrar na etapa 2, renderiza serviços
+  if(n===2) renderSvCli()
+  // Ao entrar na etapa 3, renderiza horários
+  if(n===3) renderHorarios()
+  // Ao entrar na etapa 4, preenche resumo
+  if(n===4){
+    const dia=document.getElementById('cli-dia').value
+    document.getElementById('res-barb').textContent='Barbeiro: '+selBarb.nome
+    document.getElementById('res-sv').textContent='Serviço: '+selSv.nome+' — R$ '+selSv.preco
+    const dtFmt=new Date(dia+'T'+selHora+':00').toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    document.getElementById('res-det').textContent=dtFmt+' · '+selSv.duracao_minutos+' min'
+    document.getElementById('cli-msg-conf').innerHTML=''
+  }
+}
 
 async function confirmar(){
   const btn=document.getElementById('btn-conf')
   btn.disabled=true; btn.textContent='Confirmando...'
-  document.getElementById('cli-msg').innerHTML=''
-  const {error}=await sb.from('agendamentos').insert([{barbearia_id:barbearia.id,user_id:session.user.id,servico_id:selSv.id,nome_cliente:session.user.email.split('@')[0],data_hora:document.getElementById('cli-data').value,status:'pendente'}])
+  const dia=document.getElementById('cli-dia').value
+  const dataHora=dia+'T'+selHora+':00'
+
+  // Checagem final de conflito
+  const {data:conf}=await sb.from('agendamentos')
+    .select('id').eq('barbeiro_id',selBarb.id).eq('data_hora',dataHora)
+    .neq('status','cancelado').maybeSingle()
+
+  if(conf){
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Este horário acabou de ser ocupado. Escolha outro.</div>'
+    btn.disabled=false; btn.textContent='Confirmar agendamento'
+    return
+  }
+
+  const {error}=await sb.from('agendamentos').insert([{
+    barbearia_id:barbearia.id,
+    user_id:session.user.id,
+    servico_id:selSv.id,
+    barbeiro_id:selBarb.id,
+    nome_cliente:session.user.email.split('@')[0],
+    data_hora:dataHora,
+    status:'pendente'
+  }])
   btn.disabled=false; btn.textContent='Confirmar agendamento'
   if(!error){
-    document.getElementById('cli-msg').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
-    selSv=null; irE(1); document.getElementById('btn-e1').disabled=true
-    document.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('picked'))
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
+    selBarb=null; selSv=null; selHora=null
+    irE(1)
+    document.getElementById('btn-e1').disabled=true
+    document.querySelectorAll('[id^="barb-"],[id^="sc-"]').forEach(c=>c.classList.remove('picked'))
     await loadCliente()
-  } else { document.getElementById('cli-msg').innerHTML=`<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>` }
+  } else {
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
+  }
 }
 
 function renderMeusAgs(ags){
@@ -612,7 +781,8 @@ function renderMeusAgs(ags){
   const bm={confirmado:'badge-ok',pendente:'badge-warn',cancelado:'badge-err'}
   el.innerHTML=ags.map(a=>{
     const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
-    return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}</small></div></div>`
+    const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:''
+    return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}${barb}</small></div></div>`
   }).join('')
 }
 </script>
