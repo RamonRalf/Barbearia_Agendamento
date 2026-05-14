@@ -279,6 +279,16 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
           <div class="link-box"><code id="link-txt"></code><button class="btn btn-ghost btn-sm" onclick="copiarLink()">Copiar</button></div>
         </div>
       </div>
+
+      <!-- Navegação de datas -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
+        <button class="btn btn-line btn-sm" onclick="mudarDia(-1)">←</button>
+        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderAgenda()"/>
+        <button class="btn btn-line btn-sm" onclick="mudarDia(1)">→</button>
+        <button class="btn btn-ghost btn-sm" onclick="irHoje()">Hoje</button>
+        <span id="agenda-dia-label" style="font-size:0.88rem;color:var(--gray-4)"></span>
+      </div>
+
       <div class="card"><div id="agenda-lista"><div class="ag-empty">Nenhum agendamento ainda.</div></div></div>
     </div>
 
@@ -561,9 +571,35 @@ function renderStats(){
 
 function renderAgenda(){
   const el=document.getElementById('agenda-lista')
-  if(!agendamentos.length){el.innerHTML='<div class="ag-empty">Nenhum agendamento ainda.</div>';return}
-  el.innerHTML=agendamentos.map(a=>{
-    const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+  const inputDia=document.getElementById('agenda-dia')
+
+  // Inicializa com hoje se vazio
+  if(!inputDia.value){
+    inputDia.value=new Date().toISOString().split('T')[0]
+  }
+  const diaSel=inputDia.value
+
+  // Label amigável
+  const dtObj=new Date(diaSel+'T12:00:00')
+  const hoje=new Date().toISOString().split('T')[0]
+  const amanha=new Date(Date.now()+86400000).toISOString().split('T')[0]
+  let label=dtObj.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})
+  if(diaSel===hoje) label='Hoje — '+label
+  else if(diaSel===amanha) label='Amanhã — '+label
+  document.getElementById('agenda-dia-label').textContent=label
+
+  // Filtra agendamentos do dia
+  const dodia=agendamentos.filter(a=>{
+    return new Date(a.data_hora).toISOString().split('T')[0]===diaSel
+  }).sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora))
+
+  if(!dodia.length){
+    el.innerHTML='<div class="ag-empty">Nenhum agendamento neste dia.</div>'
+    return
+  }
+
+  el.innerHTML=dodia.map(a=>{
+    const hr=new Date(a.data_hora).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
     const bc=a.status==='confirmado'?'badge-ok':a.status==='cancelado'?'badge-err':'badge-warn'
     return `<div class="ag-card" onclick="abrirModal('${a.id}')">
       <div class="ag-card-top">
@@ -573,10 +609,23 @@ function renderAgenda(){
       <div class="ag-card-info">
         <small>✂ ${a.servicos?.nome||'—'}</small>
         <small>👤 ${a.barbeiros?.nome||'—'}</small>
-        <small>🕐 ${dt}</small>
+        <small>🕐 ${hr}</small>
       </div>
     </div>`
   }).join('')
+}
+
+function mudarDia(delta){
+  const inp=document.getElementById('agenda-dia')
+  const dt=new Date((inp.value||new Date().toISOString().split('T')[0])+'T12:00:00')
+  dt.setDate(dt.getDate()+delta)
+  inp.value=dt.toISOString().split('T')[0]
+  renderAgenda()
+}
+
+function irHoje(){
+  document.getElementById('agenda-dia').value=new Date().toISOString().split('T')[0]
+  renderAgenda()
 }
 
 let _agModal=null
