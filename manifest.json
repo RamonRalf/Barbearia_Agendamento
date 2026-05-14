@@ -1,0 +1,15 @@
+{
+  "name": "BarberApp",
+  "short_name": "BarberApp",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fafaf8",
+  "theme_color": "#111110",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063734.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
