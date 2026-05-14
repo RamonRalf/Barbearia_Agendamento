@@ -266,9 +266,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </aside>
   <main class="b-main">
     <div class="stats-row">
-      <div class="stat"><div class="stat-l">Agendamentos</div><div class="stat-v" id="st-total">0</div></div>
-      <div class="stat"><div class="stat-l">Pendentes</div><div class="stat-v" id="st-pend">0</div></div>
-      <div class="stat"><div class="stat-l">Faturamento</div><div class="stat-v" id="st-fat">R$ 0</div></div>
+      <div class="stat"><div class="stat-l">Agendamentos hoje</div><div class="stat-v" id="st-total">0</div></div>
+      <div class="stat"><div class="stat-l">Pendentes hoje</div><div class="stat-v" id="st-pend">0</div></div>
+      <div class="stat"><div class="stat-l">Faturamento hoje</div><div class="stat-v" id="st-fat">R$ 0</div></div>
     </div>
 
     <!-- AGENDA -->
@@ -283,7 +283,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <!-- Navegação de datas -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
         <button class="btn btn-line btn-sm" onclick="mudarDia(-1)">←</button>
-        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderAgenda()"/>
+        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderStats();renderAgenda()"/>
         <button class="btn btn-line btn-sm" onclick="mudarDia(1)">→</button>
         <button class="btn btn-ghost btn-sm" onclick="irHoje()">Hoje</button>
         <span id="agenda-dia-label" style="font-size:0.88rem;color:var(--gray-4)"></span>
@@ -563,9 +563,11 @@ async function recarregar(){
 }
 
 function renderStats(){
-  document.getElementById('st-total').textContent=agendamentos.length
-  document.getElementById('st-pend').textContent=agendamentos.filter(a=>a.status==='pendente').length
-  const fat=agendamentos.filter(a=>a.status==='confirmado').reduce((s,a)=>s+(a.servicos?.preco||0),0)
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+  const dodia=agendamentos.filter(a=>new Date(a.data_hora).toISOString().split('T')[0]===diaSel)
+  document.getElementById('st-total').textContent=dodia.length
+  document.getElementById('st-pend').textContent=dodia.filter(a=>a.status==='pendente').length
+  const fat=dodia.filter(a=>a.status==='confirmado').reduce((s,a)=>s+(a.servicos?.preco||0),0)
   document.getElementById('st-fat').textContent=`R$ ${fat.toFixed(2)}`
 }
 
@@ -620,12 +622,12 @@ function mudarDia(delta){
   const dt=new Date((inp.value||new Date().toISOString().split('T')[0])+'T12:00:00')
   dt.setDate(dt.getDate()+delta)
   inp.value=dt.toISOString().split('T')[0]
-  renderAgenda()
+  renderStats(); renderAgenda()
 }
 
 function irHoje(){
   document.getElementById('agenda-dia').value=new Date().toISOString().split('T')[0]
-  renderAgenda()
+  renderStats(); renderAgenda()
 }
 
 let _agModal=null
