@@ -6,10 +6,13 @@
 <title>BarberApp</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.json">
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
+    // O ponto antes da barra ajuda o GitHub a achar o arquivo na pasta certa
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log("Service Worker registrado com sucesso!"))
+      .catch(err => console.log("Erro ao registrar:", err));
   }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
