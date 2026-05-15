@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -80,16 +81,17 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .auth-back:hover{color:var(--black)}
 
 /* SIDEBAR */
-.sidebar{width:220px;flex-shrink:0;background:var(--white);border-right:1px solid var(--gray-2);padding:1.75rem 1rem;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sb-brand{padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid var(--gray-1)}
-.sb-brand h3{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin-bottom:2px}
-.sb-brand small{color:var(--gray-4);font-size:0.75rem}
+.sidebar{width:240px;flex-shrink:0;background:var(--black);border-right:none;padding:1.75rem 1rem;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-brand{padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,0.08);color:var(--white)}
+.sb-brand *{color:rgba(255,255,255,0.9)}
+.sb-brand .sb-email-txt{color:rgba(255,255,255,0.4)!important;font-size:0.72rem}
+.btn-icon{padding:8px 10px}
 .sb-nav{display:flex;flex-direction:column;gap:2px;flex:1}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--gray-5);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
-.sb-item:hover{background:var(--gray-1);color:var(--black)}
-.sb-item.active{background:var(--gray-1);color:var(--black);font-weight:500}
-.sb-out{margin-top:auto;padding:9px 12px;border-radius:8px;font-size:0.875rem;color:var(--danger);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%}
-.sb-out:hover{background:var(--danger-bg)}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.55);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
+.sb-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
+.sb-item.active{background:rgba(255,255,255,0.12);color:var(--white);font-weight:500}
+.sb-out{margin-top:auto;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.35);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
+.sb-out:hover{color:#ff6b6b;background:rgba(255,100,100,0.1)}
 
 /* MAIN */
 .b-main{flex:1;padding:2.5rem;overflow-y:auto}
@@ -145,6 +147,24 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 
 /* ROWS */
 .svc-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--gray-1);border-radius:8px;margin-bottom:8px;border:1px solid var(--gray-2)}
+.ag-card{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s}
+.ag-card:hover{border-color:var(--black);box-shadow:var(--shadow)}
+.ag-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ag-card-nome{font-weight:500;font-size:0.95rem}
+.ag-card-info{display:flex;gap:12px;flex-wrap:wrap}
+.ag-card-info small{color:var(--gray-4);font-size:0.8rem}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--white);border-radius:20px 20px 0 0;padding:2rem;width:100%;max-width:520px;animation:slideUp 0.25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 1.5rem}
+.modal-title{font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:1.25rem}
+.modal-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-1)}
+.modal-row:last-of-type{border-bottom:none}
+.modal-label{font-size:0.8rem;color:var(--gray-4);font-weight:500}
+.modal-val{font-size:0.9rem;font-weight:500;text-align:right}
 .blq-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--gray-1);border:1px solid var(--gray-2);border-radius:8px;margin-bottom:8px}
 .link-box{display:flex;align-items:center;gap:8px;background:var(--gray-1);border:1px solid var(--gray-2);border-radius:8px;padding:10px 14px}
 .link-box code{flex:1;font-size:0.8rem;color:var(--gray-5);word-break:break-all}
@@ -171,16 +191,53 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .tl-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
 .tl-name{font-weight:500;font-size:0.9rem}
 
-/* RESPONSIVE */
+/* DASHBOARD CARDS */
+.dash-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:1.5rem}
+.dash-card{background:var(--white);border:1px solid var(--gray-2);border-radius:14px;padding:1.25rem;display:flex;flex-direction:column;gap:8px;transition:all 0.2s;position:relative;overflow:hidden}
+.dash-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 14px 0 60px;background:var(--cc);opacity:0.5}
+.dash-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+.dc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;flex-shrink:0;margin-bottom:4px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.dc-label{font-size:0.72rem;color:var(--gray-4);font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+.dc-val{font-size:2rem;font-weight:700;color:var(--black);line-height:1;font-family:var(--serif)}
+.sb-ic{width:18px;text-align:center;flex-shrink:0;font-size:0.95rem}
+
+/* SEMANA STRIP */
+.sem-dia{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;min-width:46px;flex-shrink:0}
+.sem-dia:hover{background:var(--gray-1)}
+.sem-dia.hoje{border-color:var(--gray-2)}
+.sem-dia.ativo{background:var(--black);color:var(--white)}
+.sem-dia .sem-sigla{font-size:0.7rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;opacity:0.7;margin-bottom:4px}
+.sem-dia .sem-num{font-size:1rem;font-weight:600}
+.sem-dia.ativo .sem-sigla{opacity:0.7}
+
+@media(max-width:1100px){
+  [style*="grid-template-columns:1fr 320px"]{grid-template-columns:1fr!important}
+  .dash-cards{grid-template-columns:1fr 1fr}
+}
 @media(max-width:860px){
   .hero{grid-template-columns:1fr;padding:3rem 5%}.hero-card{display:none}
   .features{grid-template-columns:1fr}.feat{border-right:none;border-bottom:1px solid var(--gray-2);padding:2rem 5%}
-  #barber.active{flex-direction:column}
-  .sidebar{width:100%;height:auto;position:relative}
-  .sb-nav{flex-direction:row;flex-wrap:wrap}
-  .b-main{padding:1.25rem}
-  .stats-row{grid-template-columns:1fr 1fr}
+  #barber.active{flex-direction:column!important}
+  .sidebar{width:100%!important;height:auto!important;position:relative!important;flex-direction:row!important;flex-wrap:wrap!important;padding:0.75rem 1rem!important;gap:6px;align-items:center}
+  .sb-brand{padding-bottom:0;margin-bottom:0;border-bottom:none;flex-shrink:0}
+  .sb-nav{flex-direction:row!important;flex-wrap:wrap!important;flex:none!important;width:100%;gap:4px}
+  .sb-item{padding:6px 10px;font-size:0.75rem;border-radius:6px;width:auto!important}
+  .sb-out{margin-top:0!important;padding:6px 10px;font-size:0.75rem;width:auto!important}
+  .b-main{padding:1rem;overflow-x:hidden;width:100%;max-width:100vw;box-sizing:border-box}
   .grid-2{grid-template-columns:1fr}
+  .dash-cards{grid-template-columns:1fr 1fr;gap:10px}
+  .dc-val{font-size:1.5rem}
+  #semana-strip{gap:4px;overflow-x:auto}
+  .sem-dia{padding:6px 6px;min-width:36px}
+  .sem-dia .sem-num{font-size:0.88rem}
+  .card{overflow:hidden}
+  .link-box{flex-wrap:wrap}
+  .link-box code{word-break:break-all;font-size:0.72rem}
+}
+@media(max-width:480px){
+  .dash-cards{grid-template-columns:1fr 1fr}
+  .b-main{padding:0.75rem}
+  .sb-item{padding:5px 8px;font-size:0.7rem}
 }
 </style>
 </head>
@@ -244,33 +301,138 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 <div id="barber">
   <aside class="sidebar">
     <div class="sb-brand">
-      <h3 id="sb-nome">Minha Barbearia</h3>
-      <small id="sb-email"></small>
-    </div>
-    <nav class="sb-nav">
-      <button class="sb-item active" onclick="setPanel(this,'agenda')">📅 Agenda</button>
-      <button class="sb-item" onclick="setPanel(this,'horarios')">🕐 Horários</button>
-      <button class="sb-item" onclick="setPanel(this,'servicos')">✂️ Serviços</button>
-      <button class="sb-item" onclick="setPanel(this,'config')">⚙️ Barbearia</button>
-    </nav>
-    <button class="sb-out" onclick="signOut()">Sair</button>
-  </aside>
-  <main class="b-main">
-    <div class="stats-row">
-      <div class="stat"><div class="stat-l">Agendamentos</div><div class="stat-v" id="st-total">0</div></div>
-      <div class="stat"><div class="stat-l">Pendentes</div><div class="stat-v" id="st-pend">0</div></div>
-      <div class="stat"><div class="stat-l">Faturamento</div><div class="stat-v" id="st-fat">R$ 0</div></div>
-    </div>
-
-    <!-- AGENDA -->
-    <div id="panel-agenda" class="panel active">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px">
-        <h2 class="panel-title" style="margin:0">Agenda</h2>
-        <div id="link-wrap" style="display:none">
-          <div class="link-box"><code id="link-txt"></code><button class="btn btn-ghost btn-sm" onclick="copiarLink()">Copiar</button></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">✂</div>
+        <div>
+          <div id="sb-nome" style="font-weight:600;font-size:0.9rem">Minha Barbearia</div>
+          <div id="sb-email" class="sb-email-txt"></div>
         </div>
       </div>
-      <div class="card"><div id="agenda-lista"><div class="ag-empty">Nenhum agendamento ainda.</div></div></div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" onclick="setPanel(this,'dashboard')"><span class="sb-ic">⊞</span> Dashboard</button>
+      <button class="sb-item" onclick="setPanel(this,'agenda')"><span class="sb-ic">📅</span> Agendamentos</button>
+      <button class="sb-item" onclick="setPanel(this,'servicos')"><span class="sb-ic">✂️</span> Serviços</button>
+      <button class="sb-item" onclick="setPanel(this,'equipe')"><span class="sb-ic">👥</span> Barbeiros</button>
+      <button class="sb-item" onclick="setPanel(this,'horarios')"><span class="sb-ic">🔒</span> Bloquear Horários</button>
+      <button class="sb-item" onclick="setPanel(this,'config')"><span class="sb-ic">⚙️</span> Configurações</button>
+    </nav>
+    <button class="sb-out" onclick="signOut()">← Sair</button>
+  </aside>
+
+  <main class="b-main">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel active">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px">
+        <div>
+          <p style="font-size:0.8rem;color:var(--gray-4);margin-bottom:4px" id="dash-data"></p>
+          <h2 style="font-size:1.4rem;font-weight:600">Bem-vindo, <span id="dash-nome">barbeiro</span>!</h2>
+        </div>
+        <div id="link-wrap" style="display:none">
+          <div class="link-box"><span style="font-size:0.75rem;color:var(--gray-4);margin-right:4px">🔗</span><code id="link-txt"></code><button class="btn btn-dark btn-sm" onclick="copiarLink()" style="margin-left:8px;padding:6px 12px">Copiar</button></div>
+        </div>
+      </div>
+
+      <!-- Cards coloridos -->
+      <div class="dash-cards">
+        <div class="dash-card" style="--cc:#e8f0fe;--ci:#1a56db">
+          <div class="dc-icon" style="background:#1a56db">📅</div>
+          <div class="dc-label">Agendamentos Hoje</div>
+          <div class="dc-val" id="st-total">0</div>
+        </div>
+        <div class="dash-card" style="--cc:#e8f5e8;--ci:#2d6a2d">
+          <div class="dc-icon" style="background:#2d6a2d">👥</div>
+          <div class="dc-label">Clientes Ativos</div>
+          <div class="dc-val" id="st-clientes">0</div>
+        </div>
+        <div class="dash-card" style="--cc:#f0e8fe;--ci:#6b21a8">
+          <div class="dc-icon" style="background:#6b21a8">✂</div>
+          <div class="dc-label">Barbeiros</div>
+          <div class="dc-val" id="st-barbs">0</div>
+        </div>
+        <div class="dash-card" style="--cc:#fff8e8;--ci:#b45309">
+          <div class="dc-icon" style="background:#b45309">★</div>
+          <div class="dc-label">Serviços</div>
+          <div class="dc-val" id="st-svcs">0</div>
+        </div>
+      </div>
+
+      <!-- Agenda + sidebar direita -->
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;margin-top:1.25rem">
+        <div>
+          <div class="card" style="margin-bottom:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem">
+              <span>📅</span>
+              <h3 style="font-size:1rem;font-weight:600">Agenda</h3>
+            </div>
+
+            <!-- Semana -->
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem">
+              <button class="btn btn-line btn-sm btn-icon" onclick="mudarDia(-1)">‹</button>
+              <div id="semana-strip" style="display:flex;gap:6px;flex:1;overflow-x:auto;padding:2px 0"></div>
+              <button class="btn btn-line btn-sm btn-icon" onclick="mudarDia(1)">›</button>
+            </div>
+
+            <!-- Data grande -->
+            <div style="text-align:center;font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;color:var(--black)" id="agenda-data-titulo"></div>
+
+            <!-- Agendamentos -->
+            <div id="agenda-lista"><div class="ag-empty">Nenhum agendamento neste dia.</div></div>
+
+            <button class="btn btn-dark btn-full" style="margin-top:1rem" onclick="setPanel(null,'agenda')">+ Novo Agendamento</button>
+          </div>
+        </div>
+
+        <!-- Coluna direita -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem">
+          <!-- Faturamento -->
+          <div class="card">
+            <h3 style="font-size:0.85rem;font-weight:600;margin-bottom:1rem;color:var(--gray-5)">⚡ Resumo do Dia</h3>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.85rem;color:var(--gray-4)">Confirmados</span>
+                <span id="st-conf" style="font-weight:600;font-size:0.95rem">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.85rem;color:var(--gray-4)">Pendentes</span>
+                <span id="st-pend" style="font-weight:600;font-size:0.95rem;color:var(--warn)">0</span>
+              </div>
+              <div style="border-top:1px solid var(--gray-1);padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.85rem;color:var(--gray-4)">Faturamento</span>
+                <span id="st-fat" style="font-weight:700;font-size:1.1rem;color:var(--success)">R$ 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grade rápida -->
+          <div class="card">
+            <h3 style="font-size:0.85rem;font-weight:600;margin-bottom:1rem;color:var(--gray-5)">🕐 Grade de Horários</h3>
+            <div id="grade-horarios" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:10px">
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--success-bg);border:1px solid var(--success);display:inline-block"></span>Confirmado</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--warn-bg);border:1px solid var(--warn);display:inline-block"></span>Pendente</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--gray-1);border:1px solid var(--gray-2);display:inline-block"></span>Livre</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--danger-bg);border:1px solid var(--danger);display:inline-block"></span>Bloqueado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENDAMENTOS -->
+    <div id="panel-agenda" class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px">
+        <h2 class="panel-title" style="margin:0">Agendamentos</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
+        <button class="btn btn-line btn-sm" onclick="mudarDia(-1)">←</button>
+        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderStats();renderAgenda();renderGrade();renderSemana()"/>
+        <button class="btn btn-line btn-sm" onclick="mudarDia(1)">→</button>
+        <button class="btn btn-ghost btn-sm" onclick="irHoje()">Hoje</button>
+        <span id="agenda-dia-label" style="font-size:0.88rem;color:var(--gray-4)"></span>
+      </div>
+      <div class="card"><div id="agenda-lista-2"><div class="ag-empty">Nenhum agendamento neste dia.</div></div></div>
     </div>
 
     <!-- HORÁRIOS -->
@@ -309,12 +471,29 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
+    <!-- EQUIPE -->
+    <div id="panel-equipe" class="panel">
+      <h2 class="panel-title">Barbeiros</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="font-size:0.95rem;margin-bottom:1rem">Adicionar barbeiro</h3>
+          <div class="field"><label>Nome</label><input class="inp" type="text" id="eq-nome" placeholder="Ex: João Silva"/></div>
+          <div class="field"><label>Especialidade</label><input class="inp" type="text" id="eq-esp" placeholder="Ex: Cortes modernos"/></div>
+          <button class="btn btn-dark btn-full" onclick="addBarbeiro()">Salvar barbeiro</button>
+        </div>
+        <div class="card">
+          <h3 style="font-size:0.95rem;margin-bottom:1rem">Equipe atual</h3>
+          <div id="equipe-lista"><p style="color:var(--gray-4);font-size:0.88rem">Nenhum barbeiro.</p></div>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIG -->
     <div id="panel-config" class="panel">
-      <h2 class="panel-title">Dados da Barbearia</h2>
+      <h2 class="panel-title">Configurações</h2>
       <div class="card" style="max-width:500px">
         <div id="cfg-msg"></div>
-        <div class="field"><label>Nome</label><input class="inp" type="text" id="cfg-nome" placeholder="Barbearia do João"/></div>
+        <div class="field"><label>Nome da barbearia</label><input class="inp" type="text" id="cfg-nome" placeholder="Barbearia do João"/></div>
         <div class="field"><label>Endereço</label><input class="inp" type="text" id="cfg-end" placeholder="Rua das Flores, 123"/></div>
         <div class="field"><label>Telefone / WhatsApp</label><input class="inp" type="text" id="cfg-tel" placeholder="(11) 99999-9999"/></div>
         <div class="field">
@@ -325,6 +504,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
         <button class="btn btn-dark" id="cfg-btn" onclick="salvarBarbearia()">Salvar configurações</button>
       </div>
     </div>
+
   </main>
 </div>
 
@@ -343,41 +523,82 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   <div class="cli-body">
     <div class="card" style="margin-bottom:1.25rem">
       <h2 style="font-family:var(--serif);font-weight:400;font-size:1.4rem;margin-bottom:4px">Agendar horário</h2>
-      <p style="font-size:0.85rem;margin-bottom:1.25rem;color:var(--gray-4)">Escolha o serviço e o melhor horário.</p>
+      <p style="font-size:0.85rem;margin-bottom:1.25rem;color:var(--gray-4)">Escolha o barbeiro, serviço e horário disponível.</p>
       <div class="steps-bar">
         <div class="step-seg on" id="s1"></div>
         <div class="step-seg" id="s2"></div>
         <div class="step-seg" id="s3"></div>
+        <div class="step-seg" id="s4"></div>
       </div>
       <div id="cli-msg"></div>
+
+      <!-- Etapa 1: Barbeiro -->
       <div id="etapa-1">
-        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Selecione o serviço</p>
-        <div id="svcs-cli"></div>
-        <button class="btn btn-dark btn-full" style="margin-top:10px" id="btn-e1" onclick="irE2()" disabled>Continuar →</button>
+        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o barbeiro</p>
+        <div id="barbs-cli"></div>
+        <button class="btn btn-dark btn-full" style="margin-top:10px" id="btn-e1" onclick="irE(2)" disabled>Continuar →</button>
       </div>
+
+      <!-- Etapa 2: Serviço -->
       <div id="etapa-2" style="display:none">
-        <div class="field"><label>Data e horário</label><input class="inp" type="datetime-local" id="cli-data"/></div>
-        <div style="display:flex;gap:10px;margin-top:4px">
+        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o serviço</p>
+        <div id="svcs-cli"></div>
+        <div style="display:flex;gap:10px;margin-top:10px">
           <button class="btn btn-line" onclick="irE(1)">← Voltar</button>
-          <button class="btn btn-dark" style="flex:1" onclick="irE3()">Continuar →</button>
+          <button class="btn btn-dark" style="flex:1" id="btn-e2" onclick="irE(3)" disabled>Continuar →</button>
         </div>
       </div>
+
+      <!-- Etapa 3: Agenda visual -->
       <div id="etapa-3" style="display:none">
-        <div class="resumo-box">
-          <div class="rl">Resumo</div>
-          <div class="rv" id="res-sv"></div>
-          <small id="res-det"></small>
+        <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o dia</p>
+        <div class="field"><label>Data</label><input class="inp" type="date" id="cli-dia" onchange="renderHorarios()"/></div>
+        <div id="horarios-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0"></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--white);border:1.5px solid var(--gray-2);display:inline-block"></span>Disponível</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--black);display:inline-block"></span>Selecionado</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--gray-2);display:inline-block"></span>Ocupado</span>
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-line" onclick="irE(2)">← Voltar</button>
+          <button class="btn btn-dark" style="flex:1" id="btn-e3" onclick="irE(4)" disabled>Continuar →</button>
+        </div>
+      </div>
+
+      <!-- Etapa 4: Confirmar -->
+      <div id="etapa-4" style="display:none">
+        <div class="resumo-box">
+          <div class="rl">Resumo do agendamento</div>
+          <div class="rv" id="res-barb"></div>
+          <div class="rv" id="res-sv"></div>
+          <small id="res-det"></small>
+        </div>
+        <div id="cli-msg-conf"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-line" onclick="irE(3)">← Voltar</button>
           <button class="btn btn-dark" style="flex:1" id="btn-conf" onclick="confirmar()">Confirmar agendamento</button>
         </div>
       </div>
     </div>
+
     <div class="card">
       <h2 style="font-family:var(--serif);font-weight:400;font-size:1.4rem;margin-bottom:1rem">Meus agendamentos</h2>
       <div id="meus-ags"><p style="color:var(--gray-4);font-size:0.88rem;text-align:center;padding:1rem">Nenhum agendamento ainda.</p></div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL AGENDAMENTO -->
+<div class="modal-overlay" id="modal-ag" onclick="fecharModal(event)">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Detalhes do agendamento</div>
+    <div class="modal-row"><span class="modal-label">Cliente</span><span class="modal-val" id="m-cliente"></span></div>
+    <div class="modal-row"><span class="modal-label">Serviço</span><span class="modal-val" id="m-servico"></span></div>
+    <div class="modal-row"><span class="modal-label">Barbeiro</span><span class="modal-val" id="m-barbeiro"></span></div>
+    <div class="modal-row"><span class="modal-label">Data / Hora</span><span class="modal-val" id="m-data"></span></div>
+    <div class="modal-row"><span class="modal-label">Status</span><span class="modal-val" id="m-status"></span></div>
+    <div style="display:flex;gap:10px;margin-top:1.5rem" id="m-acoes"></div>
   </div>
 </div>
 
@@ -389,8 +610,10 @@ const sb = createClient(
 )
 
 let session=null, role=null, barbearia=null, servicos=[], agendamentos=[], bloqueios=[]
-let authMode='login', selSv=null
-const slug = window.location.pathname.replace(/^\/+|\/+$/g,'') || null
+let authMode='login'
+// Pega o último segmento da URL para suportar GitHub Pages (/repo/slug) e domínio próprio (/slug)
+const _path = window.location.pathname.replace(/^\/+|\/+$/g,'')
+const slug = _path ? _path.split('/').pop() : null
 
 ;(async()=>{
   const {data:{session:s}} = await sb.auth.getSession()
@@ -414,7 +637,9 @@ function showView(id){
     el.style.display='none'
   })
   const el=document.getElementById(id)
-  el.style.display = id==='auth' ? 'flex' : id==='barber' ? 'flex' : 'block'
+  if(id==='auth') el.style.display='flex'
+  else if(id==='barber') el.style.display='flex'
+  else el.style.display='block'
   el.classList.add('active')
 }
 function showAuth(){showView('auth')}
@@ -457,6 +682,8 @@ async function signOut(){ await sb.auth.signOut(); showView('landing') }
 async function loadBarbeiro(){
   showView('barber')
   document.getElementById('sb-email').textContent=session.user.email
+  const dd=document.getElementById('dash-data')
+  if(dd) dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   const {data:b}=await sb.from('barbearias').select('*').eq('owner_id',session.user.id).maybeSingle()
   if(b){ barbearia=b; preencherCfg(b); await recarregar() }
 }
@@ -472,34 +699,213 @@ function preencherCfg(b){
 
 async function recarregar(){
   if(!barbearia) return
-  const [{data:ag},{data:sv},{data:bl}]=await Promise.all([
-    sb.from('agendamentos').select('*,servicos(nome,preco)').eq('barbearia_id',barbearia.id).order('data_hora'),
+  const inp=document.getElementById('agenda-dia')
+  if(inp&&!inp.value) inp.value=new Date().toISOString().split('T')[0]
+
+  const [{data:ag},{data:sv},{data:bl},{data:barb}]=await Promise.all([
+    sb.from('agendamentos').select('*,servicos(nome,preco),barbeiros(nome)').eq('barbearia_id',barbearia.id).order('data_hora'),
     sb.from('servicos').select('*').eq('barbearia_id',barbearia.id),
-    sb.from('horarios_bloqueados').select('*').eq('barbearia_id',barbearia.id).order('data_hora_inicio')
+    sb.from('horarios_bloqueados').select('*').eq('barbearia_id',barbearia.id).order('data_hora_inicio'),
+    sb.from('barbeiros').select('*').eq('barbearia_id',barbearia.id)
   ])
   agendamentos=ag||[]; servicos=sv||[]; bloqueios=bl||[]
-  renderStats(); renderAgenda(); renderServicos(); renderBloqueios()
-  if(barbearia.slug){ const l=`${location.origin}/${barbearia.slug}`; document.getElementById('link-txt').textContent=l; document.getElementById('link-wrap').style.display='block' }
+
+  const e=id=>document.getElementById(id)
+  if(e('st-barbs')) e('st-barbs').textContent=(barb||[]).length
+  if(e('st-svcs'))  e('st-svcs').textContent=servicos.length
+  if(e('dash-nome')) e('dash-nome').textContent=barbearia.nome||'barbeiro'
+
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
+  renderServicos(); renderBloqueios(); renderEquipe(barb||[])
+  if(barbearia.slug){
+    const l=`${location.origin}/${barbearia.slug}`
+    if(e('link-txt')) e('link-txt').textContent=l
+    if(e('link-wrap')) e('link-wrap').style.display='block'
+  }
 }
 
 function renderStats(){
-  document.getElementById('st-total').textContent=agendamentos.length
-  document.getElementById('st-pend').textContent=agendamentos.filter(a=>a.status==='pendente').length
-  const fat=agendamentos.filter(a=>a.status==='confirmado').reduce((s,a)=>s+(a.servicos?.preco||0),0)
-  document.getElementById('st-fat').textContent=`R$ ${fat.toFixed(2)}`
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+  const dodia=agendamentos.filter(a=>new Date(a.data_hora).toISOString().split('T')[0]===diaSel)
+  const conf=dodia.filter(a=>a.status==='confirmado')
+  const pend=dodia.filter(a=>a.status==='pendente')
+  const fat=conf.reduce((s,a)=>s+(a.servicos?.preco||0),0)
+  // dashboard cards
+  const el=id=>document.getElementById(id)
+  if(el('st-total')) el('st-total').textContent=dodia.length
+  if(el('st-pend'))  el('st-pend').textContent=pend.length
+  if(el('st-conf'))  el('st-conf').textContent=conf.length
+  if(el('st-fat'))   el('st-fat').textContent=`R$ ${fat.toFixed(2)}`
+  // clientes únicos e contadores globais
+  const clientesUnicos=new Set(agendamentos.map(a=>a.user_id)).size
+  if(el('st-clientes')) el('st-clientes').textContent=clientesUnicos
+}
+
+function renderSemana(){
+  const strip=document.getElementById('semana-strip')
+  if(!strip) return
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+  const hoje=new Date().toISOString().split('T')[0]
+  const siglas=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']
+  // Mostra 7 dias centrados no dia selecionado
+  const dias=[]
+  const base=new Date(diaSel+'T12:00:00')
+  for(let i=-3;i<=3;i++){
+    const d=new Date(base); d.setDate(d.getDate()+i)
+    dias.push(d.toISOString().split('T')[0])
+  }
+  strip.innerHTML=dias.map(d=>{
+    const dt=new Date(d+'T12:00:00')
+    const ativo=d===diaSel
+    const eh=d===hoje
+    return `<div class="sem-dia${ativo?' ativo':eh?' hoje':''}" onclick="selecionarDia('${d}')">
+      <div class="sem-sigla">${siglas[dt.getDay()]}</div>
+      <div class="sem-num">${dt.getDate()}</div>
+    </div>`
+  }).join('')
+  // Título da data
+  const tit=document.getElementById('agenda-data-titulo')
+  if(tit){
+    const dt=new Date(diaSel+'T12:00:00')
+    tit.textContent=dt.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})
+  }
+  // Label no painel agendamentos
+  const lbl=document.getElementById('agenda-dia-label')
+  if(lbl){
+    const dt=new Date(diaSel+'T12:00:00')
+    let txt=dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})
+    if(diaSel===hoje) txt='Hoje — '+txt
+    lbl.textContent=txt
+  }
+}
+
+function selecionarDia(d){
+  const inp=document.getElementById('agenda-dia')
+  if(inp) inp.value=d
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
 }
 
 function renderAgenda(){
-  const el=document.getElementById('agenda-lista')
-  if(!agendamentos.length){el.innerHTML='<div class="ag-empty">Nenhum agendamento ainda.</div>';return}
-  const rows=agendamentos.map(a=>{
-    const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+  const dodia=agendamentos.filter(a=>new Date(a.data_hora).toISOString().split('T')[0]===diaSel)
+    .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora))
+
+  const html=dodia.length ? dodia.map(a=>{
+    const hr=new Date(a.data_hora).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
     const bc=a.status==='confirmado'?'badge-ok':a.status==='cancelado'?'badge-err':'badge-warn'
-    const c=a.status==='pendente'?`<button class="btn btn-sm btn-line" onclick="confAg('${a.id}')">Confirmar</button>`:''
-    const x=a.status!=='cancelado'?`<button class="btn btn-sm btn-danger" style="margin-left:6px" onclick="cancAg('${a.id}')">Cancelar</button>`:''
-    return `<tr><td><strong>${a.nome_cliente}</strong></td><td>${a.servicos?.nome||'—'}</td><td>${dt}</td><td><span class="badge ${bc}">${a.status}</span></td><td>${c}${x}</td></tr>`
+    return `<div class="ag-card" onclick="abrirModal('${a.id}')">
+      <div class="ag-card-top"><span class="ag-card-nome">${a.nome_cliente}</span><span class="badge ${bc}">${a.status}</span></div>
+      <div class="ag-card-info"><small>✂ ${a.servicos?.nome||'—'}</small><small>👤 ${a.barbeiros?.nome||'—'}</small><small>🕐 ${hr}</small></div>
+    </div>`
+  }).join('') : '<div class="ag-empty">Nenhum agendamento neste dia.</div>'
+
+  // Atualiza os dois containers (dashboard e painel agendamentos)
+  const el1=document.getElementById('agenda-lista')
+  const el2=document.getElementById('agenda-lista-2')
+  if(el1) el1.innerHTML=html
+  if(el2) el2.innerHTML=html
+}
+
+function renderGrade(){
+  const el=document.getElementById('grade-horarios')
+  if(!el) return
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+
+  const slots=[]
+  for(let h=8;h<20;h++)
+    for(let m=0;m<60;m+=30)
+      slots.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'))
+
+  el.innerHTML=slots.map(slot=>{
+    const dtSlot=new Date(diaSel+'T'+slot+':00')
+    // Verifica agendamento nesse slot
+    const ag=agendamentos.find(a=>{
+      if(a.status==='cancelado') return false
+      return Math.abs(new Date(a.data_hora)-dtSlot)<60000
+    })
+    // Verifica bloqueio
+    const blq=bloqueios.find(b=>dtSlot>=new Date(b.data_hora_inicio)&&dtSlot<new Date(b.data_hora_fim))
+
+    let bg,border,color,txt,cursor,onclick
+    if(blq){
+      bg='var(--danger-bg)';border='var(--danger)';color='var(--danger)';txt=slot;cursor='default';onclick=''
+    } else if(ag){
+      const isConf=ag.status==='confirmado'
+      bg=isConf?'var(--success-bg)':'var(--warn-bg)'
+      border=isConf?'var(--success)':'var(--warn)'
+      color=isConf?'var(--success)':'var(--warn)'
+      txt=slot;cursor='pointer'
+      onclick=`onclick="abrirModal('${ag.id}')"`
+    } else {
+      bg='var(--gray-1)';border='var(--gray-2)';color='var(--gray-4)';txt=slot;cursor='default';onclick=''
+    }
+
+    return `<div ${onclick} style="padding:9px 4px;border-radius:8px;background:${bg};border:1px solid ${border};text-align:center;font-size:0.8rem;font-weight:500;color:${color};cursor:${cursor}">${txt}${ag?`<div style="font-size:0.65rem;margin-top:2px;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ag.nome_cliente.split('@')[0]}</div>`:''}</div>`
   }).join('')
-  el.innerHTML=`<table class="tbl"><thead><tr><th>Cliente</th><th>Serviço</th><th>Data/Hora</th><th>Status</th><th>Ações</th></tr></thead><tbody>${rows}</tbody></table>`
+}
+
+function mudarDia(delta){
+  const inp=document.getElementById('agenda-dia')
+  const dt=new Date((inp?.value||new Date().toISOString().split('T')[0])+'T12:00:00')
+  dt.setDate(dt.getDate()+delta)
+  if(inp) inp.value=dt.toISOString().split('T')[0]
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
+}
+
+function irHoje(){
+  const inp=document.getElementById('agenda-dia')
+  if(inp) inp.value=new Date().toISOString().split('T')[0]
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
+}
+
+let _agModal=null
+function abrirModal(id){
+  _agModal=agendamentos.find(a=>a.id===id)
+  if(!_agModal) return
+  const dt=new Date(_agModal.data_hora).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  document.getElementById('m-cliente').textContent=_agModal.nome_cliente
+  document.getElementById('m-servico').textContent=_agModal.servicos?.nome||'—'
+  document.getElementById('m-barbeiro').textContent=_agModal.barbeiros?.nome||'—'
+  document.getElementById('m-data').textContent=dt
+  const bc=_agModal.status==='confirmado'?'badge-ok':_agModal.status==='cancelado'?'badge-err':'badge-warn'
+  document.getElementById('m-status').innerHTML=`<span class="badge ${bc}">${_agModal.status}</span>`
+  const acoes=document.getElementById('m-acoes')
+  acoes.innerHTML=''
+  if(_agModal.status==='pendente'){
+    acoes.innerHTML+=`<button class="btn btn-dark" style="flex:1" onclick="confAg('${_agModal.id}');fecharModal()">✓ Confirmar</button>`
+  }
+  if(_agModal.status!=='cancelado'){
+    acoes.innerHTML+=`<button class="btn btn-danger" style="flex:1" onclick="cancAg('${_agModal.id}');fecharModal()">✕ Cancelar</button>`
+  }
+  acoes.innerHTML+=`<button class="btn btn-line" onclick="fecharModal()">Fechar</button>`
+  document.getElementById('modal-ag').classList.add('open')
+}
+
+function fecharModal(e){
+  if(!e||e.target===document.getElementById('modal-ag')){
+    document.getElementById('modal-ag').classList.remove('open')
+  }
+}
+
+function renderEquipe(barbs){
+  const el=document.getElementById('equipe-lista')
+  if(!barbs.length){el.innerHTML='<p style="color:var(--gray-4);font-size:0.88rem">Nenhum barbeiro.</p>';return}
+  el.innerHTML=barbs.map(b=>`<div class="svc-row"><div style="flex:1"><div style="font-weight:500;font-size:0.9rem">${b.nome}</div><small style="color:var(--gray-4)">${b.especialidade||'—'}</small></div><button class="btn btn-sm btn-danger" onclick="remBarbeiro('${b.id}')">✕</button></div>`).join('')
+}
+
+async function addBarbeiro(){
+  if(!barbearia){alert('Salve a barbearia primeiro.');return}
+  const nome=document.getElementById('eq-nome').value.trim()
+  if(!nome){alert('Digite o nome do barbeiro.');return}
+  await sb.from('barbeiros').insert([{nome,especialidade:document.getElementById('eq-esp').value,barbearia_id:barbearia.id}])
+  document.getElementById('eq-nome').value=''; document.getElementById('eq-esp').value=''
+  await recarregar()
+}
+
+async function remBarbeiro(id){
+  if(!confirm('Remover barbeiro?'))return
+  await sb.from('barbeiros').delete().eq('id',id)
+  await recarregar()
 }
 
 function renderServicos(){
@@ -525,16 +931,26 @@ function copiarLink(){ navigator.clipboard.writeText(document.getElementById('li
 
 function setPanel(btn,id){
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'))
-  btn.classList.add('active')
+  if(btn) btn.classList.add('active')
+  else {
+    // Encontra o botão pelo id do painel
+    document.querySelectorAll('.sb-item').forEach(b=>{
+      if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))
+        b.classList.add('active')
+    })
+  }
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
-  document.getElementById('panel-'+id).classList.add('active')
+  const p=document.getElementById('panel-'+id)
+  if(p) p.classList.add('active')
+  // Scroll para o topo no mobile
+  window.scrollTo(0,0)
 }
 
 async function salvarBarbearia(){
   const btn=document.getElementById('cfg-btn')
   btn.disabled=true; btn.textContent='Salvando...'
   document.getElementById('cfg-msg').innerHTML=''
-  const payload={nome:document.getElementById('cfg-nome').value,endereco:document.getElementById('cfg-end').value,telefone:document.getElementById('cfg-tel').value,slug:document.getElementById('cfg-slug').value.toLowerCase().replace(/\s+/g,'-').trim(),owner_id:session.user.id}
+  const payload={nome:document.getElementById('cfg-nome').value,endereco:document.getElementById('cfg-end').value,telefone:document.getElementById('cfg-tel').value,slug:document.getElementById('cfg-slug').value.trim(),owner_id:session.user.id}
   if(barbearia) payload.id=barbearia.id
   const {data,error}=await sb.from('barbearias').upsert([payload]).select()
   btn.disabled=false; btn.textContent='Salvar configurações'
@@ -560,60 +976,194 @@ async function bloquear(){
 async function remBlq(id){ await sb.from('horarios_bloqueados').delete().eq('id',id); await recarregar() }
 
 // ── CLIENTE ──
+let barbeiros=[], selBarb=null, selSv=null, selHora=null, agsBarb=[], blqsBarb=[]
+
 async function loadCliente(){
   showView('cliente')
   document.getElementById('cli-email').textContent=session.user.email
+
+  // Busca barbearia ignorando maiúsculas/minúsculas no slug
   let q=sb.from('barbearias').select('*')
-  if(slug) q=q.eq('slug',slug)
+  if(slug) q=q.ilike('slug', slug)
   const {data:b}=await q.limit(1).single()
-  if(!b) return
+  if(!b){
+    document.getElementById('cli-nome').textContent='Barbearia não encontrada'
+    return
+  }
   barbearia=b
   document.getElementById('cli-nome').textContent=b.nome
   document.getElementById('cli-end').textContent=b.endereco||''
-  const [{data:sv},{data:ag}]=await Promise.all([
+
+  const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id',b.id),
-    sb.from('agendamentos').select('*,servicos(nome)').eq('user_id',session.user.id).order('data_hora')
+    sb.from('barbeiros').select('*').eq('barbearia_id',b.id),
+    sb.from('agendamentos').select('*,servicos(nome),barbeiros(nome)').eq('user_id',session.user.id).order('data_hora',{ascending:false})
   ])
-  servicos=sv||[]
-  renderSvCli(); renderMeusAgs(ag||[])
+  servicos=sv||[]; barbeiros=barb||[]
+
+  // Reset estado
+  selBarb=null; selSv=null; selHora=null
+  irE(1)
+  document.getElementById('btn-e1').disabled=true
+  document.getElementById('btn-e2').disabled=true
+  document.getElementById('btn-e3').disabled=true
+
+  renderBarbsCli()
+  renderMeusAgs(ag||[])
+
+  const hoje=new Date().toISOString().split('T')[0]
+  document.getElementById('cli-dia').min=hoje
+  document.getElementById('cli-dia').value=hoje
+}
+
+function renderBarbsCli(){
+  const el=document.getElementById('barbs-cli')
+  if(!barbeiros.length){
+    el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum barbeiro cadastrado.</p>'
+    return
+  }
+  el.innerHTML=barbeiros.map(b=>`
+    <div class="sel-card" id="barb-${b.id}" onclick="selBarb2('${b.id}')">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--gray-1);border:1px solid var(--gray-2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">✂</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${b.nome}</div>
+        <div style="font-size:0.78rem;color:var(--gray-4)">${b.especialidade||'Especialista em cortes'}</div>
+      </div>
+    </div>`).join('')
+}
+
+function selBarb2(id){
+  selBarb=barbeiros.find(b=>b.id===id)
+  document.querySelectorAll('[id^="barb-"]').forEach(c=>c.classList.remove('picked'))
+  document.getElementById('barb-'+id).classList.add('picked')
+  document.getElementById('btn-e1').disabled=false
 }
 
 function renderSvCli(){
   const el=document.getElementById('svcs-cli')
   if(!servicos.length){el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum serviço disponível.</p>';return}
-  el.innerHTML=servicos.map(s=>`<div class="sel-card" id="sc-${s.id}" onclick="selSvc('${s.id}')"><div style="flex:1"><div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${s.nome}</div><div style="font-size:0.8rem;color:var(--gray-4)">${s.duracao_minutos} min</div></div><span style="font-weight:500">${s.preco?'R$ '+s.preco:''}</span></div>`).join('')
+  // Reset seleção ao renderizar
+  selSv=null
+  document.getElementById('btn-e2').disabled=true
+  el.innerHTML=servicos.map(s=>`
+    <div class="sel-card" id="sc-${s.id}" onclick="selSvc('${s.id}')">
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${s.nome}</div>
+        <div style="font-size:0.78rem;color:var(--gray-4)">${s.duracao_minutos} min</div>
+      </div>
+      <span style="font-weight:500;font-size:0.9rem">R$ ${s.preco}</span>
+    </div>`).join('')
 }
 
 function selSvc(id){
   selSv=servicos.find(s=>s.id===id)
-  document.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('picked'))
+  document.querySelectorAll('[id^="sc-"]').forEach(c=>c.classList.remove('picked'))
   document.getElementById('sc-'+id).classList.add('picked')
-  document.getElementById('btn-e1').disabled=false
+  document.getElementById('btn-e2').disabled=false
 }
 
-function irE2(){ if(!selSv)return; irE(2) }
-function irE3(){
-  const d=document.getElementById('cli-data').value
-  if(!d){document.getElementById('cli-msg').innerHTML='<div class="msg msg-err">Selecione um horário.</div>';return}
-  document.getElementById('cli-msg').innerHTML=''
-  irE(3)
-  document.getElementById('res-sv').textContent=selSv.nome
-  document.getElementById('res-det').textContent=`${new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · R$ ${selSv.preco} · ${selSv.duracao_minutos} min`
+async function renderHorarios(){
+  const dia=document.getElementById('cli-dia').value
+  if(!dia||!selBarb) return
+  selHora=null
+  document.getElementById('btn-e3').disabled=true
+
+  const inicio=dia+'T00:00:00'
+  const fim=dia+'T23:59:59'
+  const [{data:ags},{data:blqs}]=await Promise.all([
+    sb.from('agendamentos').select('data_hora,status').eq('barbeiro_id',selBarb.id).gte('data_hora',inicio).lte('data_hora',fim),
+    sb.from('horarios_bloqueados').select('data_hora_inicio,data_hora_fim').eq('barbearia_id',barbearia.id).gte('data_hora_inicio',inicio).lte('data_hora_fim',fim)
+  ])
+  agsBarb=ags||[]; blqsBarb=blqs||[]
+
+  const slots=[]
+  for(let h=8;h<20;h++){
+    for(let m=0;m<60;m+=30){
+      slots.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'))
+    }
+  }
+
+  const el=document.getElementById('horarios-grid')
+  el.innerHTML=slots.map(slot=>{
+    const dtSlot=new Date(dia+'T'+slot+':00')
+    const ocupado=agsBarb.some(a=>{
+      if(a.status==='cancelado') return false
+      return Math.abs(new Date(a.data_hora)-dtSlot)<60000
+    })
+    const bloqueado=blqsBarb.some(b=>dtSlot>=new Date(b.data_hora_inicio)&&dtSlot<new Date(b.data_hora_fim))
+    const passado=dtSlot<new Date()
+
+    if(ocupado||bloqueado||passado){
+      return `<div style="padding:10px;border-radius:8px;background:var(--gray-1);border:1px solid var(--gray-2);text-align:center;font-size:0.82rem;color:var(--gray-3);text-decoration:${ocupado?'line-through':'none'};cursor:not-allowed">${slot}</div>`
+    }
+    return `<div id="slot-${slot.replace(':','-')}" onclick="selSlot('${slot}')" style="padding:10px;border-radius:8px;background:var(--white);border:1.5px solid var(--gray-2);text-align:center;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.15s">${slot}</div>`
+  }).join('')
 }
-function irE(n){ for(let i=1;i<=3;i++){ document.getElementById('etapa-'+i).style.display=i===n?'block':'none'; document.getElementById('s'+i).classList.toggle('on',i<=n) } }
+
+function selSlot(hora){
+  selHora=hora
+  document.querySelectorAll('[id^="slot-"]').forEach(el=>{
+    el.style.background='var(--white)'
+    el.style.color='var(--black)'
+    el.style.borderColor='var(--gray-2)'
+  })
+  const el=document.getElementById('slot-'+hora.replace(':','-'))
+  if(el){ el.style.background='var(--black)'; el.style.color='var(--white)'; el.style.borderColor='var(--black)' }
+  document.getElementById('btn-e3').disabled=false
+}
+
+async function irE(n){
+  for(let i=1;i<=4;i++){
+    const et=document.getElementById('etapa-'+i)
+    if(et) et.style.display=i===n?'block':'none'
+    const st=document.getElementById('s'+i)
+    if(st) st.classList.toggle('on',i<=n)
+  }
+  if(n===2) renderSvCli()
+  if(n===3){ selHora=null; document.getElementById('btn-e3').disabled=true; await renderHorarios() }
+  if(n===4&&selBarb&&selSv&&selHora){
+    const dia=document.getElementById('cli-dia').value
+    document.getElementById('res-barb').textContent='Barbeiro: '+selBarb.nome
+    document.getElementById('res-sv').textContent='Serviço: '+selSv.nome+' — R$ '+selSv.preco
+    const dtFmt=new Date(dia+'T'+selHora+':00').toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    document.getElementById('res-det').textContent=dtFmt+' · '+selSv.duracao_minutos+' min'
+    document.getElementById('cli-msg-conf').innerHTML=''
+  }
+}
 
 async function confirmar(){
   const btn=document.getElementById('btn-conf')
   btn.disabled=true; btn.textContent='Confirmando...'
-  document.getElementById('cli-msg').innerHTML=''
-  const {error}=await sb.from('agendamentos').insert([{barbearia_id:barbearia.id,user_id:session.user.id,servico_id:selSv.id,nome_cliente:session.user.email.split('@')[0],data_hora:document.getElementById('cli-data').value,status:'pendente'}])
+  const dia=document.getElementById('cli-dia').value
+  const dataHora=dia+'T'+selHora+':00'
+
+  // Checagem final de conflito
+  const {data:conf}=await sb.from('agendamentos')
+    .select('id').eq('barbeiro_id',selBarb.id).eq('data_hora',dataHora)
+    .neq('status','cancelado').maybeSingle()
+
+  if(conf){
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Este horário acabou de ser ocupado. Escolha outro.</div>'
+    btn.disabled=false; btn.textContent='Confirmar agendamento'
+    return
+  }
+
+  const {error}=await sb.from('agendamentos').insert([{
+    barbearia_id:barbearia.id,
+    user_id:session.user.id,
+    servico_id:selSv.id,
+    barbeiro_id:selBarb.id,
+    nome_cliente:session.user.email.split('@')[0],
+    data_hora:dataHora,
+    status:'pendente'
+  }])
   btn.disabled=false; btn.textContent='Confirmar agendamento'
   if(!error){
-    document.getElementById('cli-msg').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
-    selSv=null; irE(1); document.getElementById('btn-e1').disabled=true
-    document.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('picked'))
-    await loadCliente()
-  } else { document.getElementById('cli-msg').innerHTML=`<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>` }
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
+    setTimeout(()=>loadCliente(), 1500)
+  } else {
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
+  }
 }
 
 function renderMeusAgs(ags){
@@ -622,7 +1172,8 @@ function renderMeusAgs(ags){
   const bm={confirmado:'badge-ok',pendente:'badge-warn',cancelado:'badge-err'}
   el.innerHTML=ags.map(a=>{
     const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
-    return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}</small></div></div>`
+    const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:''
+    return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}${barb}</small></div></div>`
   }).join('')
 }
 </script>
