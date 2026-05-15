@@ -293,13 +293,25 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <!-- Navegação de datas -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
         <button class="btn btn-line btn-sm" onclick="mudarDia(-1)">←</button>
-        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderStats();renderAgenda()"/>
+        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderStats();renderAgenda();renderGrade()"/>
         <button class="btn btn-line btn-sm" onclick="mudarDia(1)">→</button>
         <button class="btn btn-ghost btn-sm" onclick="irHoje()">Hoje</button>
         <span id="agenda-dia-label" style="font-size:0.88rem;color:var(--gray-4)"></span>
       </div>
 
       <div class="card"><div id="agenda-lista"><div class="ag-empty">Nenhum agendamento ainda.</div></div></div>
+
+      <!-- Grade de horários do dia -->
+      <div style="margin-top:1.25rem">
+        <h3 style="font-size:0.85rem;font-weight:600;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">Grade do dia</h3>
+        <div id="grade-horarios" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--success-bg);border:1px solid var(--success);display:inline-block"></span>Confirmado</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--warn-bg);border:1px solid var(--warn);display:inline-block"></span>Pendente</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--gray-1);border:1px solid var(--gray-2);display:inline-block"></span>Livre</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--danger-bg);border:1px solid var(--danger);display:inline-block"></span>Bloqueado</span>
+        </div>
+      </div>
     </div>
 
     <!-- HORÁRIOS -->
@@ -568,7 +580,7 @@ async function recarregar(){
     sb.from('barbeiros').select('*').eq('barbearia_id',barbearia.id)
   ])
   agendamentos=ag||[]; servicos=sv||[]; bloqueios=bl||[]
-  renderStats(); renderAgenda(); renderServicos(); renderBloqueios(); renderEquipe(barb||[])
+  renderStats(); renderAgenda(); renderGrade(); renderServicos(); renderBloqueios(); renderEquipe(barb||[])
   if(barbearia.slug){ const l=`${location.origin}/${barbearia.slug}`; document.getElementById('link-txt').textContent=l; document.getElementById('link-wrap').style.display='block' }
 }
 
@@ -627,17 +639,55 @@ function renderAgenda(){
   }).join('')
 }
 
+function renderGrade(){
+  const el=document.getElementById('grade-horarios')
+  if(!el) return
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+
+  const slots=[]
+  for(let h=8;h<20;h++)
+    for(let m=0;m<60;m+=30)
+      slots.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'))
+
+  el.innerHTML=slots.map(slot=>{
+    const dtSlot=new Date(diaSel+'T'+slot+':00')
+    // Verifica agendamento nesse slot
+    const ag=agendamentos.find(a=>{
+      if(a.status==='cancelado') return false
+      return Math.abs(new Date(a.data_hora)-dtSlot)<60000
+    })
+    // Verifica bloqueio
+    const blq=bloqueios.find(b=>dtSlot>=new Date(b.data_hora_inicio)&&dtSlot<new Date(b.data_hora_fim))
+
+    let bg,border,color,txt,cursor,onclick
+    if(blq){
+      bg='var(--danger-bg)';border='var(--danger)';color='var(--danger)';txt=slot;cursor='default';onclick=''
+    } else if(ag){
+      const isConf=ag.status==='confirmado'
+      bg=isConf?'var(--success-bg)':'var(--warn-bg)'
+      border=isConf?'var(--success)':'var(--warn)'
+      color=isConf?'var(--success)':'var(--warn)'
+      txt=slot;cursor='pointer'
+      onclick=`onclick="abrirModal('${ag.id}')"`
+    } else {
+      bg='var(--gray-1)';border='var(--gray-2)';color='var(--gray-4)';txt=slot;cursor='default';onclick=''
+    }
+
+    return `<div ${onclick} style="padding:9px 4px;border-radius:8px;background:${bg};border:1px solid ${border};text-align:center;font-size:0.8rem;font-weight:500;color:${color};cursor:${cursor}">${txt}${ag?`<div style="font-size:0.65rem;margin-top:2px;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ag.nome_cliente.split('@')[0]}</div>`:''}</div>`
+  }).join('')
+}
+
 function mudarDia(delta){
   const inp=document.getElementById('agenda-dia')
   const dt=new Date((inp.value||new Date().toISOString().split('T')[0])+'T12:00:00')
   dt.setDate(dt.getDate()+delta)
   inp.value=dt.toISOString().split('T')[0]
-  renderStats(); renderAgenda()
+  renderStats(); renderAgenda(); renderGrade()
 }
 
 function irHoje(){
   document.getElementById('agenda-dia').value=new Date().toISOString().split('T')[0]
-  renderStats(); renderAgenda()
+  renderStats(); renderAgenda(); renderGrade()
 }
 
 let _agModal=null
@@ -722,7 +772,7 @@ async function salvarBarbearia(){
   const btn=document.getElementById('cfg-btn')
   btn.disabled=true; btn.textContent='Salvando...'
   document.getElementById('cfg-msg').innerHTML=''
-  const payload={nome:document.getElementById('cfg-nome').value,endereco:document.getElementById('cfg-end').value,telefone:document.getElementById('cfg-tel').value,slug:document.getElementById('cfg-slug').value.toLowerCase().replace(/\s+/g,'-').trim(),owner_id:session.user.id}
+  const payload={nome:document.getElementById('cfg-nome').value,endereco:document.getElementById('cfg-end').value,telefone:document.getElementById('cfg-tel').value,slug:document.getElementById('cfg-slug').value.trim(),owner_id:session.user.id}
   if(barbearia) payload.id=barbearia.id
   const {data,error}=await sb.from('barbearias').upsert([payload]).select()
   btn.disabled=false; btn.textContent='Salvar configurações'
