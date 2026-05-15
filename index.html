@@ -189,7 +189,30 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .tl-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
 .tl-name{font-weight:500;font-size:0.9rem}
 
-/* RESPONSIVE */
+/* DASHBOARD CARDS */
+.dash-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:1.5rem}
+.dash-card{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:1.25rem;display:flex;flex-direction:column;gap:8px}
+.dc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;flex-shrink:0;margin-bottom:4px}
+.dc-label{font-size:0.75rem;color:var(--gray-4);font-weight:500}
+.dc-val{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--black);line-height:1}
+.sb-ic{width:18px;text-align:center;flex-shrink:0}
+
+/* SEMANA STRIP */
+.sem-dia{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;min-width:46px;flex-shrink:0}
+.sem-dia:hover{background:var(--gray-1)}
+.sem-dia.hoje{border-color:var(--gray-2)}
+.sem-dia.ativo{background:var(--black);color:var(--white)}
+.sem-dia .sem-sigla{font-size:0.7rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;opacity:0.7;margin-bottom:4px}
+.sem-dia .sem-num{font-size:1rem;font-weight:600}
+.sem-dia.ativo .sem-sigla{opacity:0.7}
+
+@media(max-width:1100px){
+  [style*="grid-template-columns:1fr 320px"]{grid-template-columns:1fr!important}
+  .dash-cards{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .dash-cards{grid-template-columns:1fr 1fr}
+}
 @media(max-width:860px){
   .hero{grid-template-columns:1fr;padding:3rem 5%}.hero-card{display:none}
   .features{grid-template-columns:1fr}.feat{border-right:none;border-bottom:1px solid var(--gray-2);padding:2rem 5%}
@@ -262,56 +285,138 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 <div id="barber">
   <aside class="sidebar">
     <div class="sb-brand">
-      <h3 id="sb-nome">Minha Barbearia</h3>
-      <small id="sb-email"></small>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:36px;height:36px;background:var(--black);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:1rem">✂</div>
+        <div>
+          <div id="sb-nome" style="font-weight:600;font-size:0.9rem;line-height:1.2">Minha Barbearia</div>
+          <div id="sb-email" style="font-size:0.72rem;color:var(--gray-4)"></div>
+        </div>
+      </div>
     </div>
     <nav class="sb-nav">
-      <button class="sb-item active" onclick="setPanel(this,'agenda')">📅 Agenda</button>
-      <button class="sb-item" onclick="setPanel(this,'horarios')">🕐 Horários</button>
-      <button class="sb-item" onclick="setPanel(this,'servicos')">✂️ Serviços</button>
-      <button class="sb-item" onclick="setPanel(this,'equipe')">👥 Equipe</button>
-      <button class="sb-item" onclick="setPanel(this,'config')">⚙️ Barbearia</button>
+      <button class="sb-item active" onclick="setPanel(this,'dashboard')"><span class="sb-ic">⊞</span> Dashboard</button>
+      <button class="sb-item" onclick="setPanel(this,'agenda')"><span class="sb-ic">📅</span> Agendamentos</button>
+      <button class="sb-item" onclick="setPanel(this,'servicos')"><span class="sb-ic">✂️</span> Serviços</button>
+      <button class="sb-item" onclick="setPanel(this,'equipe')"><span class="sb-ic">👥</span> Barbeiros</button>
+      <button class="sb-item" onclick="setPanel(this,'horarios')"><span class="sb-ic">🔒</span> Bloquear Horários</button>
+      <button class="sb-item" onclick="setPanel(this,'config')"><span class="sb-ic">⚙️</span> Configurações</button>
     </nav>
-    <button class="sb-out" onclick="signOut()">Sair</button>
+    <button class="sb-out" onclick="signOut()">← Sair</button>
   </aside>
-  <main class="b-main">
-    <div class="stats-row">
-      <div class="stat"><div class="stat-l">Agendamentos hoje</div><div class="stat-v" id="st-total">0</div></div>
-      <div class="stat"><div class="stat-l">Pendentes hoje</div><div class="stat-v" id="st-pend">0</div></div>
-      <div class="stat"><div class="stat-l">Faturamento hoje</div><div class="stat-v" id="st-fat">R$ 0</div></div>
-    </div>
 
-    <!-- AGENDA -->
-    <div id="panel-agenda" class="panel active">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px">
-        <h2 class="panel-title" style="margin:0">Agenda</h2>
+  <main class="b-main">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel active">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px">
+        <div>
+          <p style="font-size:0.8rem;color:var(--gray-4);margin-bottom:4px" id="dash-data"></p>
+          <h2 style="font-size:1.4rem;font-weight:600">Bem-vindo, <span id="dash-nome">barbeiro</span>!</h2>
+        </div>
         <div id="link-wrap" style="display:none">
-          <div class="link-box"><code id="link-txt"></code><button class="btn btn-ghost btn-sm" onclick="copiarLink()">Copiar</button></div>
+          <div class="link-box"><span style="font-size:0.75rem;color:var(--gray-4);margin-right:4px">🔗</span><code id="link-txt"></code><button class="btn btn-dark btn-sm" onclick="copiarLink()" style="margin-left:8px;padding:6px 12px">Copiar</button></div>
         </div>
       </div>
 
-      <!-- Navegação de datas -->
+      <!-- Cards coloridos -->
+      <div class="dash-cards">
+        <div class="dash-card" style="--cc:#e8f0fe;--ci:#1a56db">
+          <div class="dc-icon" style="background:#1a56db">📅</div>
+          <div class="dc-label">Agendamentos Hoje</div>
+          <div class="dc-val" id="st-total">0</div>
+        </div>
+        <div class="dash-card" style="--cc:#e8f5e8;--ci:#2d6a2d">
+          <div class="dc-icon" style="background:#2d6a2d">👥</div>
+          <div class="dc-label">Clientes Ativos</div>
+          <div class="dc-val" id="st-clientes">0</div>
+        </div>
+        <div class="dash-card" style="--cc:#f0e8fe;--ci:#6b21a8">
+          <div class="dc-icon" style="background:#6b21a8">✂</div>
+          <div class="dc-label">Barbeiros</div>
+          <div class="dc-val" id="st-barbs">0</div>
+        </div>
+        <div class="dash-card" style="--cc:#fff8e8;--ci:#b45309">
+          <div class="dc-icon" style="background:#b45309">★</div>
+          <div class="dc-label">Serviços</div>
+          <div class="dc-val" id="st-svcs">0</div>
+        </div>
+      </div>
+
+      <!-- Agenda + sidebar direita -->
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;margin-top:1.25rem">
+        <div>
+          <div class="card" style="margin-bottom:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem">
+              <span>📅</span>
+              <h3 style="font-size:1rem;font-weight:600">Agenda</h3>
+            </div>
+
+            <!-- Semana -->
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem">
+              <button class="btn btn-line btn-sm btn-icon" onclick="mudarDia(-1)">‹</button>
+              <div id="semana-strip" style="display:flex;gap:6px;flex:1;overflow-x:auto;padding:2px 0"></div>
+              <button class="btn btn-line btn-sm btn-icon" onclick="mudarDia(1)">›</button>
+            </div>
+
+            <!-- Data grande -->
+            <div style="text-align:center;font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;color:var(--black)" id="agenda-data-titulo"></div>
+
+            <!-- Agendamentos -->
+            <div id="agenda-lista"><div class="ag-empty">Nenhum agendamento neste dia.</div></div>
+
+            <button class="btn btn-dark btn-full" style="margin-top:1rem" onclick="setPanel(document.querySelector('.sb-item:nth-child(2)'),'agenda')">+ Novo Agendamento</button>
+          </div>
+        </div>
+
+        <!-- Coluna direita -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem">
+          <!-- Faturamento -->
+          <div class="card">
+            <h3 style="font-size:0.85rem;font-weight:600;margin-bottom:1rem;color:var(--gray-5)">⚡ Resumo do Dia</h3>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.85rem;color:var(--gray-4)">Confirmados</span>
+                <span id="st-conf" style="font-weight:600;font-size:0.95rem">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.85rem;color:var(--gray-4)">Pendentes</span>
+                <span id="st-pend" style="font-weight:600;font-size:0.95rem;color:var(--warn)">0</span>
+              </div>
+              <div style="border-top:1px solid var(--gray-1);padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.85rem;color:var(--gray-4)">Faturamento</span>
+                <span id="st-fat" style="font-weight:700;font-size:1.1rem;color:var(--success)">R$ 0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grade rápida -->
+          <div class="card">
+            <h3 style="font-size:0.85rem;font-weight:600;margin-bottom:1rem;color:var(--gray-5)">🕐 Grade de Horários</h3>
+            <div id="grade-horarios" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:10px">
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--success-bg);border:1px solid var(--success);display:inline-block"></span>Confirmado</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--warn-bg);border:1px solid var(--warn);display:inline-block"></span>Pendente</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--gray-1);border:1px solid var(--gray-2);display:inline-block"></span>Livre</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--gray-4)"><span style="width:8px;height:8px;border-radius:2px;background:var(--danger-bg);border:1px solid var(--danger);display:inline-block"></span>Bloqueado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENDAMENTOS -->
+    <div id="panel-agenda" class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px">
+        <h2 class="panel-title" style="margin:0">Agendamentos</h2>
+      </div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
         <button class="btn btn-line btn-sm" onclick="mudarDia(-1)">←</button>
-        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderStats();renderAgenda();renderGrade()"/>
+        <input type="date" class="inp" id="agenda-dia" style="width:auto;padding:8px 12px;font-size:0.88rem" onchange="renderStats();renderAgenda();renderGrade();renderSemana()"/>
         <button class="btn btn-line btn-sm" onclick="mudarDia(1)">→</button>
         <button class="btn btn-ghost btn-sm" onclick="irHoje()">Hoje</button>
         <span id="agenda-dia-label" style="font-size:0.88rem;color:var(--gray-4)"></span>
       </div>
-
-      <div class="card"><div id="agenda-lista"><div class="ag-empty">Nenhum agendamento ainda.</div></div></div>
-
-      <!-- Grade de horários do dia -->
-      <div style="margin-top:1.25rem">
-        <h3 style="font-size:0.85rem;font-weight:600;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">Grade do dia</h3>
-        <div id="grade-horarios" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
-        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
-          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--success-bg);border:1px solid var(--success);display:inline-block"></span>Confirmado</span>
-          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--warn-bg);border:1px solid var(--warn);display:inline-block"></span>Pendente</span>
-          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--gray-1);border:1px solid var(--gray-2);display:inline-block"></span>Livre</span>
-          <span style="display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--gray-4)"><span style="width:10px;height:10px;border-radius:3px;background:var(--danger-bg);border:1px solid var(--danger);display:inline-block"></span>Bloqueado</span>
-        </div>
-      </div>
+      <div class="card"><div id="agenda-lista-2"><div class="ag-empty">Nenhum agendamento neste dia.</div></div></div>
     </div>
 
     <!-- HORÁRIOS -->
@@ -352,7 +457,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 
     <!-- EQUIPE -->
     <div id="panel-equipe" class="panel">
-      <h2 class="panel-title">Equipe</h2>
+      <h2 class="panel-title">Barbeiros</h2>
       <div class="grid-2">
         <div class="card">
           <h3 style="font-size:0.95rem;margin-bottom:1rem">Adicionar barbeiro</h3>
@@ -369,10 +474,10 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 
     <!-- CONFIG -->
     <div id="panel-config" class="panel">
-      <h2 class="panel-title">Dados da Barbearia</h2>
+      <h2 class="panel-title">Configurações</h2>
       <div class="card" style="max-width:500px">
         <div id="cfg-msg"></div>
-        <div class="field"><label>Nome</label><input class="inp" type="text" id="cfg-nome" placeholder="Barbearia do João"/></div>
+        <div class="field"><label>Nome da barbearia</label><input class="inp" type="text" id="cfg-nome" placeholder="Barbearia do João"/></div>
         <div class="field"><label>Endereço</label><input class="inp" type="text" id="cfg-end" placeholder="Rua das Flores, 123"/></div>
         <div class="field"><label>Telefone / WhatsApp</label><input class="inp" type="text" id="cfg-tel" placeholder="(11) 99999-9999"/></div>
         <div class="field">
@@ -383,6 +488,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
         <button class="btn btn-dark" id="cfg-btn" onclick="salvarBarbearia()">Salvar configurações</button>
       </div>
     </div>
+
   </main>
 </div>
 
@@ -558,6 +664,8 @@ async function signOut(){ await sb.auth.signOut(); showView('landing') }
 async function loadBarbeiro(){
   showView('barber')
   document.getElementById('sb-email').textContent=session.user.email
+  const dd=document.getElementById('dash-data')
+  if(dd) dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   const {data:b}=await sb.from('barbearias').select('*').eq('owner_id',session.user.id).maybeSingle()
   if(b){ barbearia=b; preencherCfg(b); await recarregar() }
 }
@@ -573,6 +681,9 @@ function preencherCfg(b){
 
 async function recarregar(){
   if(!barbearia) return
+  const inp=document.getElementById('agenda-dia')
+  if(inp&&!inp.value) inp.value=new Date().toISOString().split('T')[0]
+
   const [{data:ag},{data:sv},{data:bl},{data:barb}]=await Promise.all([
     sb.from('agendamentos').select('*,servicos(nome,preco),barbeiros(nome)').eq('barbearia_id',barbearia.id).order('data_hora'),
     sb.from('servicos').select('*').eq('barbearia_id',barbearia.id),
@@ -580,63 +691,100 @@ async function recarregar(){
     sb.from('barbeiros').select('*').eq('barbearia_id',barbearia.id)
   ])
   agendamentos=ag||[]; servicos=sv||[]; bloqueios=bl||[]
-  renderStats(); renderAgenda(); renderGrade(); renderServicos(); renderBloqueios(); renderEquipe(barb||[])
-  if(barbearia.slug){ const l=`${location.origin}/${barbearia.slug}`; document.getElementById('link-txt').textContent=l; document.getElementById('link-wrap').style.display='block' }
-}
+
+  const e=id=>document.getElementById(id)
+  if(e('st-barbs')) e('st-barbs').textContent=(barb||[]).length
+  if(e('st-svcs'))  e('st-svcs').textContent=servicos.length
+  if(e('dash-nome')) e('dash-nome').textContent=barbearia.nome||'barbeiro'
+
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
+  renderServicos(); renderBloqueios(); renderEquipe(barb||[])
+  if(barbearia.slug){
+    const l=`${location.origin}/${barbearia.slug}`
+    if(e('link-txt')) e('link-txt').textContent=l
+    if(e('link-wrap')) e('link-wrap').style.display='block'
+  }
 
 function renderStats(){
   const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
   const dodia=agendamentos.filter(a=>new Date(a.data_hora).toISOString().split('T')[0]===diaSel)
-  document.getElementById('st-total').textContent=dodia.length
-  document.getElementById('st-pend').textContent=dodia.filter(a=>a.status==='pendente').length
-  const fat=dodia.filter(a=>a.status==='confirmado').reduce((s,a)=>s+(a.servicos?.preco||0),0)
-  document.getElementById('st-fat').textContent=`R$ ${fat.toFixed(2)}`
+  const conf=dodia.filter(a=>a.status==='confirmado')
+  const pend=dodia.filter(a=>a.status==='pendente')
+  const fat=conf.reduce((s,a)=>s+(a.servicos?.preco||0),0)
+  // dashboard cards
+  const el=id=>document.getElementById(id)
+  if(el('st-total')) el('st-total').textContent=dodia.length
+  if(el('st-pend'))  el('st-pend').textContent=pend.length
+  if(el('st-conf'))  el('st-conf').textContent=conf.length
+  if(el('st-fat'))   el('st-fat').textContent=`R$ ${fat.toFixed(2)}`
+  // clientes únicos e contadores globais
+  const clientesUnicos=new Set(agendamentos.map(a=>a.user_id)).size
+  if(el('st-clientes')) el('st-clientes').textContent=clientesUnicos
+}
+
+function renderSemana(){
+  const strip=document.getElementById('semana-strip')
+  if(!strip) return
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+  const hoje=new Date().toISOString().split('T')[0]
+  const siglas=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']
+  // Mostra 7 dias centrados no dia selecionado
+  const dias=[]
+  const base=new Date(diaSel+'T12:00:00')
+  for(let i=-3;i<=3;i++){
+    const d=new Date(base); d.setDate(d.getDate()+i)
+    dias.push(d.toISOString().split('T')[0])
+  }
+  strip.innerHTML=dias.map(d=>{
+    const dt=new Date(d+'T12:00:00')
+    const ativo=d===diaSel
+    const eh=d===hoje
+    return `<div class="sem-dia${ativo?' ativo':eh?' hoje':''}" onclick="selecionarDia('${d}')">
+      <div class="sem-sigla">${siglas[dt.getDay()]}</div>
+      <div class="sem-num">${dt.getDate()}</div>
+    </div>`
+  }).join('')
+  // Título da data
+  const tit=document.getElementById('agenda-data-titulo')
+  if(tit){
+    const dt=new Date(diaSel+'T12:00:00')
+    tit.textContent=dt.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})
+  }
+  // Label no painel agendamentos
+  const lbl=document.getElementById('agenda-dia-label')
+  if(lbl){
+    const dt=new Date(diaSel+'T12:00:00')
+    let txt=dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})
+    if(diaSel===hoje) txt='Hoje — '+txt
+    lbl.textContent=txt
+  }
+}
+
+function selecionarDia(d){
+  const inp=document.getElementById('agenda-dia')
+  if(inp) inp.value=d
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
 }
 
 function renderAgenda(){
-  const el=document.getElementById('agenda-lista')
-  const inputDia=document.getElementById('agenda-dia')
+  const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
+  const dodia=agendamentos.filter(a=>new Date(a.data_hora).toISOString().split('T')[0]===diaSel)
+    .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora))
 
-  // Inicializa com hoje se vazio
-  if(!inputDia.value){
-    inputDia.value=new Date().toISOString().split('T')[0]
-  }
-  const diaSel=inputDia.value
-
-  // Label amigável
-  const dtObj=new Date(diaSel+'T12:00:00')
-  const hoje=new Date().toISOString().split('T')[0]
-  const amanha=new Date(Date.now()+86400000).toISOString().split('T')[0]
-  let label=dtObj.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})
-  if(diaSel===hoje) label='Hoje — '+label
-  else if(diaSel===amanha) label='Amanhã — '+label
-  document.getElementById('agenda-dia-label').textContent=label
-
-  // Filtra agendamentos do dia
-  const dodia=agendamentos.filter(a=>{
-    return new Date(a.data_hora).toISOString().split('T')[0]===diaSel
-  }).sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora))
-
-  if(!dodia.length){
-    el.innerHTML='<div class="ag-empty">Nenhum agendamento neste dia.</div>'
-    return
-  }
-
-  el.innerHTML=dodia.map(a=>{
+  const html=dodia.length ? dodia.map(a=>{
     const hr=new Date(a.data_hora).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
     const bc=a.status==='confirmado'?'badge-ok':a.status==='cancelado'?'badge-err':'badge-warn'
     return `<div class="ag-card" onclick="abrirModal('${a.id}')">
-      <div class="ag-card-top">
-        <span class="ag-card-nome">${a.nome_cliente}</span>
-        <span class="badge ${bc}">${a.status}</span>
-      </div>
-      <div class="ag-card-info">
-        <small>✂ ${a.servicos?.nome||'—'}</small>
-        <small>👤 ${a.barbeiros?.nome||'—'}</small>
-        <small>🕐 ${hr}</small>
-      </div>
+      <div class="ag-card-top"><span class="ag-card-nome">${a.nome_cliente}</span><span class="badge ${bc}">${a.status}</span></div>
+      <div class="ag-card-info"><small>✂ ${a.servicos?.nome||'—'}</small><small>👤 ${a.barbeiros?.nome||'—'}</small><small>🕐 ${hr}</small></div>
     </div>`
-  }).join('')
+  }).join('') : '<div class="ag-empty">Nenhum agendamento neste dia.</div>'
+
+  // Atualiza os dois containers (dashboard e painel agendamentos)
+  const el1=document.getElementById('agenda-lista')
+  const el2=document.getElementById('agenda-lista-2')
+  if(el1) el1.innerHTML=html
+  if(el2) el2.innerHTML=html
 }
 
 function renderGrade(){
@@ -679,15 +827,16 @@ function renderGrade(){
 
 function mudarDia(delta){
   const inp=document.getElementById('agenda-dia')
-  const dt=new Date((inp.value||new Date().toISOString().split('T')[0])+'T12:00:00')
+  const dt=new Date((inp?.value||new Date().toISOString().split('T')[0])+'T12:00:00')
   dt.setDate(dt.getDate()+delta)
-  inp.value=dt.toISOString().split('T')[0]
-  renderStats(); renderAgenda(); renderGrade()
+  if(inp) inp.value=dt.toISOString().split('T')[0]
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
 }
 
 function irHoje(){
-  document.getElementById('agenda-dia').value=new Date().toISOString().split('T')[0]
-  renderStats(); renderAgenda(); renderGrade()
+  const inp=document.getElementById('agenda-dia')
+  if(inp) inp.value=new Date().toISOString().split('T')[0]
+  renderStats(); renderAgenda(); renderGrade(); renderSemana()
 }
 
 let _agModal=null
@@ -763,9 +912,10 @@ function copiarLink(){ navigator.clipboard.writeText(document.getElementById('li
 
 function setPanel(btn,id){
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'))
-  btn.classList.add('active')
+  if(btn) btn.classList.add('active')
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
-  document.getElementById('panel-'+id).classList.add('active')
+  const p=document.getElementById('panel-'+id)
+  if(p) p.classList.add('active')
 }
 
 async function salvarBarbearia(){
