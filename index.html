@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -476,10 +475,13 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <h2 class="panel-title">Barbeiros</h2>
       <div class="grid-2">
         <div class="card">
-          <h3 style="font-size:0.95rem;margin-bottom:1rem">Adicionar barbeiro</h3>
+          <h3 style="font-size:0.95rem;margin-bottom:0.5rem">Adicionar barbeiro</h3>
+          <p style="font-size:0.82rem;color:var(--gray-4);margin-bottom:1rem">O barbeiro receberá acesso ao sistema com e-mail e senha próprios.</p>
           <div class="field"><label>Nome</label><input class="inp" type="text" id="eq-nome" placeholder="Ex: João Silva"/></div>
+          <div class="field"><label>E-mail de acesso</label><input class="inp" type="email" id="eq-email" placeholder="joao@email.com"/></div>
           <div class="field"><label>Especialidade</label><input class="inp" type="text" id="eq-esp" placeholder="Ex: Cortes modernos"/></div>
-          <button class="btn btn-dark btn-full" onclick="addBarbeiro()">Salvar barbeiro</button>
+          <button class="btn btn-dark btn-full" onclick="addBarbeiro()">Adicionar barbeiro</button>
+          <div id="eq-msg" style="margin-top:10px"></div>
         </div>
         <div class="card">
           <h3 style="font-size:0.95rem;margin-bottom:1rem">Equipe atual</h3>
@@ -624,10 +626,27 @@ const slug = _path ? _path.split('/').pop() : null
 
 async function iniciar(s){
   session=s
-  const {data} = await sb.from('convites').select('email').eq('email',s.user.email.toLowerCase().trim()).maybeSingle()
-  role = data ? 'barbeiro' : 'cliente'
-  if(role==='barbeiro') await loadBarbeiro()
-  else await loadCliente()
+  // 1. Verifica se é DONO (tem barbearia própria)
+  const {data:bDono}=await sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle()
+  if(bDono){ role='dono'; await loadBarbeiro(); return }
+
+  // 2. Verifica se é BARBEIRO convidado (tem user_id na tabela barbeiros)
+  const {data:bBarb}=await sb.from('barbeiros').select('*,barbearias(*)').eq('user_id',s.user.id).maybeSingle()
+  if(bBarb){ role='barbeiro'; await loadBarbeiroFuncionario(bBarb); return }
+
+  // 3. Verifica se acabou de se cadastrar via convite (email no convites mas sem user_id ainda)
+  const {data:convite}=await sb.from('convites').select('*').eq('email',s.user.email.toLowerCase().trim()).maybeSingle()
+  if(convite){
+    // Vincula o user_id ao barbeiro correspondente (se já existir) ou cria
+    const {data:barbExist}=await sb.from('barbeiros').select('*,barbearias(*)').eq('convite_id',convite.id).maybeSingle()
+    if(barbExist){
+      await sb.from('barbeiros').update({user_id:s.user.id}).eq('id',barbExist.id)
+      role='barbeiro'; await loadBarbeiroFuncionario({...barbExist,user_id:s.user.id}); return
+    }
+  }
+
+  // 4. É cliente
+  role='cliente'; await loadCliente()
 }
 
 function showView(id){
@@ -678,7 +697,7 @@ async function handleAuth(){
 
 async function signOut(){ await sb.auth.signOut(); showView('landing') }
 
-// ── BARBEIRO ──
+// ── DONO DA BARBEARIA ──
 async function loadBarbeiro(){
   showView('barber')
   document.getElementById('sb-email').textContent=session.user.email
@@ -686,6 +705,49 @@ async function loadBarbeiro(){
   if(dd) dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   const {data:b}=await sb.from('barbearias').select('*').eq('owner_id',session.user.id).maybeSingle()
   if(b){ barbearia=b; preencherCfg(b); await recarregar() }
+}
+
+// ── BARBEIRO FUNCIONÁRIO ──
+let meuBarbeiro=null
+async function loadBarbeiroFuncionario(barb){
+  showView('barber')
+  meuBarbeiro=barb
+  barbearia=barb.barbearias
+  document.getElementById('sb-email').textContent=session.user.email
+  document.getElementById('sb-nome').textContent=barb.nome||'Meu Painel'
+  const dd=document.getElementById('dash-data')
+  if(dd) dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+
+  // Funcionário não vê aba Equipe nem Config da barbearia
+  document.querySelectorAll('[onclick*="equipe"],[onclick*="config"]').forEach(el=>{
+    if(el.classList.contains('sb-item')) el.style.display='none'
+  })
+
+  await recarregarFuncionario()
+}
+
+async function recarregarFuncionario(){
+  if(!meuBarbeiro||!barbearia) return
+  const inp=document.getElementById('agenda-dia')
+  if(inp&&!inp.value) inp.value=new Date().toISOString().split('T')[0]
+
+  // Busca só os agendamentos do barbeiro logado
+  const [{data:ag},{data:sv},{data:bl}]=await Promise.all([
+    sb.from('agendamentos').select('*,servicos(nome,preco),barbeiros(nome)')
+      .eq('barbearia_id',barbearia.id)
+      .eq('barbeiro_id',meuBarbeiro.id)
+      .order('data_hora'),
+    sb.from('servicos').select('*').eq('barbearia_id',barbearia.id),
+    sb.from('horarios_bloqueados').select('*').eq('barbearia_id',barbearia.id).order('data_hora_inicio')
+  ])
+  agendamentos=ag||[]; servicos=sv||[]; bloqueios=bl||[]
+
+  const e=id=>document.getElementById(id)
+  if(e('st-svcs')) e('st-svcs').textContent=servicos.length
+  if(e('dash-nome')) e('dash-nome').textContent=meuBarbeiro.nome||'barbeiro'
+  if(e('st-barbs')) e('st-barbs').style.display='none'
+
+  renderStats(); renderAgenda(); renderGrade(); renderSemana(); renderServicos(); renderBloqueios()
 }
 
 function preencherCfg(b){
@@ -890,21 +952,65 @@ function fecharModal(e){
 function renderEquipe(barbs){
   const el=document.getElementById('equipe-lista')
   if(!barbs.length){el.innerHTML='<p style="color:var(--gray-4);font-size:0.88rem">Nenhum barbeiro.</p>';return}
-  el.innerHTML=barbs.map(b=>`<div class="svc-row"><div style="flex:1"><div style="font-weight:500;font-size:0.9rem">${b.nome}</div><small style="color:var(--gray-4)">${b.especialidade||'—'}</small></div><button class="btn btn-sm btn-danger" onclick="remBarbeiro('${b.id}')">✕</button></div>`).join('')
+  el.innerHTML=barbs.map(b=>`
+    <div class="svc-row">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--gray-2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">✂</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:0.9rem">${b.nome}</div>
+        <div style="font-size:0.75rem;color:var(--gray-4)">${b.email||'Sem e-mail'} · ${b.especialidade||'—'}</div>
+        <div style="font-size:0.72rem;margin-top:2px">
+          ${b.user_id
+            ? '<span style="color:var(--success);font-weight:500">✓ Conta ativa</span>'
+            : '<span style="color:var(--warn)">⏳ Aguardando primeiro acesso</span>'}
+        </div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="remBarbeiro('${b.id}')">✕</button>
+    </div>`).join('')
 }
 
 async function addBarbeiro(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
   const nome=document.getElementById('eq-nome').value.trim()
-  if(!nome){alert('Digite o nome do barbeiro.');return}
-  await sb.from('barbeiros').insert([{nome,especialidade:document.getElementById('eq-esp').value,barbearia_id:barbearia.id}])
-  document.getElementById('eq-nome').value=''; document.getElementById('eq-esp').value=''
+  const email=document.getElementById('eq-email').value.trim().toLowerCase()
+  const esp=document.getElementById('eq-esp').value.trim()
+  const msgEl=document.getElementById('eq-msg')
+
+  if(!nome||!email){
+    msgEl.innerHTML='<div class="msg msg-err">Nome e e-mail são obrigatórios.</div>'
+    return
+  }
+
+  msgEl.innerHTML='<div class="msg" style="background:var(--gray-1);color:var(--gray-5)">Salvando...</div>'
+
+  // 1. Cria o convite com referência à barbearia
+  const {data:convite,error:ce}=await sb.from('convites').upsert([{
+    email, barbearia_id:barbearia.id, nome
+  }],{onConflict:'email'}).select().single()
+
+  if(ce){ msgEl.innerHTML=`<div class="msg msg-err">${ce.message}</div>`; return }
+
+  // 2. Cria o barbeiro vinculado ao convite
+  const {error:be}=await sb.from('barbeiros').insert([{
+    nome, email, especialidade:esp,
+    barbearia_id:barbearia.id,
+    convite_id:convite.id
+  }])
+
+  if(be){ msgEl.innerHTML=`<div class="msg msg-err">${be.message}</div>`; return }
+
+  msgEl.innerHTML=`<div class="msg msg-ok">Barbeiro adicionado! Peça para <strong>${email}</strong> criar uma conta no sistema.</div>`
+  document.getElementById('eq-nome').value=''
+  document.getElementById('eq-email').value=''
+  document.getElementById('eq-esp').value=''
   await recarregar()
 }
 
 async function remBarbeiro(id){
-  if(!confirm('Remover barbeiro?'))return
+  if(!confirm('Remover barbeiro? Ele perderá o acesso ao sistema.'))return
+  // Remove o user_id e o convite junto
+  const {data:barb}=await sb.from('barbeiros').select('convite_id,email').eq('id',id).single()
   await sb.from('barbeiros').delete().eq('id',id)
+  if(barb?.convite_id) await sb.from('convites').delete().eq('id',barb.convite_id)
   await recarregar()
 }
 
@@ -962,18 +1068,18 @@ async function addServico(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
   await sb.from('servicos').insert([{nome:document.getElementById('sv-nome').value,preco:parseFloat(document.getElementById('sv-preco').value),duracao_minutos:parseInt(document.getElementById('sv-dur').value),barbearia_id:barbearia.id}])
   document.getElementById('sv-nome').value=''; document.getElementById('sv-preco').value=''; document.getElementById('sv-dur').value=''
-  await recarregar()
+  if(meuBarbeiro) await recarregarFuncionario(); else await recarregar()
 }
-async function remSv(id){ if(!confirm('Remover?'))return; await sb.from('servicos').delete().eq('id',id); await recarregar() }
-async function confAg(id){ await sb.from('agendamentos').update({status:'confirmado'}).eq('id',id); await recarregar() }
-async function cancAg(id){ if(!confirm('Cancelar agendamento?'))return; await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id); await recarregar() }
+async function remSv(id){ if(!confirm('Remover?'))return; await sb.from('servicos').delete().eq('id',id); if(meuBarbeiro) await recarregarFuncionario(); else await recarregar() }
+async function confAg(id){ await sb.from('agendamentos').update({status:'confirmado'}).eq('id',id); if(meuBarbeiro) await recarregarFuncionario(); else await recarregar() }
+async function cancAg(id){ if(!confirm('Cancelar agendamento?'))return; await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id); if(meuBarbeiro) await recarregarFuncionario(); else await recarregar() }
 async function bloquear(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
   await sb.from('horarios_bloqueados').insert([{barbearia_id:barbearia.id,data_hora_inicio:document.getElementById('blq-ini').value,data_hora_fim:document.getElementById('blq-fim').value,motivo:document.getElementById('blq-mot').value||'Bloqueado'}])
   document.getElementById('blq-ini').value=''; document.getElementById('blq-fim').value=''; document.getElementById('blq-mot').value=''
-  await recarregar()
+  if(meuBarbeiro) await recarregarFuncionario(); else await recarregar()
 }
-async function remBlq(id){ await sb.from('horarios_bloqueados').delete().eq('id',id); await recarregar() }
+async function remBlq(id){ await sb.from('horarios_bloqueados').delete().eq('id',id); if(meuBarbeiro) await recarregarFuncionario(); else await recarregar() }
 
 // ── CLIENTE ──
 let barbeiros=[], selBarb=null, selSv=null, selHora=null, agsBarb=[], blqsBarb=[]
