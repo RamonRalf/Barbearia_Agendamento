@@ -6,14 +6,18 @@
 <title>BarberApp</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-<link rel="icon" type="image/png" href="./icone.png">
-<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icone.png"/>
+<link rel="apple-touch-icon" href="./icone.png"/>
+<link rel="manifest" href="./manifest.json"/>
+<meta name="theme-color" content="#111110"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="BarberApp"/>
 <script>
-  if ('serviceWorker' in navigator) {
-    // O ponto antes da barra ajuda o GitHub a achar o arquivo na pasta certa
+  if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log("Service Worker registrado com sucesso!"))
-      .catch(err => console.log("Erro ao registrar:", err));
+      .then(()=>console.log('SW registrado'))
+      .catch(e=>console.log('SW erro:',e))
   }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -704,7 +708,14 @@ async function loadBarbeiro(){
   const dd=document.getElementById('dash-data')
   if(dd) dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   const {data:b}=await sb.from('barbearias').select('*').eq('owner_id',session.user.id).maybeSingle()
-  if(b){ barbearia=b; preencherCfg(b); await recarregar() }
+  if(b){
+    barbearia=b; preencherCfg(b); await recarregar()
+  } else {
+    // Dono novo — manda direto para configurações
+    const e=id=>document.getElementById(id)
+    if(e('dash-nome')) e('dash-nome').textContent='Configure sua barbearia'
+    setPanel(null,'config')
+  }
 }
 
 // ── BARBEIRO FUNCIONÁRIO ──
@@ -712,15 +723,25 @@ let meuBarbeiro=null
 async function loadBarbeiroFuncionario(barb){
   showView('barber')
   meuBarbeiro=barb
-  barbearia=barb.barbearias
+
+  // Busca barbearia separado caso o join não venha
+  if(barb.barbearias && barb.barbearias.id){
+    barbearia=barb.barbearias
+  } else {
+    const {data:b}=await sb.from('barbearias').select('*').eq('id',barb.barbearia_id).maybeSingle()
+    if(!b){ document.getElementById('dash-nome').textContent='Erro: barbearia não encontrada'; return }
+    barbearia=b
+  }
+
   document.getElementById('sb-email').textContent=session.user.email
   document.getElementById('sb-nome').textContent=barb.nome||'Meu Painel'
   const dd=document.getElementById('dash-data')
   if(dd) dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
 
   // Funcionário não vê aba Equipe nem Config da barbearia
-  document.querySelectorAll('[onclick*="equipe"],[onclick*="config"]').forEach(el=>{
-    if(el.classList.contains('sb-item')) el.style.display='none'
+  document.querySelectorAll('.sb-item').forEach(el=>{
+    const oc=el.getAttribute('onclick')||''
+    if(oc.includes("'equipe'")||oc.includes("'config'")) el.style.display='none'
   })
 
   await recarregarFuncionario()
@@ -1109,7 +1130,7 @@ async function loadCliente(){
 
   // Reset estado
   selBarb=null; selSv=null; selHora=null
-  irE(1)
+  await irE(1)
   document.getElementById('btn-e1').disabled=true
   document.getElementById('btn-e2').disabled=true
   document.getElementById('btn-e3').disabled=true
