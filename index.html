@@ -246,6 +246,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 </head>
 <body>
 
+<!-- LANDING -->
 <div id="landing" class="view active">
   <nav class="l-nav">
     <span class="l-logo">✦ BarberApp</span>
@@ -284,6 +285,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   <footer class="l-footer"><small>© 2025 BarberApp</small></footer>
 </div>
 
+<!-- AUTH -->
 <div id="auth">
   <div class="auth-box">
     <button class="auth-back" onclick="showView('landing')">← Voltar</button>
@@ -298,6 +300,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
+<!-- BARBEIRO -->
 <div id="barber">
   <aside class="sidebar">
     <div class="sb-brand">
@@ -322,6 +325,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 
   <main class="b-main">
 
+    <!-- DASHBOARD -->
     <div id="panel-dashboard" class="panel active">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px">
         <div>
@@ -333,6 +337,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
         </div>
       </div>
 
+      <!-- Cards coloridos -->
       <div class="dash-cards">
         <div class="dash-card" style="--cc:#e8f0fe;--ci:#1a56db">
           <div class="dc-icon" style="background:#1a56db">📅</div>
@@ -356,6 +361,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
         </div>
       </div>
 
+      <!-- Agenda + sidebar direita -->
       <div style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;margin-top:1.25rem">
         <div>
           <div class="card" style="margin-bottom:0">
@@ -364,21 +370,26 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
               <h3 style="font-size:1rem;font-weight:600">Agenda</h3>
             </div>
 
+            <!-- Semana -->
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:1.25rem">
               <button class="btn btn-line btn-sm btn-icon" onclick="mudarDia(-1)">‹</button>
               <div id="semana-strip" style="display:flex;gap:6px;flex:1;overflow-x:auto;padding:2px 0"></div>
               <button class="btn btn-line btn-sm btn-icon" onclick="mudarDia(1)">›</button>
             </div>
 
+            <!-- Data grande -->
             <div style="text-align:center;font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;color:var(--black)" id="agenda-data-titulo"></div>
 
+            <!-- Agendamentos -->
             <div id="agenda-lista"><div class="ag-empty">Nenhum agendamento neste dia.</div></div>
 
             <button class="btn btn-dark btn-full" style="margin-top:1rem" onclick="setPanel(null,'agenda')">+ Novo Agendamento</button>
           </div>
         </div>
 
+        <!-- Coluna direita -->
         <div style="display:flex;flex-direction:column;gap:1.25rem">
+          <!-- Faturamento -->
           <div class="card">
             <h3 style="font-size:0.85rem;font-weight:600;margin-bottom:1rem;color:var(--gray-5)">⚡ Resumo do Dia</h3>
             <div style="display:flex;flex-direction:column;gap:10px">
@@ -397,6 +408,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
             </div>
           </div>
 
+          <!-- Grade rápida -->
           <div class="card">
             <h3 style="font-size:0.85rem;font-weight:600;margin-bottom:1rem;color:var(--gray-5)">🕐 Grade de Horários</h3>
             <div id="grade-horarios" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>
@@ -411,6 +423,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
+    <!-- AGENDAMENTOS -->
     <div id="panel-agenda" class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px">
         <h2 class="panel-title" style="margin:0">Agendamentos</h2>
@@ -425,6 +438,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <div class="card"><div id="agenda-lista-2"><div class="ag-empty">Nenhum agendamento neste dia.</div></div></div>
     </div>
 
+    <!-- HORÁRIOS -->
     <div id="panel-horarios" class="panel">
       <h2 class="panel-title">Bloquear Horários</h2>
       <div class="grid-2">
@@ -442,6 +456,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
+    <!-- SERVIÇOS -->
     <div id="panel-servicos" class="panel">
       <h2 class="panel-title">Serviços</h2>
       <div class="grid-2">
@@ -459,6 +474,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
+    <!-- EQUIPE -->
     <div id="panel-equipe" class="panel">
       <h2 class="panel-title">Barbeiros</h2>
       <div class="grid-2">
@@ -478,6 +494,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
+    <!-- CONFIG -->
     <div id="panel-config" class="panel">
       <h2 class="panel-title">Configurações</h2>
       <div class="card" style="max-width:500px">
@@ -497,6 +514,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </main>
 </div>
 
+<!-- CLIENTE -->
 <div id="cliente">
   <header class="cli-header">
     <div>
@@ -520,12 +538,14 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
       <div id="cli-msg"></div>
 
+      <!-- Etapa 1: Barbeiro -->
       <div id="etapa-1">
         <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o barbeiro</p>
         <div id="barbs-cli"></div>
         <button class="btn btn-dark btn-full" style="margin-top:10px" id="btn-e1" onclick="irE(2)" disabled>Continuar →</button>
       </div>
 
+      <!-- Etapa 2: Serviço -->
       <div id="etapa-2" style="display:none">
         <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o serviço</p>
         <div id="svcs-cli"></div>
@@ -535,6 +555,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
         </div>
       </div>
 
+      <!-- Etapa 3: Agenda visual -->
       <div id="etapa-3" style="display:none">
         <p style="font-size:0.78rem;color:var(--gray-4);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:500">Escolha o dia</p>
         <div class="field"><label>Data</label><input class="inp" type="date" id="cli-dia" onchange="renderHorarios()"/></div>
@@ -550,6 +571,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
         </div>
       </div>
 
+      <!-- Etapa 4: Confirmar -->
       <div id="etapa-4" style="display:none">
         <div class="resumo-box">
           <div class="rl">Resumo do agendamento</div>
@@ -572,6 +594,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
+<!-- MODAL AGENDAMENTO -->
 <div class="modal-overlay" id="modal-ag" onclick="fecharModal(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -596,7 +619,10 @@ let session=null, role=null, barbearia=null, servicos=[], agendamentos=[], bloqu
 let authMode='login'
 // Pega o último segmento da URL para suportar GitHub Pages (/repo/slug) e domínio próprio (/slug)
 const _path = window.location.pathname.replace(/^\/+|\/+$/g,'')
-const slug = _path ? _path.split('/').pop() : null
+const _parts = _path ? _path.split('/') : []
+// Slug válido só existe se houver 2+ segmentos (ex: /Barbearia_Agendamento/minha-barbearia)
+// Se houver apenas 1 segmento, é o nome do repositório — não é slug de cliente
+const slug = _parts.length >= 2 ? _parts[_parts.length-1] : null
 
 ;(async()=>{
   const {data:{session:s}} = await sb.auth.getSession()
@@ -1105,6 +1131,8 @@ async function loadCliente(){
   const {data:b}=await q.limit(1).single()
   if(!b){
     document.getElementById('cli-nome').textContent='Barbearia não encontrada'
+    document.getElementById('cli-end').textContent='Verifique o link e tente novamente.'
+    document.getElementById('barbs-cli').innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Link inválido ou barbearia não existe.</p>'
     return
   }
   barbearia=b
@@ -1154,8 +1182,8 @@ function selBarb2(id){
   document.querySelectorAll('[id^="barb-"]').forEach(c=>c.classList.remove('picked'))
   document.getElementById('barb-'+id).classList.add('picked')
   document.getElementById('btn-e1').disabled=false
-  // Filtra serviços deste barbeiro
-  servicos=todosServicos.filter(s=>s.barbeiro_id===id)
+  // Filtra serviços deste barbeiro (inclui serviços sem barbeiro_id como fallback temporário)
+  servicos=todosServicos.filter(s=>s.barbeiro_id===id||s.barbeiro_id===null)
 }
 
 function renderSvCli(){
