@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -257,8 +257,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   <section class="hero">
     <div>
       <div class="hero-eyebrow">✦ Sistema de agendamento</div>
-      <h1>Sua barbearia,<br/><em>organizada.</em></h1>
-      <p class="hero-sub">Gerencie agenda, serviços e clientes num só lugar. Cada barbeiro tem o seu próprio painel.</p>
+      <h1>A sua barbearia,<br/><em>organizada.</em></h1>
+      <p class="hero-sub">Faça a gestão da agenda, serviços e clientes num só lugar. Cada barbeiro tem o seu próprio painel.</p>
       <div class="hero-ctas">
         <button class="btn btn-dark" onclick="showAuth()">Aceder ao sistema →</button>
       </div>
@@ -292,13 +292,33 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     <p id="auth-sub">Aceda ao seu painel ou crie a sua conta</p>
     <div id="auth-msg"></div>
 
-    <div class="field reg-field" style="display:none;"><label>Nome Completo</label><input class="inp" type="text" id="auth-nome" placeholder="Seu nome completo"/></div>
+    <div class="field reg-field" style="display:none;"><label>Nome Completo</label><input class="inp" type="text" id="auth-nome" placeholder="O seu nome completo"/></div>
     <div class="field reg-field" style="display:none;"><label>WhatsApp</label><input class="inp" type="text" id="auth-whatsapp" placeholder="(32) 99999-9999"/></div>
 
     <div class="field"><label>E-mail</label><input class="inp" type="email" id="auth-email" placeholder="seu@email.com"/></div>
-    <div class="field"><label>Senha</label><input class="inp" type="password" id="auth-senha" placeholder="••••••••"/></div>
+    
+    <div class="field log-field">
+      <label style="display:flex; justify-content:space-between;">
+        Palavra-passe 
+        <span style="color:var(--gray-4); cursor:pointer; text-decoration:underline; font-size: 0.75rem;" onclick="toggleRecuperacao()">Esqueci a palavra-passe</span>
+      </label>
+      <input class="inp" type="password" id="auth-senha" placeholder="••••••••"/>
+    </div>
+    
     <button class="btn btn-dark btn-full" id="auth-btn" onclick="handleAuth()">Entrar</button>
-    <div class="auth-toggle" onclick="toggleAuthMode()">Novo por aqui? <span>Registe-se</span></div>
+    <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">Novo por aqui? <span>Registe-se</span></div>
+    <div class="auth-toggle" id="auth-back-log" style="display:none;" onclick="voltarLogin()">← Voltar ao Login</div>
+  </div>
+</div>
+
+<div id="nova-senha" class="view" style="display:none; min-height:100vh; align-items:center; justify-content:center; background:var(--bg); padding:2rem;">
+  <div class="auth-box">
+    <div class="auth-icon">🔒</div>
+    <h2>Nova Palavra-passe</h2>
+    <p>Escreva a sua nova palavra-passe abaixo.</p>
+    <div id="ns-msg"></div>
+    <div class="field"><label>Nova Palavra-passe</label><input class="inp" type="password" id="ns-senha" placeholder="••••••••"/></div>
+    <button class="btn btn-dark btn-full" id="ns-btn" onclick="atualizarSenha()">Atualizar Palavra-passe</button>
   </div>
 </div>
 
@@ -472,7 +492,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <div class="grid-2">
         <div class="card">
           <h3 style="font-size:0.95rem;margin-bottom:0.5rem">Adicionar barbeiro</h3>
-          <p style="font-size:0.82rem;color:var(--gray-4);margin-bottom:1rem">O barbeiro receberá acesso ao sistema com e-mail e senha próprios.</p>
+          <p style="font-size:0.82rem;color:var(--gray-4);margin-bottom:1rem">O barbeiro receberá acesso ao sistema com e-mail e palavra-passe próprios.</p>
           <div class="field"><label>Nome</label><input class="inp" type="text" id="eq-nome" placeholder="Ex: João Silva"/></div>
           <div class="field"><label>E-mail de acesso</label><input class="inp" type="email" id="eq-email" placeholder="joao@email.com"/></div>
           <div class="field"><label>Especialidade</label><input class="inp" type="text" id="eq-esp" placeholder="Ex: Cortes modernos"/></div>
@@ -508,7 +528,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 <div id="cliente">
   <header class="cli-header">
     <div>
-      <h3 id="cli-nome">Carregando...</h3>
+      <h3 id="cli-nome">A carregar...</h3>
       <small id="cli-end"></small>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
@@ -603,13 +623,11 @@ const sb = createClient(
 let session=null, role=null, barbearia=null, servicos=[], agendamentos=[], bloqueios=[]
 let authMode='login', dadosCliente=null
 
-// Função auxiliar para evitar bug de fuso horário local nas listas
 const getDiaLocal = (iso) => {
   const d = new Date(iso);
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 };
 
-// Pega o último segmento da URL para suportar GitHub Pages (/repo/slug) e domínio próprio (/slug)
 const _path = window.location.pathname.replace(/^\/+|\/+$/g,'')
 const _parts = _path ? _path.split('/') : []
 const slug = _parts.length >= 2 ? _parts[_parts.length-1] : null
@@ -618,18 +636,23 @@ const slug = _parts.length >= 2 ? _parts[_parts.length-1] : null
   const {data:{session:s}} = await sb.auth.getSession()
   if(s) await iniciar(s)
   else if(slug) showView('auth')
-  sb.auth.onAuthStateChange(async(_,s)=>{ if(s) await iniciar(s); else {session=null;showView('landing')} })
+  
+  sb.auth.onAuthStateChange(async(event,s)=>{ 
+    if (event === 'PASSWORD_RECOVERY') {
+      showView('nova-senha');
+      return;
+    }
+    if(s) await iniciar(s); else {session=null;showView('landing')} 
+  })
 })()
 
 async function iniciar(s){
   session=s
   const email=s.user.email.toLowerCase().trim()
 
-  // 1. Verifica se é DONO (tem barbearia própria)
   const {data:bDono}=await sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle()
   if(bDono){ role='dono'; await loadBarbeiro(); return }
 
-  // 2. Verifica se é BARBEIRO pelo email
   const {data:bBarb}=await sb.from('barbeiros').select('*,barbearias(*)').eq('email',email).maybeSingle()
   if(bBarb){
     if(!bBarb.user_id){
@@ -639,55 +662,88 @@ async function iniciar(s){
     role='barbeiro'; await loadBarbeiroFuncionario(bBarb); return
   }
 
-  // 3. É cliente
   role='cliente'; await loadCliente()
 }
 
 function showView(id){
-  ['landing','auth','barber','cliente'].forEach(v=>{
+  ['landing','auth','barber','cliente','nova-senha'].forEach(v=>{
     const el=document.getElementById(v)
-    el.classList.remove('active')
-    el.style.display='none'
+    if(el) {
+      el.classList.remove('active')
+      el.style.display='none'
+    }
   })
   const el=document.getElementById(id)
-  if(id==='auth') el.style.display='flex'
+  if(id==='auth' || id==='nova-senha') el.style.display='flex'
   else if(id==='barber') el.style.display='flex'
   else el.style.display='block'
   el.classList.add('active')
 }
 function showAuth(){showView('auth')}
 
+function toggleRecuperacao() {
+  authMode = 'recuperacao';
+  document.getElementById('auth-title').textContent = 'Recuperar Acesso';
+  document.getElementById('auth-sub').textContent = 'Vamos enviar um link para o seu e-mail';
+  document.getElementById('auth-btn').textContent = 'Enviar e-mail de recuperação';
+  document.querySelector('.log-field').style.display = 'none'; 
+  document.querySelectorAll('.reg-field').forEach(el => el.style.display = 'none');
+  document.getElementById('auth-toggle-btn').style.display = 'none';
+  document.getElementById('auth-back-log').style.display = 'inline-flex';
+  document.getElementById('auth-msg').innerHTML = '';
+}
+
+function voltarLogin() {
+  authMode = 'login';
+  document.getElementById('auth-title').textContent = 'Entrar na conta';
+  document.getElementById('auth-sub').textContent = 'Aceda ao seu painel ou crie a sua conta';
+  document.getElementById('auth-btn').textContent = 'Entrar';
+  document.querySelector('.log-field').style.display = 'flex';
+  document.getElementById('auth-toggle-btn').style.display = 'block';
+  document.getElementById('auth-back-log').style.display = 'none';
+  document.getElementById('auth-msg').innerHTML = '';
+  document.querySelector('.auth-toggle').innerHTML = 'Novo por aqui? <span>Registe-se</span>';
+}
+
 function toggleAuthMode(){
+  if(authMode === 'recuperacao') authMode = 'login'; // previne travamentos
   authMode = authMode==='login' ? 'cadastro' : 'login'
   const l = authMode==='login'
   document.getElementById('auth-title').textContent = l?'Entrar na conta':'Criar conta'
   document.getElementById('auth-sub').textContent = l?'Aceda ao seu painel':'Crie a sua conta gratuitamente'
   document.getElementById('auth-btn').textContent = l?'Entrar':'Criar conta'
-  document.querySelector('.auth-toggle').innerHTML = l?'Novo por aqui? <span>Registe-se</span>':'Já tem conta? <span>Entrar</span>'
+  document.getElementById('auth-toggle-btn').innerHTML = l?'Novo por aqui? <span>Registe-se</span>':'Já tem conta? <span>Entrar</span>'
   document.getElementById('auth-msg').innerHTML=''
   
   document.querySelectorAll('.reg-field').forEach(el => {
     el.style.display = l ? 'none' : 'flex';
   });
+  document.querySelector('.log-field').style.display = 'flex';
+  document.getElementById('auth-back-log').style.display = 'none';
 }
 
 async function handleAuth(){
   const email=document.getElementById('auth-email').value.trim()
   const senha=document.getElementById('auth-senha').value
   const btn=document.getElementById('auth-btn')
-  btn.disabled=true; btn.textContent='Processando...'
+  btn.disabled=true; btn.textContent='A processar...'
   document.getElementById('auth-msg').innerHTML=''
   try{
-    if(authMode==='login'){
+    if(authMode==='recuperacao'){
+      const {error} = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+      if(error) throw error;
+      document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">E-mail enviado! Verifique a sua caixa de entrada.</div>';
+      return;
+    }
+    else if(authMode==='login'){
       const {error}=await sb.auth.signInWithPassword({email,password:senha})
       if(error) throw error
     } else {
       const nome=document.getElementById('auth-nome').value.trim()
       const whatsapp=document.getElementById('auth-whatsapp').value.trim()
-      
-      if(!nome || !whatsapp) {
-        throw new Error('Nome e WhatsApp são obrigatórios para o registo.');
-      }
+      if(!nome || !whatsapp) throw new Error('Nome e WhatsApp são obrigatórios para o registo.');
 
       const {data, error}=await sb.auth.signUp({email,password:senha})
       if(error) throw error
@@ -703,9 +759,29 @@ async function handleAuth(){
       authMode='login'; toggleAuthMode(); return
     }
   } catch(e){
-    const m={'Invalid login credentials':'E-mail ou senha incorretos.','User already registered':'E-mail já cadastrado.','Password should be at least 6 characters':'Senha precisa ter 6+ caracteres.'}
+    const m={'Invalid login credentials':'E-mail ou palavra-passe incorretos.','User already registered':'E-mail já registado.','Password should be at least 6 characters':'A palavra-passe precisa ter 6+ caracteres.'}
     document.getElementById('auth-msg').innerHTML=`<div class="msg msg-err">${m[e.message]||e.message}</div>`
-  } finally { btn.disabled=false; btn.textContent=authMode==='login'?'Entrar':'Criar conta' }
+  } finally { btn.disabled=false; btn.textContent=authMode==='login'?'Entrar':(authMode==='recuperacao'?'Enviar e-mail':'Criar conta') }
+}
+
+async function atualizarSenha() {
+  const btn = document.getElementById('ns-btn');
+  const senha = document.getElementById('ns-senha').value;
+  if(!senha || senha.length < 6) {
+    document.getElementById('ns-msg').innerHTML = '<div class="msg msg-err">A palavra-passe deve ter pelo menos 6 caracteres.</div>';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'A atualizar...';
+  const { error } = await sb.auth.updateUser({ password: senha });
+  btn.disabled = false; btn.textContent = 'Atualizar Palavra-passe';
+  
+  if(error) {
+    document.getElementById('ns-msg').innerHTML = `<div class="msg msg-err">${error.message}</div>`;
+  } else {
+    alert('Palavra-passe atualizada com sucesso!');
+    const {data:{session:s}} = await sb.auth.getSession();
+    if(s) await iniciar(s);
+  }
 }
 
 async function signOut(){ await sb.auth.signOut(); showView('landing') }
@@ -827,7 +903,6 @@ async function recarregar(){
 
 function renderStats(){
   const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
-  // Usa helper para filtrar dias corretamente apesar do fuso horário
   const dodia=agendamentos.filter(a=>getDiaLocal(a.data_hora)===diaSel)
   
   const conf=dodia.filter(a=>a.status==='confirmado')
@@ -887,7 +962,6 @@ function selecionarDia(d){
 
 function renderAgenda(){
   const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
-  // Usa helper para filtrar dias corretamente apesar do fuso horário
   const dodia=agendamentos.filter(a=>getDiaLocal(a.data_hora)===diaSel)
     .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora))
 
@@ -997,7 +1071,7 @@ function renderEquipe(barbs){
         <div style="font-size:0.72rem;margin-top:2px">
           ${b.user_id
             ? '<span style="color:var(--success);font-weight:500">✓ Conta ativa</span>'
-            : '<span style="color:var(--warn)">⏳ Aguardando primeiro acesso</span>'}
+            : '<span style="color:var(--warn)">⏳ A aguardar primeiro acesso</span>'}
         </div>
       </div>
       <button class="btn btn-sm btn-danger" onclick="remBarbeiro('${b.id}')">✕</button>
@@ -1016,7 +1090,7 @@ async function addBarbeiro(){
     return
   }
 
-  msgEl.innerHTML='<div class="msg" style="background:var(--gray-1);color:var(--gray-5)">Salvando...</div>'
+  msgEl.innerHTML='<div class="msg" style="background:var(--gray-1);color:var(--gray-5)">A guardar...</div>'
 
   const {data:convite,error:ce}=await sb.from('convites').upsert([{
     email, barbearia_id:barbearia.id, nome
@@ -1085,7 +1159,7 @@ function setPanel(btn,id){
 
 async function salvarBarbearia(){
   const btn=document.getElementById('cfg-btn')
-  btn.disabled=true; btn.textContent='Salvando...'
+  btn.disabled=true; btn.textContent='A guardar...'
   document.getElementById('cfg-msg').innerHTML=''
   const payload={nome:document.getElementById('cfg-nome').value,endereco:document.getElementById('cfg-end').value,telefone:document.getElementById('cfg-tel').value,slug:document.getElementById('cfg-slug').value.trim(),owner_id:session.user.id}
   if(barbearia) payload.id=barbearia.id
@@ -1153,7 +1227,6 @@ let barbeiros=[], selBarb=null, selSv=null, selHora=null, agsBarb=[], blqsBarb=[
 async function loadCliente(){
   showView('cliente')
   
-  // Busca o perfil do cliente
   const { data: cliPerfil } = await sb.from('clientes').select('*').eq('id', session.user.id).maybeSingle()
   if(cliPerfil) {
     dadosCliente = cliPerfil;
@@ -1199,7 +1272,7 @@ async function loadCliente(){
 function renderBarbsCli(){
   const el=document.getElementById('barbs-cli')
   if(!barbeiros.length){
-    el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum barbeiro cadastrado.</p>'
+    el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum barbeiro registado.</p>'
     return
   }
   el.innerHTML=barbeiros.map(b=>`
@@ -1217,7 +1290,6 @@ function selBarb2(id){
   document.querySelectorAll('[id^="barb-"]').forEach(c=>c.classList.remove('picked'))
   document.getElementById('barb-'+id).classList.add('picked')
   document.getElementById('btn-e1').disabled=false
-  // Filtra ESTRITAMENTE os serviços deste barbeiro
   servicos=todosServicos.filter(s=>s.barbeiro_id===id)
 }
 
@@ -1249,7 +1321,6 @@ async function renderHorarios(){
   selHora=null
   document.getElementById('btn-e3').disabled=true
 
-  // Ajuste do fuso horário na busca
   const inicio = new Date(dia+'T00:00:00').toISOString();
   const fim = new Date(dia+'T23:59:59').toISOString();
 
@@ -1316,14 +1387,12 @@ async function irE(n){
 
 async function confirmar(){
   const btn=document.getElementById('btn-conf')
-  btn.disabled=true; btn.textContent='Confirmando...'
+  btn.disabled=true; btn.textContent='A confirmar...'
   const dia=document.getElementById('cli-dia').value
   
-  // Corrige o fuso horário para salvar no Supabase corretamente
   const dataHoraLocal = dia+'T'+selHora+':00';
   const dataHoraParaOBanco = new Date(dataHoraLocal).toISOString();
 
-  // Checagem final de conflito
   const {data:conf}=await sb.from('agendamentos')
     .select('id').eq('barbeiro_id',selBarb.id).eq('data_hora',dataHoraParaOBanco)
     .neq('status','cancelado').maybeSingle()
