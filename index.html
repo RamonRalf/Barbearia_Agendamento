@@ -1338,12 +1338,56 @@ async function salvarBarbearia(){
 
 async function addServico(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
-  const payload={nome:document.getElementById('sv-nome').value,preco:parseFloat(document.getElementById('sv-preco').value),duracao_minutos:parseInt(document.getElementById('sv-dur').value),barbearia_id:barbearia.id}
-  if(meuBarbeiro){payload.barbeiro_id=meuBarbeiro.id}
-  else{const selBarbId=document.getElementById('sv-barb').value;if(!selBarbId){alert('Selecione o barbeiro.');return};payload.barbeiro_id=selBarbId}
-  await sb.from('servicos').insert([payload])
-  document.getElementById('sv-nome').value='';document.getElementById('sv-preco').value='';document.getElementById('sv-dur').value=''
-  if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
+
+  const nome=document.getElementById('sv-nome').value.trim()
+  const preco=parseFloat(document.getElementById('sv-preco').value)
+  const dur=parseInt(document.getElementById('sv-dur').value)
+
+  let svMsg=document.getElementById('sv-msg')
+  if(!svMsg){
+    svMsg=document.createElement('div')
+    svMsg.id='sv-msg'
+    const btnSv=document.querySelector('#panel-servicos .card .btn-dark')
+    if(btnSv) btnSv.parentNode.insertBefore(svMsg, btnSv.nextSibling)
+  }
+  svMsg.innerHTML=''
+
+  if(!nome||isNaN(preco)||isNaN(dur)||preco<=0||dur<=0){
+    svMsg.innerHTML='<div class="msg msg-err" style="margin-top:10px">Preencha nome, preço e duração corretamente.</div>'
+    return
+  }
+
+  const payload={nome,preco,duracao_minutos:dur,barbearia_id:barbearia.id}
+
+  if(meuBarbeiro){
+    payload.barbeiro_id=meuBarbeiro.id
+  } else {
+    const selBarbId=document.getElementById('sv-barb').value
+    if(!selBarbId){
+      svMsg.innerHTML='<div class="msg msg-err" style="margin-top:10px">Selecione o barbeiro.</div>'
+      return
+    }
+    payload.barbeiro_id=selBarbId
+  }
+
+  const btnSv=document.querySelector('#panel-servicos .card .btn-dark')
+  if(btnSv){btnSv.disabled=true;btnSv.textContent='Salvando...'}
+
+  const {error}=await sb.from('servicos').insert([payload])
+
+  if(btnSv){btnSv.disabled=false;btnSv.textContent='Salvar serviço'}
+
+  if(error){
+    svMsg.innerHTML='<div class="msg msg-err" style="margin-top:10px">Erro: '+error.message+'</div>'
+    return
+  }
+
+  svMsg.innerHTML='<div class="msg msg-ok" style="margin-top:10px">Serviço salvo!</div>'
+  document.getElementById('sv-nome').value=''
+  document.getElementById('sv-preco').value=''
+  document.getElementById('sv-dur').value=''
+  setTimeout(()=>{if(svMsg)svMsg.innerHTML=''},3000)
+  if(meuBarbeiro) await recarregarFuncionario(); else await recarregar()
 }
 
 async function remSv(id){if(!confirm('Remover?'))return;await sb.from('servicos').delete().eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
