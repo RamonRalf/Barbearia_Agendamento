@@ -62,8 +62,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .mini-name{flex:1;font-size:0.88rem;font-weight:500}
 .mini-time{font-size:0.8rem;color:var(--gray-4)}
 .features{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--gray-2);max-width:1200px;margin:0 auto}
-.features .feat{padding:3rem 5%;border-right:1px solid var(--gray-2)}
-.features .feat:last-child{border-right:none}
+.feat{padding:3rem 5%;border-right:1px solid var(--gray-2)}
+.feat:last-child{border-right:none}
 .feat-num{font-family:var(--serif);font-size:2.5rem;color:var(--gray-2);font-weight:300;margin-bottom:1rem}
 .feat h3{font-size:0.95rem;font-weight:500;margin-bottom:8px}
 .feat p{font-size:0.88rem;color:var(--gray-4);line-height:1.65}
@@ -102,7 +102,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .stat{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:1.25rem}
 .stat-l{font-size:0.72rem;color:var(--gray-4);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
 .stat-v{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--black)}
-.panel{display:none}\n.panel.active{display:block}
+.panel{display:none}.panel.active{display:block}
 .panel-title{font-family:var(--serif);font-size:1.6rem;font-weight:400;margin-bottom:1.5rem}
 .card{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
@@ -134,7 +134,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .btn-ghost:hover:not(:disabled){background:var(--gray-1);color:var(--black)}
 .btn-danger{background:var(--danger-bg);color:var(--danger);border-color:transparent}
 .btn-danger:hover:not(:disabled){background:#f9c8c8}
-.btn-sm{padding:6px 12px;font-size:0.8rem;border-radius:6px}
 .btn-full{width:100%}
 
 /* BADGES */
@@ -184,7 +183,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .sel-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--white);border:1.5px solid var(--gray-2);border-radius:10px;cursor:pointer;transition:all 0.15s;margin-bottom:8px}
 .sel-card:hover{border-color:var(--black)}
 .sel-card.picked{border-color:var(--black);background:var(--gray-1)}
-.resumo-box{background:var(--gray-1);border:1px solid var(--gray-2);border-radius:10px;padding:16px;margin-bottom:1.25rem}
+.resumo-box{background:var(--gray-1);border:1px solid var(--gray-2);border-radius:10px;padding:16px;margin-bottom:12px}
 .resumo-box .rl{font-size:0.72rem;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;font-weight:500}
 .resumo-box .rv{font-weight:500;font-size:0.95rem;margin-bottom:3px}
 .tl-item{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;background:var(--white);border:1px solid var(--gray-2);border-radius:10px;margin-bottom:8px}
@@ -633,7 +632,6 @@ const _parts = _path ? _path.split('/') : []
 const slug = _parts.length >= 2 ? _parts[_parts.length-1] : null
 
 ;(async()=>{
-  // CONTROLE MASTER DO LINK DE RECUPERAÇÃO: Evita login automático se o usuário veio mudar a senha
   const urlHash = window.location.hash || '';
   if (urlHash.includes('type=recovery') || urlHash.includes('access_token=')) {
     isRecoveryMode = true;
@@ -1251,10 +1249,11 @@ async function loadCliente(){
   const { data: cliPerfil } = await sb.from('clientes').select('*').eq('id', session.user.id).maybeSingle()
   if(cliPerfil) {
     dadosCliente = cliPerfil;
-    document.getElementById('cli-email').textContent = cliPerfil.nome;
+    document.getElementById('cli-nome').textContent = cliPerfil.nome;
   } else {
-    document.getElementById('cli-email').textContent = session.user.email;
+    document.getElementById('cli-nome').textContent = session.user.email.split('@')[0];
   }
+  document.getElementById('cli-email').textContent = session.user.email;
 
   let q=sb.from('barbearias').select('*')
   if(slug) q=q.ilike('slug', slug)
