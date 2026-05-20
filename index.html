@@ -1121,6 +1121,22 @@ async function recarregarFuncionario(){
     sb.from('horarios_bloqueados').select('*').eq('barbearia_id',barbearia.id).order('data_hora_inicio')
   ])
   agendamentos=ag||[];servicos=sv||[];bloqueios=bl||[]
+
+  // Barbeiro funcionário: esconde o select de barbeiro e mostra o nome dele fixo
+  const svBarbField=document.getElementById('wrap-sv-barb')
+  if(svBarbField) svBarbField.style.display='none'
+
+  // Garante que o nome do barbeiro aparece acima do formulário de serviços
+  let svNomeInfo=document.getElementById('sv-barb-info')
+  if(!svNomeInfo){
+    svNomeInfo=document.createElement('div')
+    svNomeInfo.id='sv-barb-info'
+    svNomeInfo.style.cssText='font-size:0.82rem;color:var(--gray-5);background:var(--gray-1);border:1px solid var(--gray-2);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-weight:500'
+    const svForm=document.getElementById('wrap-sv-barb')
+    if(svForm) svForm.parentNode.insertBefore(svNomeInfo, svForm)
+  }
+  svNomeInfo.textContent='✂ Cadastrando serviço para: '+meuBarbeiro.nome
+
   renderStats();renderAgenda();renderGrade();renderSemana();renderServicos();renderBloqueios()
 }
 
