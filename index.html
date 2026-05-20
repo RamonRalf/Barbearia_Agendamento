@@ -291,6 +291,10 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     <h2 id="auth-title">Entrar na conta</h2>
     <p id="auth-sub">Acesse seu painel ou crie sua conta</p>
     <div id="auth-msg"></div>
+    
+    <div class="field reg-field" style="display:none;"><label>Nome Completo</label><input class="inp" type="text" id="auth-nome" placeholder="Seu nome completo"/></div>
+    <div class="field reg-field" style="display:none;"><label>WhatsApp</label><input class="inp" type="text" id="auth-whatsapp" placeholder="(32) 99999-9999"/></div>
+    
     <div class="field"><label>E-mail</label><input class="inp" type="email" id="auth-email" placeholder="seu@email.com"/></div>
     <div class="field"><label>Senha</label><input class="inp" type="password" id="auth-senha" placeholder="••••••••"/></div>
     <button class="btn btn-dark btn-full" id="auth-btn" onclick="handleAuth()">Entrar</button>
@@ -597,7 +601,7 @@ const sb = createClient(
 )
 
 let session=null, role=null, barbearia=null, servicos=[], agendamentos=[], bloqueios=[]
-let authMode='login'
+let authMode='login', dadosCliente=null
 // Pega o último segmento da URL para suportar GitHub Pages (/repo/slug) e domínio próprio (/slug)
 const _path = window.location.pathname.replace(/^\/+|\/+$/g,'')
 const _parts = _path ? _path.split('/') : []
@@ -657,6 +661,11 @@ function toggleAuthMode(){
   document.getElementById('auth-btn').textContent = l?'Entrar':'Criar conta'
   document.querySelector('.auth-toggle').innerHTML = l?'Novo por aqui? <span>Cadastre-se</span>':'Já tem conta? <span>Entrar</span>'
   document.getElementById('auth-msg').innerHTML=''
+  
+  // Mostra ou esconde os campos de registo conforme o modo
+  document.querySelectorAll('.reg-field').forEach(el => {
+    el.style.display = l ? 'none' : 'flex';
+  });
 }
 
 async function handleAuth(){
@@ -670,8 +679,26 @@ async function handleAuth(){
       const {error}=await sb.auth.signInWithPassword({email,password:senha})
       if(error) throw error
     } else {
-      const {error}=await sb.auth.signUp({email,password:senha})
+      // Resgata os novos campos do formulário
+      const nome=document.getElementById('auth-nome').value.trim()
+      const whatsapp=document.getElementById('auth-whatsapp').value.trim()
+      
+      if(!nome || !whatsapp) {
+        throw new Error('Nome e WhatsApp são obrigatórios para o cadastro.');
+      }
+
+      // Realiza o signUp no sistema de autenticação do Supabase
+      const {data, error}=await sb.auth.signUp({email,password:senha})
       if(error) throw error
+      
+      // Se o utilizador foi criado com sucesso, vincula os dados na tabela pública
+      if(data?.user) {
+        const {error: profileErr} = await sb.from('clientes').insert([
+          { id: data.user.id, nome: nome, whatsapp: whatsapp }
+        ])
+        if(profileErr) throw profileErr
+      }
+
       document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Faça login.</div>'
       authMode='login'; toggleAuthMode(); return
     }
@@ -1124,7 +1151,15 @@ let barbeiros=[], selBarb=null, selSv=null, selHora=null, agsBarb=[], blqsBarb=[
 
 async function loadCliente(){
   showView('cliente')
-  document.getElementById('cli-email').textContent=session.user.email
+  
+  // NOVO: Busca perfil do cliente
+  const { data: cliPerfil } = await sb.from('clientes').select('*').eq('id', session.user.id).maybeSingle()
+  if(cliPerfil) {
+    dadosCliente = cliPerfil;
+    document.getElementById('cli-email').textContent = cliPerfil.nome;
+  } else {
+    document.getElementById('cli-email').textContent = session.user.email;
+  }
 
   // Busca barbearia ignorando maiúsculas/minúsculas no slug
   let q=sb.from('barbearias').select('*')
@@ -1296,15 +1331,18 @@ async function confirmar(){
     return
   }
 
+  // Envia os dados do cliente para a tabela agendamentos
   const {error}=await sb.from('agendamentos').insert([{
     barbearia_id:barbearia.id,
     user_id:session.user.id,
     servico_id:selSv.id,
     barbeiro_id:selBarb.id,
-    nome_cliente:session.user.email.split('@')[0],
+    nome_cliente: dadosCliente ? dadosCliente.nome : session.user.email.split('@')[0],
+    telefone_cliente: dadosCliente ? dadosCliente.whatsapp : '',
     data_hora:dataHora,
     status:'pendente'
   }])
+  
   btn.disabled=false; btn.textContent='Confirmar agendamento'
   if(!error){
     document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
