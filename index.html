@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,7 +16,7 @@
 <script>
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js')
-      .then(()=>console.log('SW registado'))
+      .then(()=>console.log('SW registrado'))
       .catch(e=>console.log('SW erro:',e))
   }
 </script>
@@ -58,227 +58,18 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .hc-header strong{font-size:0.85rem;color:var(--success);font-weight:500}
 .mini-row{background:var(--white);border:1px solid var(--gray-2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px}
 .mini-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.mini-dot.g{background:#4caf50}.mini-dot.o{background:#ff9800}.mini-dot.gr{background:var(--gray-3)}
-.mini-name{flex:1;font-size:0.88rem;font-weight:500}
-.mini-time{font-size:0.8rem;color:var(--gray-4)}
-.features{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--gray-2);max-width:1200px;margin:0 auto}
-.feat{padding:3rem 5%;border-right:1px solid var(--gray-2)}
-.feat:last-child{border-right:none}
-.feat-num{font-family:var(--serif);font-size:2.5rem;color:var(--gray-2);font-weight:300;margin-bottom:1rem}
-.feat h3{font-size:0.95rem;font-weight:500;margin-bottom:8px}
-.feat p{font-size:0.88rem;color:var(--gray-4);line-height:1.65}
-.l-cta{background:var(--black);color:var(--white);padding:5rem;text-align:center;margin-top:4rem}
-.l-cta h2{font-family:var(--serif);font-size:2.5rem;font-weight:300;margin-bottom:1rem}
-.l-cta p{color:var(--gray-3);margin-bottom:2rem}
-.l-footer{padding:2rem 5%;text-align:center;border-top:1px solid var(--gray-2)}
-.l-footer small{color:var(--gray-3);font-size:0.8rem}
-
-/* AUTH */
-.auth-box{width:100%;max-width:400px;background:var(--white);border:1px solid var(--gray-2);border-radius:16px;padding:2.5rem;box-shadow:var(--shadow)}
-.auth-icon{font-size:2rem;margin-bottom:1rem}
-.auth-box h2{font-family:var(--serif);font-size:1.8rem;font-weight:400;margin-bottom:6px}
-.auth-box p{font-size:0.88rem;color:var(--gray-4);margin-bottom:2rem}
-.auth-toggle{margin-top:1.25rem;text-align:center;font-size:0.88rem;color:var(--gray-4);cursor:pointer}
-.auth-toggle span{color:var(--black);font-weight:500;text-decoration:underline}
-.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--gray-4);cursor:pointer;margin-bottom:1.5rem;background:none;border:none;font-family:var(--sans)}
-.auth-back:hover{color:var(--black)}
-
-/* SIDEBAR */
-.sidebar{width:240px;flex-shrink:0;background:var(--black);border-right:none;padding:1.75rem 1rem;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sb-brand{padding-bottom:1.25rem;margin-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,0.08);color:var(--white)}
-.sb-brand *{color:rgba(255,255,255,0.9)}
-.sb-brand .sb-email-txt{color:rgba(255,255,255,0.4)!important;font-size:0.72rem}
-.btn-icon{padding:8px 10px}
-.sb-nav{display:flex;flex-direction:column;gap:2px;flex:1}
-.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.55);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
-.sb-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
-.sb-item.active{background:rgba(255,255,255,0.12);color:var(--white);font-weight:500}
-.sb-out{margin-top:auto;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.35);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
-.sb-out:hover{color:#ff6b6b;background:rgba(255,100,100,0.1)}
-
-/* MAIN */
-.b-main{flex:1;padding:2.5rem;overflow-y:auto}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem}
-.stat{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:1.25rem}
-.stat-l{font-size:0.72rem;color:var(--gray-4);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
-.stat-v{font-family:var(--serif);font-size:2rem;font-weight:400;color:var(--black)}
-.panel{display:none}.panel.active{display:block}
-.panel-title{font-family:var(--serif);font-size:1.6rem;font-weight:400;margin-bottom:1.5rem}
-.card{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
-
-/* TABLE */
-.tbl{width:100%;border-collapse:collapse;font-size:0.875rem}
-.tbl th{text-align:left;padding:10px 14px;font-size:0.72rem;font-weight:500;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--gray-1)}
-.tbl td{padding:13px 14px;border-bottom:1px solid var(--gray-1);color:var(--gray-5);vertical-align:middle}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:var(--gray-1)}
-.tbl td strong{color:var(--black);font-weight:500}
-.ag-empty{text-align:center;padding:3rem;color:var(--gray-4);font-size:0.9rem}
-
-/* FORM */
-.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.field label{font-size:0.75rem;font-weight:500;color:var(--gray-5);letter-spacing:0.01em}
-.inp{width:100%;padding:10px 12px;border:1.5px solid var(--gray-2);border-radius:8px;font-family:var(--sans);font-size:0.9rem;color:var(--black);background:var(--white);outline:none;transition:border-color 0.15s}
-.inp:focus{border-color:var(--black)}
-.inp::placeholder{color:var(--gray-3)}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;white-space:nowrap}
-.btn:disabled{opacity:0.4;cursor:not-allowed}
-.btn-dark{background:var(--black);color:var(--white);border-color:var(--black)}
-.btn-dark:hover:not(:disabled){background:#333}
-.btn-line{background:var(--white);color:var(--black);border-color:var(--gray-2)}
-.btn-line:hover:not(:disabled){border-color:var(--black)}
-.btn-ghost{background:transparent;color:var(--gray-5);border-color:transparent}
-.btn-ghost:hover:not(:disabled){background:var(--gray-1);color:var(--black)}
-.btn-danger{background:var(--danger-bg);color:var(--danger);border-color:transparent}
-.btn-danger:hover:not(:disabled){background:#f9c8c8}
-.btn-sm{padding:6px 12px;font-size:0.8rem;border-radius:6px}
-.btn-full{width:100%}
-
-/* BADGES */
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:0.72rem;font-weight:500}
-.badge-ok{background:var(--success-bg);color:var(--success)}
-.badge-warn{background:var(--warn-bg);color:var(--warn)}
-.badge-err{background:var(--danger-bg);color:var(--danger)}
-
-/* MSGS */
-.msg{padding:11px 14px;border-radius:8px;font-size:0.85rem;font-weight:500;margin-bottom:14px}
-.msg-ok{background:var(--success-bg);color:var(--success)}
-.msg-err{background:var(--danger-bg);color:var(--danger)}
-
-/* ROWS */
-.svc-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--gray-1);border-radius:8px;margin-bottom:8px;border:1px solid var(--gray-2)}
-.ag-card{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s}
-.ag-card:hover{border-color:var(--black);box-shadow:var(--shadow)}
-.ag-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.ag-card-nome{font-weight:500;font-size:0.95rem}
-.ag-card-info{display:flex;gap:12px;flex-wrap:wrap}
-.ag-card-info small{color:var(--gray-4);font-size:0.8rem}
-
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal-box{background:var(--white);border-radius:20px 20px 0 0;padding:2rem;width:100%;max-width:520px;animation:slideUp 0.25s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.modal-handle{width:40px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 1.5rem}
-.modal-title{font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:1.25rem}
-.modal-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-1)}
-.modal-row:last-of-type{border-bottom:none}
-.modal-label{font-size:0.8rem;color:var(--gray-4);font-weight:500}
-.modal-val{font-size:0.9rem;font-weight:500;text-align:right}
-.blq-row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--gray-1);border:1px solid var(--gray-2);border-radius:8px;margin-bottom:8px}
-.link-box{display:flex;align-items:center;gap:8px;background:var(--gray-1);border:1px solid var(--gray-2);border-radius:8px;padding:10px 14px}
-.link-box code{flex:1;font-size:0.8rem;color:var(--gray-5);word-break:break-all}
-
-/* CLIENTE */
-#cliente{display:none;min-height:100vh;background:var(--bg)}
-#cliente.active{display:block}
-.cli-header{background:var(--white);border-bottom:1px solid var(--gray-2);padding:1rem 5%;display:flex;justify-content:space-between;align-items:center}
-.cli-header h3{font-family:var(--serif);font-size:1.1rem;font-weight:600}
-.cli-body{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
-.steps-bar{display:flex;gap:5px;margin-bottom:1.5rem}
-.step-seg{height:3px;flex:1;border-radius:99px;background:var(--gray-2);transition:background 0.2s}
-.step-seg.on{background:var(--black)}
-.sel-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--white);border:1.5px solid var(--gray-2);border-radius:10px;cursor:pointer;transition:all 0.15s;margin-bottom:8px}
-.sel-card:hover{border-color:var(--black)}
-.sel-card.picked{border-color:var(--black);background:var(--gray-1)}
-.resumo-box{background:var(--gray-1);border:1px solid var(--gray-2);border-radius:10px;padding:16px;margin-bottom:1.25rem}
-.resumo-box .rl{font-size:0.72rem;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;font-weight:500}
-.resumo-box .rv{font-weight:500;font-size:0.95rem;margin-bottom:3px}
-.tl-item{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;background:var(--white);border:1px solid var(--gray-2);border-radius:10px;margin-bottom:8px}
-.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-3);margin-top:5px;flex-shrink:0}
-.tl-dot.confirmado{background:var(--success)}.tl-dot.pendente{background:#ff9800}.tl-dot.cancelado{background:var(--danger)}
-.tl-body{flex:1}
-.tl-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
-.tl-name{font-weight:500;font-size:0.9rem}
-
-/* DASHBOARD CARDS */
-.dash-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:1.5rem}
-.dash-card{background:var(--white);border:1px solid var(--gray-2);border-radius:14px;padding:1.25rem;display:flex;flex-direction:column;gap:8px;transition:all 0.2s;position:relative;overflow:hidden}
-.dash-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 14px 0 60px;background:var(--cc);opacity:0.5}
-.dash-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
-.dc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;flex-shrink:0;margin-bottom:4px;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.dc-label{font-size:0.72rem;color:var(--gray-4);font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
-.dc-val{font-size:2rem;font-weight:700;color:var(--black);line-height:1;font-family:var(--serif)}
-.sb-ic{width:18px;text-align:center;flex-shrink:0;font-size:0.95rem}
-
-/* SEMANA STRIP */
-.sem-dia{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:10px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;min-width:46px;flex-shrink:0}
-.sem-dia:hover{background:var(--gray-1)}
-.sem-dia.hoje{border-color:var(--gray-2)}
-.sem-dia.ativo{background:var(--black);color:var(--white)}
-.sem-dia .sem-sigla{font-size:0.7rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;opacity:0.7;margin-bottom:4px}
-.sem-dia .sem-num{font-size:1rem;font-weight:600}
-.sem-dia.ativo .sem-sigla{opacity:0.7}
-
-@media(max-width:1100px){
-  [style*="grid-template-columns:1fr 320px"]{grid-template-columns:1fr!important}
-  .dash-cards{grid-template-columns:1fr 1fr}
-}
-@media(max-width:860px){
-  .hero{grid-template-columns:1fr;padding:3rem 5%}.hero-card{display:none}
-  .features{grid-template-columns:1fr}.feat{border-right:none;border-bottom:1px solid var(--gray-2);padding:2rem 5%}
-  #barber.active{flex-direction:column!important}
-  .sidebar{width:100%!important;height:auto!important;position:relative!important;flex-direction:row!important;flex-wrap:wrap!important;padding:0.75rem 1rem!important;gap:6px;align-items:center}
-  .sb-brand{padding-bottom:0;margin-bottom:0;border-bottom:none;flex-shrink:0}
-  .sb-nav{flex-direction:row!important;flex-wrap:wrap!important;flex:none!important;width:100%;gap:4px}
-  .sb-item{padding:6px 10px;font-size:0.75rem;border-radius:6px;width:auto!important}
-  .sb-out{margin-top:0!important;padding:6px 10px;font-size:0.75rem;width:auto!important}
-  .b-main{padding:1rem;overflow-x:hidden;width:100%;max-width:100vw;box-sizing:border-box}
-  .grid-2{grid-template-columns:1fr}
-  .dash-cards{grid-template-columns:1fr 1fr;gap:10px}
-  .dc-val{font-size:1.5rem}
-  #semana-strip{gap:4px;overflow-x:auto}
-  .sem-dia{padding:6px 6px;min-width:36px}
-  .sem-dia .sem-num{font-size:0.88rem}
-  .card{overflow:hidden}
-  .link-box{flex-wrap:wrap}
-  .link-box code{word-break:break-all;font-size:0.72rem}
-}
-@media(max-width:480px){
-  .dash-cards{grid-template-columns:1fr 1fr}
-  .b-main{padding:0.75rem}
-  .sb-item{padding:5px 8px;font-size:0.7rem}
-}
-</style>
-</head>
-<body>
-
-<div id="landing" class="view active">
-  <nav class="l-nav">
-    <span class="l-logo">✦ BarberApp</span>
-    <div class="l-nav-btns">
-      <button class="btn btn-ghost btn-sm" onclick="showAuth()">Entrar</button>
-      <button class="btn btn-dark btn-sm" onclick="showAuth()">Começar</button>
-    </div>
-  </nav>
-  <section class="hero">
-    <div>
-      <div class="hero-eyebrow">✦ Sistema de agendamento</div>
-      <h1>A sua barbearia,<br/><em>organizada.</em></h1>
-      <p class="hero-sub">Faça a gestão da agenda, serviços e clientes num só lugar. Cada barbeiro tem o seu próprio painel.</p>
-      <div class="hero-ctas">
-        <button class="btn btn-dark" onclick="showAuth()">Aceder ao sistema →</button>
-      </div>
-    </div>
-    <div class="hero-card">
-      <div class="hc-header"><span>Agenda de hoje</span><strong>R$ 185 confirmado</strong></div>
-      <div class="mini-row"><div class="mini-dot g"></div><span class="mini-name">Lucas Ferreira</span><span class="mini-time">09:00</span></div>
-      <div class="mini-row"><div class="mini-dot g"></div><span class="mini-name">Rafael Souza</span><span class="mini-time">10:30</span></div>
-      <div class="mini-row"><div class="mini-dot o"></div><span class="mini-name">Pedro Alves</span><span class="mini-time">11:15</span></div>
+.mini-dot.g{background:#4caf50}.mini-dot.o"></div><span class="mini-name">Pedro Alves</span><span class="mini-time">11:15</span></div>
       <div class="mini-row"><div class="mini-dot gr"></div><span class="mini-name">Mateus Lima</span><span class="mini-time">13:00</span></div>
     </div>
   </section>
   <section class="features">
     <div class="feat"><div class="feat-num">01</div><h3>Agenda em tempo real</h3><p>Confirme ou cancele agendamentos. Bloqueie horários com um clique.</p></div>
-    <div class="feat"><div class="feat-num">02</div><h3>Link exclusivo</h3><p>Cada barbeiro tem um link próprio para partilhar com os seus clientes.</p></div>
-    <div class="feat"><div class="feat-num">03</div><h3>Multi-barbeiro</h3><p>Cada profissional gere só a sua barbearia, de forma independente.</p></div>
+    <div class="feat"><div class="feat-num">02</div><h3>Link exclusivo</h3><p>Cada barbeiro tem um link próprio para compartilhar com seus clientes.</p></div>
+    <div class="feat"><div class="feat-num">03</div><h3>Multi-barbeiro</h3><p>Cada profissional gerencia só a sua barbearia, de forma independente.</p></div>
   </section>
   <div class="l-cta">
     <h2>Pronto para começar?</h2>
-    <p>Aceda ao sistema e configure a sua barbearia em minutos.</p>
+    <p>Acesse o sistema e configure sua barbearia em minutos.</p>
     <button class="btn btn-line" onclick="showAuth()">Entrar agora →</button>
   </div>
   <footer class="l-footer"><small>© 2026 BarberApp</small></footer>
@@ -289,24 +80,24 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     <button class="auth-back" onclick="showView('landing')">← Voltar</button>
     <div class="auth-icon">✂</div>
     <h2 id="auth-title">Entrar na conta</h2>
-    <p id="auth-sub">Aceda ao seu painel ou crie a sua conta</p>
+    <p id="auth-sub">Acesse seu painel ou crie sua conta</p>
     <div id="auth-msg"></div>
 
-    <div class="field reg-field" style="display:none;"><label>Nome Completo</label><input class="inp" type="text" id="auth-nome" placeholder="O seu nome completo"/></div>
+    <div class="field reg-field" style="display:none;"><label>Nome Completo</label><input class="inp" type="text" id="auth-nome" placeholder="Seu nome completo"/></div>
     <div class="field reg-field" style="display:none;"><label>WhatsApp</label><input class="inp" type="text" id="auth-whatsapp" placeholder="(32) 99999-9999"/></div>
 
     <div class="field"><label>E-mail</label><input class="inp" type="email" id="auth-email" placeholder="seu@email.com"/></div>
     
     <div class="field log-field">
       <label style="display:flex; justify-content:space-between;">
-        Palavra-passe 
-        <span style="color:var(--gray-4); cursor:pointer; text-decoration:underline; font-size: 0.75rem;" onclick="toggleRecuperacao()">Esqueci a palavra-passe</span>
+        Senha 
+        <span style="color:var(--gray-4); cursor:pointer; text-decoration:underline; font-size: 0.75rem;" onclick="toggleRecuperacao()">Esqueci a senha</span>
       </label>
       <input class="inp" type="password" id="auth-senha" placeholder="••••••••"/>
     </div>
-    
+
     <button class="btn btn-dark btn-full" id="auth-btn" onclick="handleAuth()">Entrar</button>
-    <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">Novo por aqui? <span>Registe-se</span></div>
+    <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">Novo por aqui? <span>Cadastre-se</span></div>
     <div class="auth-toggle" id="auth-back-log" style="display:none;" onclick="voltarLogin()">← Voltar ao Login</div>
   </div>
 </div>
@@ -314,11 +105,11 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 <div id="nova-senha" class="view" style="display:none; min-height:100vh; align-items:center; justify-content:center; background:var(--bg); padding:2rem;">
   <div class="auth-box">
     <div class="auth-icon">🔒</div>
-    <h2>Nova Palavra-passe</h2>
-    <p>Escreva a sua nova palavra-passe abaixo.</p>
+    <h2>Nova Senha</h2>
+    <p>Digite sua nova senha de acesso abaixo.</p>
     <div id="ns-msg"></div>
-    <div class="field"><label>Nova Palavra-passe</label><input class="inp" type="password" id="ns-senha" placeholder="••••••••"/></div>
-    <button class="btn btn-dark btn-full" id="ns-btn" onclick="atualizarSenha()">Atualizar Palavra-passe</button>
+    <div class="field"><label>Nova Senha</label><input class="inp" type="password" id="ns-senha" placeholder="••••••••"/></div>
+    <button class="btn btn-dark btn-full" id="ns-btn" onclick="atualizarSenha()">Atualizar Senha</button>
   </div>
 </div>
 
@@ -395,9 +186,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
             </div>
 
             <div style="text-align:center;font-size:1.1rem;font-weight:600;margin-bottom:1.25rem;color:var(--black)" id="agenda-data-titulo"></div>
-
             <div id="agenda-lista"><div class="ag-empty">Nenhum agendamento neste dia.</div></div>
-
             <button class="btn btn-dark btn-full" style="margin-top:1rem" onclick="setPanel(null,'agenda')">+ Novo Agendamento</button>
           </div>
         </div>
@@ -492,7 +281,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <div class="grid-2">
         <div class="card">
           <h3 style="font-size:0.95rem;margin-bottom:0.5rem">Adicionar barbeiro</h3>
-          <p style="font-size:0.82rem;color:var(--gray-4);margin-bottom:1rem">O barbeiro receberá acesso ao sistema com e-mail e palavra-passe próprios.</p>
+          <p style="font-size:0.82rem;color:var(--gray-4);margin-bottom:1rem">O barbeiro receberá acesso ao sistema com e-mail e senha próprios.</p>
           <div class="field"><label>Nome</label><input class="inp" type="text" id="eq-nome" placeholder="Ex: João Silva"/></div>
           <div class="field"><label>E-mail de acesso</label><input class="inp" type="email" id="eq-email" placeholder="joao@email.com"/></div>
           <div class="field"><label>Especialidade</label><input class="inp" type="text" id="eq-esp" placeholder="Ex: Cortes modernos"/></div>
@@ -528,7 +317,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 <div id="cliente">
   <header class="cli-header">
     <div>
-      <h3 id="cli-nome">A carregar...</h3>
+      <h3 id="cli-nome">Carregando...</h3>
       <small id="cli-end"></small>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
@@ -633,6 +422,13 @@ const _parts = _path ? _path.split('/') : []
 const slug = _parts.length >= 2 ? _parts[_parts.length-1] : null
 
 ;(async()=>{
+  // SOLUÇÃO CRÍTICA DO BUG: Intercepta o hash de redefinição de senha antes do login automático rodar
+  const urlHash = window.location.hash || '';
+  if (urlHash.includes('type=recovery') || urlHash.includes('access_token=')) {
+    showView('nova-senha');
+    return;
+  }
+
   const {data:{session:s}} = await sb.auth.getSession()
   if(s) await iniciar(s)
   else if(slug) showView('auth')
@@ -642,7 +438,15 @@ const slug = _parts.length >= 2 ? _parts[_parts.length-1] : null
       showView('nova-senha');
       return;
     }
-    if(s) await iniciar(s); else {session=null;showView('landing')} 
+    if(s) {
+      // Só inicia fluxo de painel se o usuário não estiver redefinindo a senha
+      if (document.getElementById('nova-senha').style.display !== 'flex') {
+        await iniciar(s);
+      }
+    } else {
+      session=null;
+      showView('landing');
+    } 
   })
 })()
 
@@ -684,8 +488,8 @@ function showAuth(){showView('auth')}
 function toggleRecuperacao() {
   authMode = 'recuperacao';
   document.getElementById('auth-title').textContent = 'Recuperar Acesso';
-  document.getElementById('auth-sub').textContent = 'Vamos enviar um link para o seu e-mail';
-  document.getElementById('auth-btn').textContent = 'Enviar e-mail de recuperação';
+  document.getElementById('auth-sub').textContent = 'Vamos enviar um link seguro para o seu e-mail';
+  document.getElementById('auth-btn').textContent = 'Enviar link de recuperação';
   document.querySelector('.log-field').style.display = 'none'; 
   document.querySelectorAll('.reg-field').forEach(el => el.style.display = 'none');
   document.getElementById('auth-toggle-btn').style.display = 'none';
@@ -696,23 +500,23 @@ function toggleRecuperacao() {
 function voltarLogin() {
   authMode = 'login';
   document.getElementById('auth-title').textContent = 'Entrar na conta';
-  document.getElementById('auth-sub').textContent = 'Aceda ao seu painel ou crie a sua conta';
+  document.getElementById('auth-sub').textContent = 'Acesse seu painel ou crie sua conta';
   document.getElementById('auth-btn').textContent = 'Entrar';
   document.querySelector('.log-field').style.display = 'flex';
   document.getElementById('auth-toggle-btn').style.display = 'block';
   document.getElementById('auth-back-log').style.display = 'none';
   document.getElementById('auth-msg').innerHTML = '';
-  document.querySelector('.auth-toggle').innerHTML = 'Novo por aqui? <span>Registe-se</span>';
+  document.getElementById('auth-toggle-btn').innerHTML = 'Novo por aqui? <span>Cadastre-se</span>';
 }
 
 function toggleAuthMode(){
-  if(authMode === 'recuperacao') authMode = 'login'; // previne travamentos
+  if(authMode === 'recuperacao') authMode = 'login';
   authMode = authMode==='login' ? 'cadastro' : 'login'
   const l = authMode==='login'
   document.getElementById('auth-title').textContent = l?'Entrar na conta':'Criar conta'
-  document.getElementById('auth-sub').textContent = l?'Aceda ao seu painel':'Crie a sua conta gratuitamente'
+  document.getElementById('auth-sub').textContent = l?'Acesse seu painel':'Crie sua conta gratuitamente'
   document.getElementById('auth-btn').textContent = l?'Entrar':'Criar conta'
-  document.getElementById('auth-toggle-btn').innerHTML = l?'Novo por aqui? <span>Registe-se</span>':'Já tem conta? <span>Entrar</span>'
+  document.getElementById('auth-toggle-btn').innerHTML = l?'Novo por aqui? <span>Cadastre-se</span>':'Já tem conta? <span>Entrar</span>'
   document.getElementById('auth-msg').innerHTML=''
   
   document.querySelectorAll('.reg-field').forEach(el => {
@@ -726,7 +530,7 @@ async function handleAuth(){
   const email=document.getElementById('auth-email').value.trim()
   const senha=document.getElementById('auth-senha').value
   const btn=document.getElementById('auth-btn')
-  btn.disabled=true; btn.textContent='A processar...'
+  btn.disabled=true; btn.textContent='Processando...'
   document.getElementById('auth-msg').innerHTML=''
   try{
     if(authMode==='recuperacao'){
@@ -734,7 +538,7 @@ async function handleAuth(){
         redirectTo: window.location.origin + window.location.pathname
       });
       if(error) throw error;
-      document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">E-mail enviado! Verifique a sua caixa de entrada.</div>';
+      document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">E-mail enviado! Verifique sua caixa de entrada.</div>';
       return;
     }
     else if(authMode==='login'){
@@ -743,7 +547,7 @@ async function handleAuth(){
     } else {
       const nome=document.getElementById('auth-nome').value.trim()
       const whatsapp=document.getElementById('auth-whatsapp').value.trim()
-      if(!nome || !whatsapp) throw new Error('Nome e WhatsApp são obrigatórios para o registo.');
+      if(!nome || !whatsapp) throw new Error('Nome e WhatsApp são obrigatórios para o cadastro.');
 
       const {data, error}=await sb.auth.signUp({email,password:senha})
       if(error) throw error
@@ -759,7 +563,7 @@ async function handleAuth(){
       authMode='login'; toggleAuthMode(); return
     }
   } catch(e){
-    const m={'Invalid login credentials':'E-mail ou palavra-passe incorretos.','User already registered':'E-mail já registado.','Password should be at least 6 characters':'A palavra-passe precisa ter 6+ caracteres.'}
+    const m={'Invalid login credentials':'E-mail ou senha incorretos.','User already registered':'E-mail já cadastrado.','Password should be at least 6 characters':'A senha precisa ter 6+ caracteres.'}
     document.getElementById('auth-msg').innerHTML=`<div class="msg msg-err">${m[e.message]||e.message}</div>`
   } finally { btn.disabled=false; btn.textContent=authMode==='login'?'Entrar':(authMode==='recuperacao'?'Enviar e-mail':'Criar conta') }
 }
@@ -768,19 +572,19 @@ async function atualizarSenha() {
   const btn = document.getElementById('ns-btn');
   const senha = document.getElementById('ns-senha').value;
   if(!senha || senha.length < 6) {
-    document.getElementById('ns-msg').innerHTML = '<div class="msg msg-err">A palavra-passe deve ter pelo menos 6 caracteres.</div>';
+    document.getElementById('ns-msg').innerHTML = '<div class="msg msg-err">A senha deve ter pelo menos 6 caracteres.</div>';
     return;
   }
-  btn.disabled = true; btn.textContent = 'A atualizar...';
+  btn.disabled = true; btn.textContent = 'Atualizando...';
   const { error } = await sb.auth.updateUser({ password: senha });
-  btn.disabled = false; btn.textContent = 'Atualizar Palavra-passe';
+  btn.disabled = false; btn.textContent = 'Atualizar Senha';
   
   if(error) {
     document.getElementById('ns-msg').innerHTML = `<div class="msg msg-err">${error.message}</div>`;
   } else {
-    alert('Palavra-passe atualizada com sucesso!');
-    const {data:{session:s}} = await sb.auth.getSession();
-    if(s) await iniciar(s);
+    alert('Senha atualizada com sucesso!');
+    window.location.hash = ''; // Limpa os tokens da URL
+    window.location.reload(); // Reinicia o app limpo e logado
   }
 }
 
@@ -797,7 +601,7 @@ async function loadBarbeiro(){
     barbearia=b; preencherCfg(b); await recarregar()
   } else {
     const e=id=>document.getElementById(id)
-    if(e('dash-nome')) e('dash-nome').textContent='Configure a sua barbearia'
+    if(e('dash-nome')) e('dash-nome').textContent='Configure sua barbearia'
     setPanel(null,'config')
   }
 }
@@ -1071,7 +875,7 @@ function renderEquipe(barbs){
         <div style="font-size:0.72rem;margin-top:2px">
           ${b.user_id
             ? '<span style="color:var(--success);font-weight:500">✓ Conta ativa</span>'
-            : '<span style="color:var(--warn)">⏳ A aguardar primeiro acesso</span>'}
+            : '<span style="color:var(--warn)">⏳ Aguardando primeiro acesso</span>'}
         </div>
       </div>
       <button class="btn btn-sm btn-danger" onclick="remBarbeiro('${b.id}')">✕</button>
@@ -1090,7 +894,7 @@ async function addBarbeiro(){
     return
   }
 
-  msgEl.innerHTML='<div class="msg" style="background:var(--gray-1);color:var(--gray-5)">A guardar...</div>'
+  msgEl.innerHTML='<div class="msg" style="background:var(--gray-1);color:var(--gray-5)">Salvando...</div>'
 
   const {data:convite,error:ce}=await sb.from('convites').upsert([{
     email, barbearia_id:barbearia.id, nome
@@ -1159,7 +963,7 @@ function setPanel(btn,id){
 
 async function salvarBarbearia(){
   const btn=document.getElementById('cfg-btn')
-  btn.disabled=true; btn.textContent='A guardar...'
+  btn.disabled=true; btn.textContent='Salvando...'
   document.getElementById('cfg-msg').innerHTML=''
   const payload={nome:document.getElementById('cfg-nome').value,endereco:document.getElementById('cfg-end').value,telefone:document.getElementById('cfg-tel').value,slug:document.getElementById('cfg-slug').value.trim(),owner_id:session.user.id}
   if(barbearia) payload.id=barbearia.id
@@ -1272,7 +1076,7 @@ async function loadCliente(){
 function renderBarbsCli(){
   const el=document.getElementById('barbs-cli')
   if(!barbeiros.length){
-    el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum barbeiro registado.</p>'
+    el.innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Nenhum barbeiro cadastrado.</p>'
     return
   }
   el.innerHTML=barbeiros.map(b=>`
@@ -1387,7 +1191,7 @@ async function irE(n){
 
 async function confirmar(){
   const btn=document.getElementById('btn-conf')
-  btn.disabled=true; btn.textContent='A confirmar...'
+  btn.disabled=true; btn.textContent='Confirmando...'
   const dia=document.getElementById('cli-dia').value
   
   const dataHoraLocal = dia+'T'+selHora+':00';
