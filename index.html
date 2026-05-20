@@ -183,7 +183,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .sel-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--white);border:1.5px solid var(--gray-2);border-radius:10px;cursor:pointer;transition:all 0.15s;margin-bottom:8px}
 .sel-card:hover{border-color:var(--black)}
 .sel-card.picked{border-color:var(--black);background:var(--gray-1)}
-.resumo-box{background:var(--gray-1);border:1px solid var(--gray-2);border-radius:10px;padding:16px;margin-bottom:12px}
+.resumo-box{background:var(--gray-1);border:1px solid var(--gray-2);border-radius:10px;padding:16px;margin-bottom:1.25rem}
 .resumo-box .rl{font-size:0.72rem;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;font-weight:500}
 .resumo-box .rv{font-weight:500;font-size:0.95rem;margin-bottom:3px}
 .tl-item{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;background:var(--white);border:1px solid var(--gray-2);border-radius:10px;margin-bottom:8px}
@@ -218,7 +218,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 }
 @media(max-width:860px){
   .hero{grid-template-columns:1fr;padding:3rem 5%}.hero-card{display:none}
-  .features{grid-template-columns:1fr}.feat{border-right:none;border-bottom:1px solid var(--gray-2);padding:2rem 5%}
+  .features{display:grid;grid-template-columns:1fr}.feat{border-right:none;border-bottom:1px solid var(--gray-2);padding:2rem 5%}
   #barber.active{flex-direction:column!important}
   .sidebar{width:100%!important;height:auto!important;position:relative!important;flex-direction:row!important;flex-wrap:wrap!important;padding:0.75rem 1rem!important;gap:6px;align-items:center}
   .sb-brand{padding-bottom:0;margin-bottom:0;border-bottom:none;flex-shrink:0}
@@ -361,6 +361,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
           <div class="dc-icon" style="background:#1a56db">📅</div>
           <div class="dc-label">Agendamentos Hoje</div>
           <div class="dc-val" id="st-total">0</div>
+          <div id="st-fat-card" style="font-size:0.85rem; font-weight:600; color:var(--success); margin-top:4px">R$ 0,00 confirmado</div>
         </div>
         <div class="dash-card" style="--cc:#e8f5e8;--ci:#2d6a2d">
           <div class="dc-icon" style="background:#2d6a2d">👥</div>
@@ -934,6 +935,9 @@ function renderStats(){
   if(el('st-conf'))  el('st-conf').textContent=conf.length
   if(el('st-fat'))   el('st-fat').textContent=`R$ ${fat.toFixed(2)}`
   
+  // ATUALIZA O FATURAMENTO RECEBIDO NO CARD PRINCIPAL
+  if(el('st-fat-card')) el('st-fat-card').textContent = `R$ ${fat.toFixed(2)} confirmado`;
+  
   const clientesUnicos=new Set(agendamentos.map(a=>a.user_id)).size
   if(el('st-clientes')) el('st-clientes').textContent=clientesUnicos
 }
@@ -1043,6 +1047,7 @@ function mudarDia(delta){
   renderStats(); renderAgenda(); renderGrade(); renderSemana()
 }
 
+// RESTANTE DO SCRIPT INALTERADO E SEGURO
 function irHoje(){
   const inp=document.getElementById('agenda-dia')
   if(inp) inp.value=new Date().toISOString().split('T')[0]
