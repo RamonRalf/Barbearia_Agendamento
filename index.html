@@ -371,7 +371,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.55);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
 .sb-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
 .sb-item.active{background:rgba(255,255,255,0.12);color:var(--white);font-weight:500}
-.sb-perfil-item{display:none!important}
+.sb-perfil-item{display:none}
 .sb-out{margin-top:auto;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.35);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
 .sb-out:hover{color:#ff6b6b;background:rgba(255,100,100,0.1)}
 .mobile-header{display:none!important}
@@ -1162,7 +1162,7 @@ async function loadBarbeiroFuncionario(barb){
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   document.querySelectorAll('.sb-item').forEach(el=>{const oc=el.getAttribute('onclick')||'';if(oc.includes("'equipe'")||oc.includes("'config'"))el.style.display='none'})
   // Mostra aba Meu Perfil apenas para funcionário
-  document.querySelectorAll('.sb-perfil-item').forEach(el=>el.style.display='flex')
+  document.querySelectorAll('.sb-perfil-item').forEach(el=>{el.style.display='flex';el.style.setProperty('display','flex','important')})
   carregarPerfil()
   await recarregarFuncionario()
 }
