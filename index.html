@@ -1468,11 +1468,28 @@ async function loadCliente(){
   const {data:cliPerfil}=await sb.from('clientes').select('*').eq('id',session.user.id).maybeSingle()
   if(cliPerfil){dadosCliente=cliPerfil;document.getElementById('cli-nome').textContent=cliPerfil.nome}
   else document.getElementById('cli-nome').textContent=session.user.email.split('@')[0]
-  document.getElementById('cli-email').textContent=session.user.email
-  let q=sb.from('barbearias').select('*');if(slug)q=q.ilike('slug',slug)
-  const {data:b}=await q.limit(1).single()
-  if(!b){document.getElementById('cli-nome').textContent='Barbearia não encontrada';return}
-  barbearia=b;document.getElementById('cli-nome').textContent=b.nome;document.getElementById('cli-end').textContent=b.endereco||''
+  document.getElementById('cli-email').textContent=cliPerfil?cliPerfil.nome:session.user.email.split('@')[0]
+
+  // Busca barbearia pelo slug ou a primeira disponível
+  let b = null
+  try{
+    let q=sb.from('barbearias').select('*')
+    if(slug) q=q.ilike('slug',slug)
+    const {data,error}=await q.limit(1).maybeSingle()
+    if(!error) b=data
+  }catch(e){ console.log('[loadCliente] erro barbearia:', e) }
+
+  if(!b){
+    document.getElementById('cli-nome').textContent='Acesse via link da barbearia'
+    document.getElementById('cli-end').textContent='Nenhuma barbearia encontrada para este link.'
+    document.getElementById('barbs-cli').innerHTML='<p style="color:var(--gray-4);text-align:center;padding:1rem">Acesse o link correto da barbearia para agendar.</p>'
+    return
+  }
+
+  barbearia=b
+  document.getElementById('cli-nome').textContent=b.nome
+  document.getElementById('cli-end').textContent=b.endereco||''
+
   const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id',b.id),
     sb.from('barbeiros').select('id,nome,especialidade,telefone,foto_url,barbearia_id').eq('barbearia_id',b.id),
