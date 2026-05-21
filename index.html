@@ -988,8 +988,11 @@ let filtroDashAtual='hoje'
 
 const getDiaLocal=(iso)=>{const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const _path=window.location.pathname.replace(/^\/+|\/+$/g,'')
-const _parts=_path?_path.split([]):[  ]
-const slug=_parts.length>=2?_parts[_parts.length-1]:null
+const _parts=_path?_path.split('/'):[  ]
+// Para ramonralf.github.io/Barbearia_Agendamento/ o path é 'Barbearia_Agendamento'
+// O slug vem como último segmento da URL, ou do próprio path se for acesso direto
+const slug=_parts.length>=1&&_parts[_parts.length-1]?_parts[_parts.length-1]:null
+console.log('[slug] path:', _path, 'parts:', _parts, 'slug:', slug)
 
 ;(async()=>{
   const urlHash=window.location.hash||''
