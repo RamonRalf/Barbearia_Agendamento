@@ -371,6 +371,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.55);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
 .sb-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
 .sb-item.active{background:rgba(255,255,255,0.12);color:var(--white);font-weight:500}
+.sb-perfil-item{display:none!important}
 .sb-out{margin-top:auto;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.35);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
 .sb-out:hover{color:#ff6b6b;background:rgba(255,100,100,0.1)}
 .mobile-header{display:none!important}
@@ -454,6 +455,13 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .tl-body{flex:1}
 .tl-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
 .tl-name{font-weight:500;font-size:0.9rem}
+
+
+/* PERFIL DO BARBEIRO */
+.perfil-avatar-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:1.5rem}
+.perfil-avatar{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--gray-2);background:var(--gray-1);display:flex;align-items:center;justify-content:center;font-size:2.5rem;overflow:hidden;cursor:pointer;position:relative}
+.perfil-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.perfil-avatar-label{font-size:0.75rem;color:var(--gray-4);cursor:pointer;text-decoration:underline}
 
 /* RESPONSIVO BARBER */
 @media(max-width:860px){
@@ -705,6 +713,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <button class="sb-item" onclick="setPanel(this,'servicos')"><span>✂️</span> Serviços</button>
       <button class="sb-item" onclick="setPanel(this,'equipe')"><span>👥</span> Barbeiros</button>
       <button class="sb-item" onclick="setPanel(this,'horarios')"><span>🔒</span> Bloquear Horários</button>
+      <button class="sb-item sb-perfil-item" onclick="setPanel(this,'perfil')"><span>👤</span> Meu Perfil</button>
       <button class="sb-item" onclick="setPanel(this,'config')"><span>⚙️</span> Configurações</button>
     </nav>
     <button class="sb-out" onclick="signOut()">← Sair</button>
@@ -822,6 +831,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
           <p style="font-size:0.82rem;color:var(--gray-4);margin-bottom:1rem">O barbeiro receberá acesso ao sistema com e-mail e senha próprios.</p>
           <div class="field"><label>Nome</label><input class="inp" type="text" id="eq-nome" placeholder="Ex: João Silva"/></div>
           <div class="field"><label>E-mail de acesso</label><input class="inp" type="email" id="eq-email" placeholder="joao@email.com"/></div>
+          <div class="field"><label>Telefone / WhatsApp</label><input class="inp" type="text" id="eq-tel" placeholder="(32) 99999-9999"/></div>
           <div class="field"><label>Especialidade</label><input class="inp" type="text" id="eq-esp" placeholder="Ex: Cortes modernos"/></div>
           <button class="btn btn-dark btn-full" onclick="addBarbeiro()">Adicionar barbeiro</button>
           <div id="eq-msg" style="margin-top:10px"></div>
@@ -853,6 +863,28 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
         <button class="btn btn-dark" id="cfg-btn" onclick="salvarBarbearia()">Salvar configurações</button>
       </div>
     </div>
+
+    <div id="panel-perfil" class="panel">
+      <div class="mobile-header" style="display:none;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <button class="btn btn-ghost" style="font-size:1.5rem;padding:0;color:var(--black)" onclick="toggleMobileMenu()">☰</button>
+        <span style="font-family:var(--serif);font-size:1.4rem;font-weight:600">Meu Perfil</span>
+        <div style="width:24px"></div>
+      </div>
+      <h2 class="panel-title desktop-header">Meu Perfil</h2>
+      <div class="card" style="max-width:480px">
+        <div id="perfil-msg"></div>
+        <div class="perfil-avatar-wrap">
+          <div class="perfil-avatar" id="perfil-avatar-preview" onclick="document.getElementById('perfil-foto-input').click()">✂</div>
+          <input type="file" id="perfil-foto-input" accept="image/*" style="display:none" onchange="previewFoto(event)"/>
+          <span class="perfil-avatar-label" onclick="document.getElementById('perfil-foto-input').click()">Alterar foto</span>
+        </div>
+        <div class="field"><label>Nome</label><input class="inp" type="text" id="perfil-nome" placeholder="Seu nome"/></div>
+        <div class="field"><label>Telefone / WhatsApp</label><input class="inp" type="text" id="perfil-tel" placeholder="(32) 99999-9999"/></div>
+        <div class="field"><label>Especialidade</label><input class="inp" type="text" id="perfil-esp" placeholder="Ex: Cortes modernos"/></div>
+        <button class="btn btn-dark btn-full" id="perfil-btn" onclick="salvarPerfil()">Salvar perfil</button>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1108,6 +1140,9 @@ async function loadBarbeiroFuncionario(barb){
   const dd=document.getElementById('dash-data')
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   document.querySelectorAll('.sb-item').forEach(el=>{const oc=el.getAttribute('onclick')||'';if(oc.includes("'equipe'")||oc.includes("'config'"))el.style.display='none'})
+  // Mostra aba Meu Perfil apenas para funcionário
+  document.querySelectorAll('.sb-perfil-item').forEach(el=>el.style.display='flex')
+  carregarPerfil()
   await recarregarFuncionario()
 }
 
@@ -1273,21 +1308,21 @@ function fecharModal(e){if(!e||e.target===document.getElementById('modal-ag'))do
 function renderEquipe(barbs){
   const el=document.getElementById('equipe-lista')
   if(!barbs.length){el.innerHTML='<p style="color:var(--gray-4);font-size:0.88rem">Nenhum barbeiro.</p>';return}
-  el.innerHTML=barbs.map(b=>`<div class="svc-row"><div style="width:36px;height:36px;border-radius:50%;background:var(--gray-2);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">✂</div><div style="flex:1"><div style="font-weight:500;font-size:0.9rem">${b.nome}</div><div style="font-size:0.75rem;color:var(--gray-4)">${b.email||'Sem e-mail'} · ${b.especialidade||'—'}</div><div style="font-size:0.72rem;margin-top:2px">${b.user_id?'<span style="color:var(--success);font-weight:500">✓ Conta ativa</span>':'<span style="color:var(--warn)">⏳ Aguardando primeiro acesso</span>'}</div></div><button class="btn btn-sm btn-danger" onclick="remBarbeiro('${b.id}')">✕</button></div>`).join('')
+  el.innerHTML=barbs.map(b=>`<div class="svc-row"><div style="width:40px;height:40px;border-radius:50%;background:var(--gray-2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden">${b.foto_url?`<img src='${b.foto_url}' style='width:100%;height:100%;object-fit:cover;border-radius:50%'/>`:'✂'}</div><div style="flex:1"><div style="font-weight:500;font-size:0.9rem">${b.nome}</div><div style="font-size:0.75rem;color:var(--gray-4)">${b.email||'Sem e-mail'} · ${b.telefone||'—'} · ${b.especialidade||'—'}</div><div style="font-size:0.72rem;margin-top:2px">${b.user_id?'<span style="color:var(--success);font-weight:500">✓ Conta ativa</span>':'<span style="color:var(--warn)">⏳ Aguardando primeiro acesso</span>'}</div></div><button class="btn btn-sm btn-danger" onclick="remBarbeiro('${b.id}')">✕</button></div>`).join('')
 }
 
 async function addBarbeiro(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
-  const nome=document.getElementById('eq-nome').value.trim();const email=document.getElementById('eq-email').value.trim().toLowerCase();const esp=document.getElementById('eq-esp').value.trim()
+  const nome=document.getElementById('eq-nome').value.trim();const email=document.getElementById('eq-email').value.trim().toLowerCase();const esp=document.getElementById('eq-esp').value.trim();const tel=document.getElementById('eq-tel').value.trim()
   const msgEl=document.getElementById('eq-msg')
   if(!nome||!email){msgEl.innerHTML='<div class="msg msg-err">Nome e e-mail são obrigatórios.</div>';return}
   msgEl.innerHTML='<div class="msg" style="background:var(--gray-1);color:var(--gray-5)">Salvando...</div>'
   const {data:convite,error:ce}=await sb.from('convites').upsert([{email,barbearia_id:barbearia.id,nome}],{onConflict:'email'}).select().single()
   if(ce){msgEl.innerHTML=`<div class="msg msg-err">${ce.message}</div>`;return}
-  const {error:be}=await sb.from('barbeiros').insert([{nome,email,especialidade:esp,barbearia_id:barbearia.id,convite_id:convite.id}])
+  const {error:be}=await sb.from('barbeiros').insert([{nome,email,especialidade:esp,telefone:tel,barbearia_id:barbearia.id,convite_id:convite.id}])
   if(be){msgEl.innerHTML=`<div class="msg msg-err">${be.message}</div>`;return}
   msgEl.innerHTML=`<div class="msg msg-ok">Barbeiro adicionado! Peça para <strong>${email}</strong> criar uma conta.</div>`
-  document.getElementById('eq-nome').value='';document.getElementById('eq-email').value='';document.getElementById('eq-esp').value=''
+  document.getElementById('eq-nome').value='';document.getElementById('eq-email').value='';document.getElementById('eq-esp').value='';document.getElementById('eq-tel').value=''
   await recarregar()
 }
 
@@ -1419,7 +1454,7 @@ async function loadCliente(){
   barbearia=b;document.getElementById('cli-nome').textContent=b.nome;document.getElementById('cli-end').textContent=b.endereco||''
   const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id',b.id),
-    sb.from('barbeiros').select('*').eq('barbearia_id',b.id),
+    sb.from('barbeiros').select('id,nome,especialidade,telefone,foto_url,barbearia_id').eq('barbearia_id',b.id),
     sb.from('agendamentos').select('*,servicos(nome),barbeiros(nome)').eq('user_id',session.user.id).order('data_hora',{ascending:false})
   ])
   todosServicos=sv||[];servicos=sv||[];barbeiros=barb||[]
@@ -1511,9 +1546,28 @@ async function confirmar(){
   const dataHoraParaOBanco=new Date(dia+'T'+selHora+':00').toISOString()
   const {data:conf}=await sb.from('agendamentos').select('id').eq('barbeiro_id',selBarb.id).eq('data_hora',dataHoraParaOBanco).neq('status','cancelado').maybeSingle()
   if(conf){document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Este horário acabou de ser ocupado. Escolha outro.</div>';btn.disabled=false;btn.textContent='Confirmar agendamento';return}
-  const {error}=await sb.from('agendamentos').insert([{barbearia_id:barbearia.id,user_id:session.user.id,servico_id:selSv.id,barbeiro_id:selBarb.id,nome_cliente:dadosCliente?dadosCliente.nome:session.user.email.split('@')[0],telefone_cliente:dadosCliente?dadosCliente.whatsapp:'',data_hora:dataHoraParaOBanco,status:'pendente'}])
+  const nomeCliente=dadosCliente?dadosCliente.nome:session.user.email.split('@')[0]
+  const {error}=await sb.from('agendamentos').insert([{barbearia_id:barbearia.id,user_id:session.user.id,servico_id:selSv.id,barbeiro_id:selBarb.id,nome_cliente:nomeCliente,telefone_cliente:dadosCliente?dadosCliente.whatsapp:'',data_hora:dataHoraParaOBanco,status:'pendente'}])
   btn.disabled=false;btn.textContent='Confirmar agendamento'
-  if(!error){document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>';setTimeout(()=>loadCliente(),1500)}
+  if(!error){
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
+    // Notificar barbeiro via WhatsApp
+    if(selBarb.telefone){
+      const dtFmt=new Date(dia+'T'+selHora+':00').toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+      const msg=encodeURIComponent(`🔔 *Novo agendamento!*
+
+👤 Cliente: ${nomeCliente}
+✂ Serviço: ${selSv.nome}
+🕐 Data/Hora: ${dtFmt}
+
+Acesse o painel para confirmar.`)
+      const tel=selBarb.telefone.replace(/\D/g,'')
+      const link=`https://wa.me/55${tel}?text=${msg}`
+      // Abre em nova aba após breve delay
+      setTimeout(()=>window.open(link,'_blank'),800)
+    }
+    setTimeout(()=>loadCliente(),1500)
+  }
   else document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
 }
 
@@ -1523,6 +1577,100 @@ function renderMeusAgs(ags){
   const bm={confirmado:'badge-ok',pendente:'badge-warn',cancelado:'badge-err'}
   el.innerHTML=ags.map(a=>{const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:'';return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}${barb}</small></div></div>`}).join('')
 }
+
+// ── PERFIL DO BARBEIRO ──────────────────────────────────────
+
+let fotoBase64 = null
+
+function previewFoto(event){
+  const file = event.target.files[0]
+  if(!file) return
+  const reader = new FileReader()
+  reader.onload = e => {
+    fotoBase64 = e.target.result
+    const prev = document.getElementById('perfil-avatar-preview')
+    prev.innerHTML = `<img src="${fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+  }
+  reader.readAsDataURL(file)
+}
+
+async function carregarPerfil(){
+  if(!meuBarbeiro) return
+  const {data:b} = await sb.from('barbeiros').select('*').eq('id',meuBarbeiro.id).single()
+  if(!b) return
+  meuBarbeiro = {...meuBarbeiro, ...b}
+  document.getElementById('perfil-nome').value = b.nome||''
+  document.getElementById('perfil-tel').value = b.telefone||''
+  document.getElementById('perfil-esp').value = b.especialidade||''
+  const prev = document.getElementById('perfil-avatar-preview')
+  if(b.foto_url){
+    prev.innerHTML = `<img src="${b.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+  } else {
+    prev.innerHTML = '✂'
+  }
+  // Atualiza também o avatar da sidebar
+  const sbIcon = document.querySelector('.sb-brand .perfil-avatar-sb')
+  if(sbIcon && b.foto_url) sbIcon.innerHTML = `<img src="${b.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+}
+
+async function salvarPerfil(){
+  const btn = document.getElementById('perfil-btn')
+  const msgEl = document.getElementById('perfil-msg')
+  btn.disabled=true; btn.textContent='Salvando...'
+  msgEl.innerHTML=''
+
+  const nome = document.getElementById('perfil-nome').value.trim()
+  const tel = document.getElementById('perfil-tel').value.trim()
+  const esp = document.getElementById('perfil-esp').value.trim()
+
+  if(!nome){
+    msgEl.innerHTML='<div class="msg msg-err">Nome é obrigatório.</div>'
+    btn.disabled=false; btn.textContent='Salvar perfil'
+    return
+  }
+
+  let foto_url = meuBarbeiro.foto_url || null
+
+  // Upload da foto para o Supabase Storage (bucket: avatars)
+  if(fotoBase64){
+    try{
+      const blob = await (await fetch(fotoBase64)).blob()
+      const ext = blob.type.split('/')[1]||'jpg'
+      const path = `barbeiros/${meuBarbeiro.id}.${ext}`
+      const {error:upErr} = await sb.storage.from('avatars').upload(path, blob, {upsert:true, contentType:blob.type})
+      if(upErr) throw upErr
+      const {data:urlData} = sb.storage.from('avatars').getPublicUrl(path)
+      foto_url = urlData.publicUrl + '?t=' + Date.now()
+    }catch(e){
+      msgEl.innerHTML=`<div class="msg msg-err">Erro no upload da foto: ${e.message}</div>`
+      btn.disabled=false; btn.textContent='Salvar perfil'
+      return
+    }
+  }
+
+  const {error} = await sb.from('barbeiros').update({nome, telefone:tel, especialidade:esp, foto_url}).eq('id', meuBarbeiro.id)
+
+  btn.disabled=false; btn.textContent='Salvar perfil'
+
+  if(error){
+    msgEl.innerHTML=`<div class="msg msg-err">Erro: ${error.message}</div>`
+    return
+  }
+
+  // Atualiza dados locais
+  meuBarbeiro.nome = nome
+  meuBarbeiro.telefone = tel
+  meuBarbeiro.especialidade = esp
+  meuBarbeiro.foto_url = foto_url
+  fotoBase64 = null
+
+  document.getElementById('dash-nome-desktop').textContent = nome
+  document.getElementById('sb-nome').textContent = barbearia?.nome || 'Minha Barbearia'
+
+  msgEl.innerHTML='<div class="msg msg-ok">Perfil atualizado com sucesso!</div>'
+  setTimeout(()=>msgEl.innerHTML='', 3000)
+}
+
 </script>
 </body>
 </html>
