@@ -1452,25 +1452,7 @@ async function addServico(){
 async function remSv(id){if(!confirm('Remover?'))return;await sb.from('servicos').delete().eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
 async function confAg(id){
   await sb.from('agendamentos').update({status:'confirmado'}).eq('id',id)
-  
-  // Buscar dados do agendamento para notificar cliente
-  const {data:ag}=await sb.from('agendamentos')
-    .select('*,servicos(nome),barbeiros(nome,telefone)')
-    .eq('id',id).single()
-  
-  if(ag && ag.telefone_cliente){
-    const dt=new Date(ag.data_hora).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
-    const msg=encodeURIComponent(`✅ *Agendamento confirmado!*
-
-✂ Serviço: ${ag.servicos?.nome||'—'}
-👤 Barbeiro: ${ag.barbeiros?.nome||'—'}
-🕐 Data/Hora: ${dt}
-
-Te esperamos! 💈`)
-    const tel=ag.telefone_cliente.replace(/\D/g,'')
-    window.open(`https://wa.me/55${tel}?text=${msg}`,'_blank')
-  }
-  
+  notificarEmail('confirmado', id)
   if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
 }
 async function cancAg(id){if(!confirm('Cancelar agendamento?'))return;await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
@@ -1622,21 +1604,9 @@ async function confirmar(){
   btn.disabled=false;btn.textContent='Confirmar agendamento'
   if(!error){
     document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
-    // Notificar barbeiro via WhatsApp
-    if(selBarb.telefone){
-      const dtFmt=new Date(dia+'T'+selHora+':00').toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
-      const msg=encodeURIComponent(`🔔 *Novo agendamento!*
-
-👤 Cliente: ${nomeCliente}
-✂ Serviço: ${selSv.nome}
-🕐 Data/Hora: ${dtFmt}
-
-Acesse o painel para confirmar.`)
-      const tel=selBarb.telefone.replace(/\D/g,'')
-      const link=`https://wa.me/55${tel}?text=${msg}`
-      // Abre em nova aba após breve delay
-      setTimeout(()=>window.open(link,'_blank'),800)
-    }
+    // Notificar barbeiro por email
+    const {data:agNovo}=await sb.from('agendamentos').select('id').eq('barbeiro_id',selBarb.id).eq('data_hora',dataHoraParaOBanco).neq('status','cancelado').maybeSingle()
+    if(agNovo) notificarEmail('novo_agendamento', agNovo.id)
     setTimeout(()=>loadCliente(),1500)
   }
   else document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
@@ -1647,6 +1617,18 @@ function renderMeusAgs(ags){
   if(!ags.length){el.innerHTML='<p style="color:var(--gray-4);font-size:0.88rem;text-align:center;padding:1rem">Nenhum agendamento ainda.</p>';return}
   const bm={confirmado:'badge-ok',pendente:'badge-warn',cancelado:'badge-err'}
   el.innerHTML=ags.map(a=>{const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:'';return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}${barb}</small></div></div>`}).join('')
+}
+
+
+// ── NOTIFICAÇÕES EMAIL ──────────────────────────────────────
+async function notificarEmail(tipo, agendamento_id){
+  try{
+    await fetch('https://hhcmdnmazwnpehipheec.supabase.co/functions/v1/notificacoes-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8'},
+      body:JSON.stringify({tipo, agendamento_id})
+    })
+  }catch(e){console.log('Notif email erro:',e)}
 }
 
 // ── PERFIL DO BARBEIRO ──────────────────────────────────────
