@@ -1097,9 +1097,21 @@ async function handleAuth(){
       if(!nome||!whatsapp)throw new Error('Nome e WhatsApp são obrigatórios para o cadastro.')
       const {data,error}=await sb.auth.signUp({email,password:senha})
       if(error)throw error
-      if(data?.user){const {error:pe}=await sb.from('clientes').insert([{id:data.user.id,nome,whatsapp}]);if(pe)throw pe}
-      document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Faça login.</div>'
-      authMode='login';toggleAuthMode();return
+
+      // Supabase pode retornar sessão imediata (email confirm desativado)
+      // ou apenas user sem sessão (email confirm ativado)
+      if(data?.session){
+        // Sessão ativa — insere perfil e entra direto
+        if(data.user){
+          await sb.from('clientes').insert([{id:data.user.id,nome,whatsapp}]).maybeSingle()
+        }
+        document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Entrando...</div>'
+        return // onAuthStateChange vai chamar iniciar()
+      } else if(data?.user){
+        // Email de confirmação enviado
+        document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Verifique seu e-mail para confirmar, depois faça login.</div>'
+        authMode='login';toggleAuthMode();return
+      }
     }
   }catch(e){
     const m={'Invalid login credentials':'E-mail ou senha incorretos.','User already registered':'E-mail já cadastrado.','Password should be at least 6 characters':'Senha precisa ter 6+ caracteres.'}
