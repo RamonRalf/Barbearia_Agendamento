@@ -480,9 +480,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════
-     LANDING
-═══════════════════════════════════════ -->
 <div id="landing" class="view active">
 
   <nav class="l-nav">
@@ -496,9 +493,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </nav>
 
-  <!-- HERO -->
   <div class="hero-wrap">
-    <!-- Esquerda -->
     <div class="hero-left">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>
@@ -526,7 +521,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
-    <!-- Direita — preview do app -->
     <div class="hero-right">
       <div class="hero-card-wrap">
         <div class="float-badge">
@@ -591,14 +585,12 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
-  <!-- DIVIDER -->
   <div class="l-divider" style="margin:0 auto 0;max-width:1200px;padding:0 5%">
     <div class="l-divider-line"></div>
     <div class="l-divider-text">Funcionalidades</div>
     <div class="l-divider-line"></div>
   </div>
 
-  <!-- FEATURES GRID -->
   <div class="l-features">
     <div class="l-feat">
       <div class="l-feat-num">01</div>
@@ -617,7 +609,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
-  <!-- HOW IT WORKS -->
   <div class="l-how">
     <div class="l-how-inner">
       <div class="l-section-tag">Como funciona</div>
@@ -642,7 +633,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
-  <!-- CTA FINAL -->
   <div class="l-cta">
     <h2>Pronto para começar?<br/><em>É gratuito.</em></h2>
     <p>Configure sua barbearia em minutos e comece a receber agendamentos hoje.</p>
@@ -657,9 +647,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     AUTH
-═══════════════════════════════════════ -->
 <div id="auth">
   <div class="auth-box">
     <button class="auth-back" onclick="showView('landing')">← Voltar</button>
@@ -693,9 +680,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 
 <div class="menu-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
-<!-- ═══════════════════════════════════════
-     BARBER PANEL
-═══════════════════════════════════════ -->
 <div id="barber">
   <aside class="sidebar">
     <div class="sb-brand">
@@ -888,9 +872,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </main>
 </div>
 
-<!-- ═══════════════════════════════════════
-     CLIENTE
-═══════════════════════════════════════ -->
 <div id="cliente">
   <header class="cli-header">
     <div>
@@ -961,7 +942,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modal-ag" onclick="fecharModal(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -975,9 +955,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     JAVASCRIPT — 100% original
-═══════════════════════════════════════ -->
 <script>
 const {createClient}=supabase
 const sb=createClient('https://hhcmdnmazwnpehipheec.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8')
@@ -988,7 +965,7 @@ let filtroDashAtual='hoje'
 
 const getDiaLocal=(iso)=>{const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const _path=window.location.pathname.replace(/^\/+|\/+$/g,'')
-const _parts=_path?_path.split('/'):[  ]
+const _parts=_path?_path.split('/'):[ ]
 // Para ramonralf.github.io/Barbearia_Agendamento/ o path é 'Barbearia_Agendamento'
 // O slug vem como último segmento da URL, ou do próprio path se for acesso direto
 const slug=_parts.length>=1&&_parts[_parts.length-1]?_parts[_parts.length-1]:null
@@ -1619,14 +1596,12 @@ function renderMeusAgs(ags){
   el.innerHTML=ags.map(a=>{const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:'';return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}${barb}</small></div></div>`}).join('')
 }
 
-
 // ── NOTIFICAÇÕES EMAIL ──────────────────────────────────────
 async function notificarEmail(tipo, agendamento_id){
   try{
-    await fetch('https://hhcmdnmazwnpehipheec.supabase.co/functions/v1/notificacoes-email', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8'},
-      body:JSON.stringify({tipo, agendamento_id})
+    // Utiliza o próprio cliente do Supabase configurado para chamar a Edge Function
+    await sb.functions.invoke('notificacoes-email', {
+      body: { tipo, agendamento_id }
     })
   }catch(e){console.log('Notif email erro:',e)}
 }
