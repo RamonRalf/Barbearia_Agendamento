@@ -866,8 +866,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <small id="cli-end"></small>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
-      <!-- CORREÇÃO 2: mostra o nome do usuário logado, não o email -->
-      <small id="cli-usuario-nome" style="color:var(--gray-4);font-size:0.82rem"></small>
+      <small id="cli-email"></small>
       <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="signOut()">Sair</button>
     </div>
   </header>
@@ -945,24 +944,20 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 </div>
 
 <!-- ═══════════════════════════════════════
-     JAVASCRIPT
+     JAVASCRIPT — 100% original
 ═══════════════════════════════════════ -->
 <script>
 const {createClient}=supabase
-const sb=createClient('https://oniddekzivbgsayxufka.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uaWRkZWt6aXZiZ3NheXh1ZmthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NDMxNTMsImV4cCI6MjA5NDAxOTE1M30.ndGrmZVHobASZE_Xm_PKZmeml7-zeFEze4bU6k3wBMk')
+const sb=createClient('https://hhcmdnmazwnpehipheec.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8')
 
 let session=null,role=null,barbearia=null,servicos=[],agendamentos=[],bloqueios=[]
 let authMode='login',dadosCliente=null,isRecoveryMode=false,meuBarbeiro=null
 let filtroDashAtual='hoje'
 
 const getDiaLocal=(iso)=>{const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-
-// ─────────────────────────────────────────────────────────────
-// CORREÇÃO 1: split('/') em vez de split([]) que quebrava o slug
-// ─────────────────────────────────────────────────────────────
 const _path=window.location.pathname.replace(/^\/+|\/+$/g,'')
-const _parts=_path?_path.split('/'):[]
-const slug=_parts.length>=1?_parts[_parts.length-1]:null
+const _parts=_path?_path.split([]):[  ]
+const slug=_parts.length>=2?_parts[_parts.length-1]:null
 
 ;(async()=>{
   const urlHash=window.location.hash||''
@@ -1127,9 +1122,11 @@ async function recarregarFuncionario(){
   ])
   agendamentos=ag||[];servicos=sv||[];bloqueios=bl||[]
 
+  // Barbeiro funcionário: esconde o select de barbeiro e mostra o nome dele fixo
   const svBarbField=document.getElementById('wrap-sv-barb')
   if(svBarbField) svBarbField.style.display='none'
 
+  // Garante que o nome do barbeiro aparece acima do formulário de serviços
   let svNomeInfo=document.getElementById('sv-barb-info')
   if(!svNomeInfo){
     svNomeInfo=document.createElement('div')
@@ -1412,26 +1409,10 @@ let barbeiros=[],selBarb=null,selSv=null,selHora=null,agsBarb=[],blqsBarb=[],tod
 
 async function loadCliente(){
   showView('cliente')
-
-  // ─────────────────────────────────────────────────────────────
-  // CORREÇÃO 2: busca o perfil do cliente e exibe o NOME (não o email)
-  // no header superior direito. Fallback: parte antes do @ do email.
-  // ─────────────────────────────────────────────────────────────
   const {data:cliPerfil}=await sb.from('clientes').select('*').eq('id',session.user.id).maybeSingle()
-  if(cliPerfil){
-    dadosCliente=cliPerfil
-    // Preenche o nome do usuário logado no canto superior direito
-    const nomeEl=document.getElementById('cli-usuario-nome')
-    if(nomeEl) nomeEl.textContent='Olá, '+cliPerfil.nome
-  } else {
-    // Fallback: usa a parte antes do @ do email
-    const nomeEl=document.getElementById('cli-usuario-nome')
-    if(nomeEl) nomeEl.textContent='Olá, '+session.user.email.split('@')[0]
-  }
-
-  // Título do header (nome da barbearia) — mantido igual ao original
-  document.getElementById('cli-nome').textContent='Carregando...'
-
+  if(cliPerfil){dadosCliente=cliPerfil;document.getElementById('cli-nome').textContent=cliPerfil.nome}
+  else document.getElementById('cli-nome').textContent=session.user.email.split('@')[0]
+  document.getElementById('cli-email').textContent=session.user.email
   let q=sb.from('barbearias').select('*');if(slug)q=q.ilike('slug',slug)
   const {data:b}=await q.limit(1).single()
   if(!b){document.getElementById('cli-nome').textContent='Barbearia não encontrada';return}
