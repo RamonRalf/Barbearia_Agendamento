@@ -463,6 +463,20 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .perfil-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .perfil-avatar-label{font-size:0.75rem;color:var(--gray-4);cursor:pointer;text-decoration:underline}
 
+/* CLIENTES */
+.cli-card{background:var(--white);border:1px solid var(--gray-2);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s}
+.cli-card:hover{border-color:var(--black);box-shadow:var(--shadow)}
+.cli-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cli-card-nome{font-weight:600;font-size:0.95rem}
+.cli-card-info{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.cli-card-info small{color:var(--gray-4);font-size:0.8rem}
+.cli-card-gasto{font-weight:700;font-family:var(--serif);font-size:1.1rem;color:var(--success)}
+.cli-detalhe-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;align-items:flex-end;justify-content:center}
+.cli-detalhe-overlay.open{display:flex}
+.cli-detalhe-box{background:var(--white);border-radius:20px 20px 0 0;padding:2rem;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;animation:slideUp 0.25s ease}
+.cli-search{width:100%;padding:10px 14px;border:1.5px solid var(--gray-2);border-radius:8px;font-family:var(--sans);font-size:0.9rem;outline:none;margin-bottom:1rem}
+.cli-search:focus{border-color:var(--black)}
+
 /* RESPONSIVO BARBER */
 @media(max-width:860px){
   #barber.active{flex-direction:column!important}
@@ -480,6 +494,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════
+     LANDING
+═══════════════════════════════════════ -->
 <div id="landing" class="view active">
 
   <nav class="l-nav">
@@ -493,7 +510,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </nav>
 
+  <!-- HERO -->
   <div class="hero-wrap">
+    <!-- Esquerda -->
     <div class="hero-left">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>
@@ -521,6 +540,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
+    <!-- Direita — preview do app -->
     <div class="hero-right">
       <div class="hero-card-wrap">
         <div class="float-badge">
@@ -585,12 +605,14 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
+  <!-- DIVIDER -->
   <div class="l-divider" style="margin:0 auto 0;max-width:1200px;padding:0 5%">
     <div class="l-divider-line"></div>
     <div class="l-divider-text">Funcionalidades</div>
     <div class="l-divider-line"></div>
   </div>
 
+  <!-- FEATURES GRID -->
   <div class="l-features">
     <div class="l-feat">
       <div class="l-feat-num">01</div>
@@ -609,6 +631,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
+  <!-- HOW IT WORKS -->
   <div class="l-how">
     <div class="l-how-inner">
       <div class="l-section-tag">Como funciona</div>
@@ -633,6 +656,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
+  <!-- CTA FINAL -->
   <div class="l-cta">
     <h2>Pronto para começar?<br/><em>É gratuito.</em></h2>
     <p>Configure sua barbearia em minutos e comece a receber agendamentos hoje.</p>
@@ -647,6 +671,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════
+     AUTH
+═══════════════════════════════════════ -->
 <div id="auth">
   <div class="auth-box">
     <button class="auth-back" onclick="showView('landing')">← Voltar</button>
@@ -680,6 +707,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 
 <div class="menu-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
+<!-- ═══════════════════════════════════════
+     BARBER PANEL
+═══════════════════════════════════════ -->
 <div id="barber">
   <aside class="sidebar">
     <div class="sb-brand">
@@ -697,6 +727,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <button class="sb-item" onclick="setPanel(this,'servicos')"><span>✂️</span> Serviços</button>
       <button class="sb-item" onclick="setPanel(this,'equipe')"><span>👥</span> Barbeiros</button>
       <button class="sb-item" onclick="setPanel(this,'horarios')"><span>🔒</span> Bloquear Horários</button>
+      <button class="sb-item sb-clientes-item" onclick="setPanel(this,'clientes')"><span>👥</span> Clientes</button>
       <button class="sb-item sb-perfil-item" onclick="setPanel(this,'perfil')"><span>👤</span> Meu Perfil</button>
       <button class="sb-item" onclick="setPanel(this,'config')"><span>⚙️</span> Configurações</button>
     </nav>
@@ -869,9 +900,60 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
+
+    <div id="panel-clientes" class="panel">
+      <div class="mobile-header" style="display:none;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+        <button class="btn btn-ghost" style="font-size:1.5rem;padding:0;color:var(--black)" onclick="toggleMobileMenu()">☰</button>
+        <span style="font-family:var(--serif);font-size:1.4rem;font-weight:600">Clientes</span>
+        <div style="width:24px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:12px" class="desktop-header">
+        <h2 class="panel-title" style="margin:0">Clientes</h2>
+        <div id="clientes-resumo" style="font-size:0.85rem;color:var(--gray-4)"></div>
+      </div>
+      <input type="text" class="cli-search" id="clientes-search" placeholder="Buscar cliente pelo nome..." oninput="filtrarClientes()"/>
+      <div id="clientes-lista"><div class="ag-empty">Carregando clientes...</div></div>
+    </div>
+
+    <div class="cli-detalhe-overlay" id="cli-detalhe-overlay" onclick="fecharDetalheCliente(event)">
+      <div class="cli-detalhe-box">
+        <div class="modal-handle"></div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:1.5rem">
+          <div id="cli-det-avatar" style="width:52px;height:52px;border-radius:50%;background:var(--gray-1);border:2px solid var(--gray-2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">👤</div>
+          <div>
+            <div id="cli-det-nome" style="font-weight:600;font-size:1.1rem"></div>
+            <div id="cli-det-contato" style="font-size:0.8rem;color:var(--gray-4);margin-top:2px"></div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="font-size:0.72rem;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em">Total gasto</div>
+            <div id="cli-det-total" style="font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--success)"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid var(--gray-2)">
+          <div style="flex:1;text-align:center;background:var(--gray-1);border-radius:8px;padding:10px">
+            <div id="cli-det-qtd" style="font-family:var(--serif);font-size:1.4rem;font-weight:600"></div>
+            <div style="font-size:0.72rem;color:var(--gray-4);margin-top:2px">Agendamentos</div>
+          </div>
+          <div style="flex:1;text-align:center;background:var(--gray-1);border-radius:8px;padding:10px">
+            <div id="cli-det-ticket" style="font-family:var(--serif);font-size:1.4rem;font-weight:600"></div>
+            <div style="font-size:0.72rem;color:var(--gray-4);margin-top:2px">Ticket médio</div>
+          </div>
+          <div style="flex:1;text-align:center;background:var(--gray-1);border-radius:8px;padding:10px">
+            <div id="cli-det-ultimo" style="font-family:var(--serif);font-size:1rem;font-weight:600"></div>
+            <div style="font-size:0.72rem;color:var(--gray-4);margin-top:2px">Última visita</div>
+          </div>
+        </div>
+        <h4 style="font-size:0.85rem;font-weight:600;margin-bottom:10px;color:var(--gray-5)">Histórico de agendamentos</h4>
+        <div id="cli-det-historico"></div>
+      </div>
+    </div>
+
   </main>
 </div>
 
+<!-- ═══════════════════════════════════════
+     CLIENTE
+═══════════════════════════════════════ -->
 <div id="cliente">
   <header class="cli-header">
     <div>
@@ -942,6 +1024,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
+<!-- MODAL -->
 <div class="modal-overlay" id="modal-ag" onclick="fecharModal(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -955,6 +1038,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT — 100% original
+═══════════════════════════════════════ -->
 <script>
 const {createClient}=supabase
 const sb=createClient('https://hhcmdnmazwnpehipheec.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8')
@@ -965,7 +1051,7 @@ let filtroDashAtual='hoje'
 
 const getDiaLocal=(iso)=>{const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const _path=window.location.pathname.replace(/^\/+|\/+$/g,'')
-const _parts=_path?_path.split('/'):[ ]
+const _parts=_path?_path.split('/'):[  ]
 // Para ramonralf.github.io/Barbearia_Agendamento/ o path é 'Barbearia_Agendamento'
 // O slug vem como último segmento da URL, ou do próprio path se for acesso direto
 const slug=_parts.length>=1&&_parts[_parts.length-1]?_parts[_parts.length-1]:null
@@ -1143,6 +1229,7 @@ async function loadBarbeiroFuncionario(barb){
   document.querySelectorAll('.sb-item').forEach(el=>{const oc=el.getAttribute('onclick')||'';if(oc.includes("'equipe'")||oc.includes("'config'"))el.style.display='none'})
   // Mostra aba Meu Perfil apenas para funcionário
   document.querySelectorAll('.sb-perfil-item').forEach(el=>{el.style.display='flex';el.style.setProperty('display','flex','important')})
+  document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.style.display='flex';el.style.setProperty('display','flex','important')})
   carregarPerfil()
   await recarregarFuncionario()
 }
@@ -1174,6 +1261,7 @@ async function recarregarFuncionario(){
   svNomeInfo.textContent='✂ Cadastrando serviço para: '+meuBarbeiro.nome
 
   renderStats();renderAgenda();renderGrade();renderSemana();renderServicos();renderBloqueios()
+  carregarClientes()
 }
 
 function preencherCfg(b){
@@ -1205,6 +1293,8 @@ async function recarregar(){
     svBarbField.style.display='flex'
     svBarbSelect.innerHTML='<option value="">Selecione o barbeiro...</option>'+(barb||[]).map(b=>`<option value="${b.id}">${b.nome}</option>`).join('')
   }
+  // Carregar clientes automaticamente
+  carregarClientes()
   if(barbearia.slug){const l=`${location.origin}/${barbearia.slug}`;if(e('link-txt'))e('link-txt').textContent=l;if(e('link-wrap'))e('link-wrap').style.display='block'}
 }
 
@@ -1356,6 +1446,7 @@ function setPanel(btn,id){
   else document.querySelectorAll('.sb-item').forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active')})
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
   const p=document.getElementById('panel-'+id);if(p)p.classList.add('active')
+  if(id==='clientes') carregarClientes()
   window.scrollTo(0,0)
   const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay')
   if(sidebar&&sidebar.classList.contains('open')){sidebar.classList.remove('open');overlay.classList.remove('open')}
@@ -1596,12 +1687,139 @@ function renderMeusAgs(ags){
   el.innerHTML=ags.map(a=>{const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:'';return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}${barb}</small></div></div>`}).join('')
 }
 
+
+
+// ── CLIENTES ────────────────────────────────────────────────
+
+let todosClientes = []
+
+async function carregarClientes(){
+  if(!barbearia) return
+  
+  // Busca todos agendamentos confirmados da barbearia (ou do barbeiro)
+  let q = sb.from('agendamentos')
+    .select('*,servicos(nome,preco),barbeiros(nome)')
+    .eq('barbearia_id', barbearia.id)
+    .eq('status', 'confirmado')
+    .order('data_hora', {ascending: false})
+  
+  if(meuBarbeiro) q = q.eq('barbeiro_id', meuBarbeiro.id)
+  
+  const {data:ags} = await q
+  if(!ags) return
+
+  // Agrupa por cliente
+  const mapa = {}
+  for(const ag of ags){
+    const key = ag.user_id || ag.nome_cliente
+    if(!mapa[key]){
+      mapa[key] = {
+        user_id: ag.user_id,
+        nome: ag.nome_cliente,
+        telefone: ag.telefone_cliente || '',
+        agendamentos: [],
+        total: 0
+      }
+    }
+    mapa[key].agendamentos.push(ag)
+    mapa[key].total += ag.servicos?.preco || 0
+  }
+
+  // Ordena por total gasto (maior primeiro)
+  todosClientes = Object.values(mapa).sort((a,b) => b.total - a.total)
+  
+  const resumo = document.getElementById('clientes-resumo')
+  if(resumo) resumo.textContent = `${todosClientes.length} clientes · ${ags.length} atendimentos`
+
+  renderClientes(todosClientes)
+}
+
+function renderClientes(lista){
+  const el = document.getElementById('clientes-lista')
+  if(!el) return
+  
+  if(!lista.length){
+    el.innerHTML = '<div class="ag-empty">Nenhum cliente encontrado.</div>'
+    return
+  }
+
+  el.innerHTML = lista.map((c, i) => {
+    const ultimo = c.agendamentos[0]
+    const dtUltimo = ultimo ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—'
+    const medalha = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : ''
+    return `<div class="cli-card" onclick="abrirDetalheCliente('${c.user_id||''}','${encodeURIComponent(c.nome)}')">
+      <div class="cli-card-top">
+        <span class="cli-card-nome">${medalha} ${c.nome}</span>
+        <span class="cli-card-gasto">R$ ${c.total.toFixed(2)}</span>
+      </div>
+      <div class="cli-card-info">
+        <small>📅 ${c.agendamentos.length} visita${c.agendamentos.length>1?'s':''}</small>
+        <small>🕐 Último: ${dtUltimo}</small>
+        ${c.telefone?`<small>📱 ${c.telefone}</small>`:''}
+        <small style="color:var(--gold);font-weight:500">Ticket médio: R$ ${(c.total/c.agendamentos.length).toFixed(2)}</small>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function filtrarClientes(){
+  const termo = document.getElementById('clientes-search').value.toLowerCase()
+  if(!termo){ renderClientes(todosClientes); return }
+  const filtrado = todosClientes.filter(c => c.nome.toLowerCase().includes(termo))
+  renderClientes(filtrado)
+}
+
+function abrirDetalheCliente(userId, nomeEnc){
+  const nome = decodeURIComponent(nomeEnc)
+  const cliente = todosClientes.find(c => 
+    (userId && c.user_id === userId) || c.nome === nome
+  )
+  if(!cliente) return
+
+  document.getElementById('cli-det-nome').textContent = cliente.nome
+  document.getElementById('cli-det-contato').textContent = cliente.telefone || 'Sem telefone cadastrado'
+  document.getElementById('cli-det-total').textContent = `R$ ${cliente.total.toFixed(2)}`
+  document.getElementById('cli-det-qtd').textContent = cliente.agendamentos.length
+  document.getElementById('cli-det-ticket').textContent = `R$ ${(cliente.total/cliente.agendamentos.length).toFixed(2)}`
+  
+  const ultimo = cliente.agendamentos[0]
+  document.getElementById('cli-det-ultimo').textContent = ultimo 
+    ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
+    : '—'
+
+  // Histórico
+  const hist = cliente.agendamentos.map(ag => {
+    const dt = new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
+    const bc = ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
+    return `<div class="tl-item">
+      <div class="tl-dot ${ag.status}"></div>
+      <div class="tl-body">
+        <div class="tl-top">
+          <span class="tl-name">${ag.servicos?.nome||'—'}</span>
+          <span style="font-weight:700;color:var(--success);font-size:0.9rem">R$ ${ag.servicos?.preco||'0'}</span>
+        </div>
+        <small>${dt} · ${ag.barbeiros?.nome||'—'}</small>
+      </div>
+    </div>`
+  }).join('')
+
+  document.getElementById('cli-det-historico').innerHTML = hist || '<p style="color:var(--gray-4);font-size:0.88rem">Sem histórico.</p>'
+  document.getElementById('cli-detalhe-overlay').classList.add('open')
+}
+
+function fecharDetalheCliente(e){
+  if(!e || e.target === document.getElementById('cli-detalhe-overlay')){
+    document.getElementById('cli-detalhe-overlay').classList.remove('open')
+  }
+}
+
 // ── NOTIFICAÇÕES EMAIL ──────────────────────────────────────
 async function notificarEmail(tipo, agendamento_id){
   try{
-    // Utiliza o próprio cliente do Supabase configurado para chamar a Edge Function
-    await sb.functions.invoke('notificacoes-email', {
-      body: { tipo, agendamento_id }
+    await fetch('https://hhcmdnmazwnpehipheec.supabase.co/functions/v1/notificacoes-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8'},
+      body:JSON.stringify({tipo, agendamento_id})
     })
   }catch(e){console.log('Notif email erro:',e)}
 }
