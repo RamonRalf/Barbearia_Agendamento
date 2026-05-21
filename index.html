@@ -1450,7 +1450,29 @@ async function addServico(){
 }
 
 async function remSv(id){if(!confirm('Remover?'))return;await sb.from('servicos').delete().eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
-async function confAg(id){await sb.from('agendamentos').update({status:'confirmado'}).eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
+async function confAg(id){
+  await sb.from('agendamentos').update({status:'confirmado'}).eq('id',id)
+  
+  // Buscar dados do agendamento para notificar cliente
+  const {data:ag}=await sb.from('agendamentos')
+    .select('*,servicos(nome),barbeiros(nome,telefone)')
+    .eq('id',id).single()
+  
+  if(ag && ag.telefone_cliente){
+    const dt=new Date(ag.data_hora).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    const msg=encodeURIComponent(`✅ *Agendamento confirmado!*
+
+✂ Serviço: ${ag.servicos?.nome||'—'}
+👤 Barbeiro: ${ag.barbeiros?.nome||'—'}
+🕐 Data/Hora: ${dt}
+
+Te esperamos! 💈`)
+    const tel=ag.telefone_cliente.replace(/\D/g,'')
+    window.open(`https://wa.me/55${tel}?text=${msg}`,'_blank')
+  }
+  
+  if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
+}
 async function cancAg(id){if(!confirm('Cancelar agendamento?'))return;await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
 
 async function bloquear(){
