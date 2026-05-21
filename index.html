@@ -1015,13 +1015,22 @@ async function iniciar(s){
   if(window.location.hash.includes('type=recovery')||isRecoveryMode){showView('nova-senha');return}
   session=s
   const email=s.user.email.toLowerCase().trim()
-  const {data:bDono}=await sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle()
+
+  // Verificar se é dono
+  const {data:bDono, error:eDono}=await sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle()
+  console.log('[iniciar] bDono:', bDono, 'erro:', eDono)
   if(bDono){role='dono';await loadBarbeiro();return}
-  const {data:bBarb}=await sb.from('barbeiros').select('*,barbearias(*)').eq('email',email).maybeSingle()
+
+  // Verificar se é barbeiro funcionário
+  const {data:bBarb, error:eBarb}=await sb.from('barbeiros').select('*,barbearias(*)').eq('email',email).maybeSingle()
+  console.log('[iniciar] bBarb:', bBarb, 'erro:', eBarb)
   if(bBarb){
     if(!bBarb.user_id){await sb.from('barbeiros').update({user_id:s.user.id}).eq('id',bBarb.id);bBarb.user_id=s.user.id}
     role='barbeiro';await loadBarbeiroFuncionario(bBarb);return
   }
+
+  // Cliente
+  console.log('[iniciar] indo como cliente')
   role='cliente';await loadCliente()
 }
 
