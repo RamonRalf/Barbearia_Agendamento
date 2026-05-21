@@ -1177,7 +1177,7 @@ async function recarregarFuncionario(){
   const [{data:ag},{data:sv},{data:bl}]=await Promise.all([
     sb.from('agendamentos').select('*,servicos(nome,preco),barbeiros(nome)').eq('barbearia_id',barbearia.id).eq('barbeiro_id',meuBarbeiro.id).order('data_hora'),
     sb.from('servicos').select('*').eq('barbearia_id',barbearia.id).eq('barbeiro_id',meuBarbeiro.id),
-    sb.from('horarios_bloqueados').select('*').eq('barbearia_id',barbearia.id).order('data_hora_inicio')
+    sb.from('horarios_bloqueados').select('*').eq('barbearia_id',barbearia.id).eq('barbeiro_id',meuBarbeiro.id).order('data_hora_inicio')
   ])
   agendamentos=ag||[];servicos=sv||[];bloqueios=bl||[]
 
@@ -1457,7 +1457,15 @@ async function bloquear(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
   const iniRaw=document.getElementById('blq-ini').value;const fimRaw=document.getElementById('blq-fim').value
   if(!iniRaw||!fimRaw)return
-  await sb.from('horarios_bloqueados').insert([{barbearia_id:barbearia.id,data_hora_inicio:new Date(iniRaw).toISOString(),data_hora_fim:new Date(fimRaw).toISOString(),motivo:document.getElementById('blq-mot').value||'Bloqueado'}])
+  const payload={
+    barbearia_id:barbearia.id,
+    data_hora_inicio:new Date(iniRaw).toISOString(),
+    data_hora_fim:new Date(fimRaw).toISOString(),
+    motivo:document.getElementById('blq-mot').value||'Bloqueado'
+  }
+  // Cada barbeiro bloqueia apenas seus próprios horários
+  if(meuBarbeiro) payload.barbeiro_id=meuBarbeiro.id
+  await sb.from('horarios_bloqueados').insert([payload])
   document.getElementById('blq-ini').value='';document.getElementById('blq-fim').value='';document.getElementById('blq-mot').value=''
   if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
 }
@@ -1541,7 +1549,7 @@ async function renderHorarios(){
   const inicio=new Date(dia+'T00:00:00').toISOString();const fim=new Date(dia+'T23:59:59').toISOString()
   const [{data:ags},{data:blqs}]=await Promise.all([
     sb.from('agendamentos').select('data_hora,status').eq('barbeiro_id',selBarb.id).gte('data_hora',inicio).lte('data_hora',fim),
-    sb.from('horarios_bloqueados').select('data_hora_inicio,data_hora_fim').eq('barbearia_id',barbearia.id).gte('data_hora_inicio',inicio).lte('data_hora_fim',fim)
+    sb.from('horarios_bloqueados').select('data_hora_inicio,data_hora_fim').eq('barbearia_id',barbearia.id).eq('barbeiro_id',selBarb.id).gte('data_hora_inicio',inicio).lte('data_hora_fim',fim)
   ])
   agsBarb=ags||[];blqsBarb=blqs||[]
   const slots=[];for(let h=8;h<20;h++)for(let m=0;m<60;m+=30)slots.push(String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'))
