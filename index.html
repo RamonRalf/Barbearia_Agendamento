@@ -853,6 +853,20 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <h2 class="panel-title desktop-header">Configurações</h2>
       <div class="card" style="max-width:500px">
         <div id="cfg-msg"></div>
+        <h3 style="font-size:0.95rem;margin-bottom:1rem;color:var(--gray-5)">Imagens da Barbearia</h3>
+        <div style="display:flex; gap:1.5rem; margin-bottom:1.5rem;">
+          <div class="perfil-avatar-wrap" style="align-items:flex-start;">
+            <div class="perfil-avatar" id="cfg-logo-preview" onclick="document.getElementById('cfg-logo-input').click()" style="border-radius:12px; border: 2px dashed var(--gray-3);">🏢</div>
+            <input type="file" id="cfg-logo-input" accept="image/*" style="display:none" onchange="previewCfgImg(event, 'logo')"/>
+            <span class="perfil-avatar-label" onclick="document.getElementById('cfg-logo-input').click()">Alterar Logo</span>
+          </div>
+          
+          <div class="perfil-avatar-wrap" style="align-items:flex-start;">
+            <div class="perfil-avatar" id="cfg-capa-preview" onclick="document.getElementById('cfg-capa-input').click()" style="border-radius:12px; width:140px; border: 2px dashed var(--gray-3);">📸</div>
+            <input type="file" id="cfg-capa-input" accept="image/*" style="display:none" onchange="previewCfgImg(event, 'capa')"/>
+            <span class="perfil-avatar-label" onclick="document.getElementById('cfg-capa-input').click()">Foto do Local</span>
+          </div>
+        </div>
         <div class="field"><label>Nome da barbearia</label><input class="inp" type="text" id="cfg-nome" placeholder="Barbearia do João"/></div>
         <div class="field"><label>Endereço</label><input class="inp" type="text" id="cfg-end" placeholder="Rua das Flores, 123"/></div>
         <div class="field"><label>Telefone / WhatsApp</label><input class="inp" type="text" id="cfg-tel" placeholder="(11) 99999-9999"/></div>
