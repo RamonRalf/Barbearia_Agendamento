@@ -81,7 +81,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   max-width:1200px;margin:0 auto;
   position:relative;
 }
-/* linha decorativa vertical */
 .hero-wrap::before{
   content:'';
   position:absolute;
@@ -124,7 +123,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 }
 .hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
 
-/* Stats abaixo do CTA */
 .hero-stats{
   display:flex;gap:2rem;margin-top:2.5rem;
   padding-top:2rem;
@@ -140,7 +138,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   letter-spacing:0.04em;margin-top:3px;display:block;
 }
 
-/* HERO RIGHT — App Card */
 .hero-right{position:relative}
 .hero-card-wrap{
   background:var(--gray-1);
@@ -150,7 +147,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   box-shadow:0 2px 8px rgba(0,0,0,0.06), 0 12px 40px rgba(0,0,0,0.08);
   position:relative;
 }
-/* Badge flutuante */
 .float-badge{
   position:absolute;
   top:-14px;right:24px;
@@ -169,7 +165,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   display:flex;justify-content:space-between;align-items:center;
   margin-bottom:1rem;
 }
-.hc-header-left{}
 .hc-date{font-size:0.72rem;color:var(--gray-4);text-transform:uppercase;letter-spacing:0.05em;font-weight:500}
 .hc-title{font-family:var(--serif);font-size:1.1rem;font-weight:600;margin-top:2px}
 .hc-revenue{
@@ -901,7 +896,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
-
     <div id="panel-clientes" class="panel">
       <div class="mobile-header" style="display:none;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
         <button class="btn btn-ghost" style="font-size:1.5rem;padding:0;color:var(--black)" onclick="toggleMobileMenu()">☰</button>
@@ -916,6 +910,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <div id="clientes-lista"><div class="ag-empty">Carregando clientes...</div></div>
     </div>
 
+    <!-- MODAL DETALHE CLIENTES (painel barbeiro) -->
     <div class="cli-detalhe-overlay" id="cli-detalhe-overlay" onclick="fecharDetalheCliente(event)">
       <div class="cli-detalhe-box">
         <div class="modal-handle"></div>
@@ -952,6 +947,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </main>
 </div>
 
+<!-- ══════════════════════════════════════════
+     VIEW CLIENTE
+══════════════════════════════════════════ -->
 <div id="cliente">
   <header class="cli-header" style="flex-direction:column; align-items:flex-start; padding: 0;">
     <div id="cli-capa" style="width:100%; height:120px; background:var(--gray-2); display:none; background-size:cover; background-position:center;"></div>
@@ -1029,6 +1027,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     MODAL BARBEIRO — detalhes do agendamento
+══════════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-ag" onclick="fecharModal(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -1042,6 +1043,25 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     MODAL CLIENTE — detalhes do agendamento
+     CORREÇÃO: este modal estava faltando no HTML
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-cli-ag" onclick="fecharModalCliente(event)">
+  <div class="modal-box" style="max-height:90vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Meu agendamento</div>
+    <div class="modal-row"><span class="modal-label">Serviço</span><span class="modal-val" id="mc-servico"></span></div>
+    <div class="modal-row"><span class="modal-label">Barbeiro</span><span class="modal-val" id="mc-barbeiro"></span></div>
+    <div class="modal-row"><span class="modal-label">Data / Hora</span><span class="modal-val" id="mc-data"></span></div>
+    <div class="modal-row"><span class="modal-label">Valor</span><span class="modal-val" id="mc-valor"></span></div>
+    <div class="modal-row"><span class="modal-label">Status</span><span class="modal-val" id="mc-status"></span></div>
+    <div class="modal-row" id="mc-row-end" style="display:none"><span class="modal-label">Endereço</span><span class="modal-val" id="mc-end"></span></div>
+    <div class="modal-row" id="mc-row-tel" style="display:none"><span class="modal-label">Telefone</span><span class="modal-val" id="mc-tel"></span></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:1.5rem" id="mc-acoes"></div>
+  </div>
+</div>
+
 <script>
 const {createClient}=supabase
 const SUPABASE_URL='https://hhcmdnmazwnpehipheec.supabase.co'
@@ -1051,8 +1071,8 @@ const sb=createClient(SUPABASE_URL,SUPABASE_KEY)
 let session=null,role=null,barbearia=null,servicos=[],agendamentos=[],bloqueios=[]
 let authMode='login',dadosCliente=null,isRecoveryMode=false,meuBarbeiro=null
 let filtroDashAtual='hoje'
-let logoBase64 = null;
-let capaBase64 = null;
+let logoBase64=null
+let capaBase64=null
 
 const getDiaLocal=(iso)=>{const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const _path=window.location.pathname.replace(/^\/+|\/+$/g,'')
@@ -1086,8 +1106,8 @@ async function iniciar(s){
   const email=s.user.email.toLowerCase().trim()
 
   const [
-    {data:bDono, error:eDono},
-    {data:bBarb, error:eBarb}
+    {data:bDono},
+    {data:bBarb}
   ]=await Promise.all([
     sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle(),
     sb.from('barbeiros').select('*,barbearias(*)').eq('email',email).maybeSingle()
@@ -1096,9 +1116,8 @@ async function iniciar(s){
   if(bDono){role='dono';await loadBarbeiro();return}
   if(bBarb){
     if(!bBarb.user_id){
-      const {error:uErr}=await sb.from('barbeiros').update({user_id:s.user.id}).eq('id',bBarb.id)
-      if(uErr) console.warn('[iniciar] erro ao vincular user_id:', uErr.message)
-      else bBarb.user_id=s.user.id
+      await sb.from('barbeiros').update({user_id:s.user.id}).eq('id',bBarb.id)
+      bBarb.user_id=s.user.id
     }
     role='barbeiro';await loadBarbeiroFuncionario(bBarb);return
   }
@@ -1179,18 +1198,16 @@ async function handleAuth(){
       if(!nome||!whatsapp)throw new Error('Nome e WhatsApp são obrigatórios para o cadastro.')
 
       const {data,error}=await sb.auth.signUp({
-        email, password:senha, options:{ data:{ nome, whatsapp } }
+        email,password:senha,options:{data:{nome,whatsapp}}
       })
       if(error)throw error
 
-      if(data?.session && data?.user){
-        const {error:pe}=await sb.from('clientes').insert([{id:data.user.id, nome, whatsapp, email}])
-        if(pe) console.warn('Erro ao salvar perfil:', pe.message)
+      if(data?.session&&data?.user){
+        await sb.from('clientes').insert([{id:data.user.id,nome,whatsapp,email}])
         document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Entrando...</div>'
         return
-      } else if(data?.user){
-        const {error:pe}=await sb.from('clientes').insert([{id:data.user.id, nome, whatsapp, email}])
-        if(pe) console.warn('Erro ao salvar perfil:', pe.message)
+      }else if(data?.user){
+        await sb.from('clientes').insert([{id:data.user.id,nome,whatsapp,email}])
         document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Verifique seu e-mail para confirmar, depois faça login.</div>'
         authMode='login';toggleAuthMode();return
       }
@@ -1224,17 +1241,20 @@ async function loadBarbeiro(){
   const dd=document.getElementById('dash-data')
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   
-  // O Dono não lança serviços
+  // Dono não cadastra serviços diretamente — esconde item do menu
   document.querySelectorAll('.sb-item').forEach(el=>{
-    const oc = el.getAttribute('onclick') || '';
-    if(oc.includes("'servicos'")) el.style.display = 'none';
-  });
+    const oc=el.getAttribute('onclick')||''
+    if(oc.includes("'servicos'"))el.style.display='none'
+  })
 
-  document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.classList.add('sb-clientes-visivel')})
+  document.querySelectorAll('.sb-clientes-item').forEach(el=>el.classList.add('sb-clientes-visivel'))
 
   const {data:b}=await sb.from('barbearias').select('*').eq('owner_id',session.user.id).maybeSingle()
   if(b){barbearia=b;preencherCfg(b);await recarregar()}
-  else{if(document.getElementById('dash-nome-desktop'))document.getElementById('dash-nome-desktop').textContent='Configure sua barbearia';setPanel(null,'config')}
+  else{
+    if(document.getElementById('dash-nome-desktop'))document.getElementById('dash-nome-desktop').textContent='Configure sua barbearia'
+    setPanel(null,'config')
+  }
 }
 
 async function loadBarbeiroFuncionario(barb){
@@ -1248,8 +1268,8 @@ async function loadBarbeiroFuncionario(barb){
   const dd=document.getElementById('dash-data')
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   
-  document.querySelectorAll('.sb-perfil-item').forEach(el=>{el.classList.add('sb-perfil-visivel')})
-  document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.classList.add('sb-clientes-visivel')})
+  document.querySelectorAll('.sb-perfil-item').forEach(el=>el.classList.add('sb-perfil-visivel'))
+  document.querySelectorAll('.sb-clientes-item').forEach(el=>el.classList.add('sb-clientes-visivel'))
   
   carregarPerfil()
   await recarregarFuncionario()
@@ -1267,7 +1287,7 @@ async function recarregarFuncionario(){
   agendamentos=ag||[];servicos=sv||[];bloqueios=bl||[]
 
   const svBarbField=document.getElementById('wrap-sv-barb')
-  if(svBarbField) svBarbField.style.display='none'
+  if(svBarbField)svBarbField.style.display='none'
 
   let svNomeInfo=document.getElementById('sv-barb-info')
   if(!svNomeInfo){
@@ -1275,7 +1295,7 @@ async function recarregarFuncionario(){
     svNomeInfo.id='sv-barb-info'
     svNomeInfo.style.cssText='font-size:0.82rem;color:var(--gray-5);background:var(--gray-1);border:1px solid var(--gray-2);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-weight:500'
     const svForm=document.getElementById('wrap-sv-barb')
-    if(svForm) svForm.parentNode.insertBefore(svNomeInfo, svForm)
+    if(svForm)svForm.parentNode.insertBefore(svNomeInfo,svForm)
   }
   svNomeInfo.textContent='✂ Cadastrando serviço para: '+meuBarbeiro.nome
 
@@ -1283,20 +1303,20 @@ async function recarregarFuncionario(){
   carregarClientes()
 }
 
-function previewCfgImg(event, tipo) {
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    if(tipo === 'logo') {
-      logoBase64 = e.target.result;
-      document.getElementById('cfg-logo-preview').innerHTML = `<img src="${logoBase64}" style="width:100%;height:100%;object-fit:cover;"/>`;
-    } else {
-      capaBase64 = e.target.result;
-      document.getElementById('cfg-capa-preview').innerHTML = `<img src="${capaBase64}" style="width:100%;height:100%;object-fit:cover;"/>`;
+function previewCfgImg(event,tipo){
+  const file=event.target.files[0]
+  if(!file)return
+  const reader=new FileReader()
+  reader.onload=e=>{
+    if(tipo==='logo'){
+      logoBase64=e.target.result
+      document.getElementById('cfg-logo-preview').innerHTML=`<img src="${logoBase64}" style="width:100%;height:100%;object-fit:cover;"/>`
+    }else{
+      capaBase64=e.target.result
+      document.getElementById('cfg-capa-preview').innerHTML=`<img src="${capaBase64}" style="width:100%;height:100%;object-fit:cover;"/>`
     }
   }
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(file)
 }
 
 function preencherCfg(b){
@@ -1306,9 +1326,8 @@ function preencherCfg(b){
   document.getElementById('cfg-tel').value=b.telefone||''
   document.getElementById('cfg-slug').value=b.slug||''
   previewLink()
-
-  if(b.logo_url) document.getElementById('cfg-logo-preview').innerHTML = `<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>`;
-  if(b.capa_url) document.getElementById('cfg-capa-preview').innerHTML = `<img src="${b.capa_url}" style="width:100%;height:100%;object-fit:cover;"/>`;
+  if(b.logo_url)document.getElementById('cfg-logo-preview').innerHTML=`<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>`
+  if(b.capa_url)document.getElementById('cfg-capa-preview').innerHTML=`<img src="${b.capa_url}" style="width:100%;height:100%;object-fit:cover;"/>`
 }
 
 async function recarregar(){
@@ -1333,10 +1352,10 @@ async function recarregar(){
   }
   carregarClientes()
   if(barbearia.slug){
-    const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
-    const l = `${baseUrl}/${barbearia.slug}`;
-    if(e('link-txt')) e('link-txt').textContent = l;
-    if(e('link-wrap')) e('link-wrap').style.display = 'block';
+    const baseUrl=window.location.origin+window.location.pathname.replace(/\/$/,'')
+    const l=`${baseUrl}/${barbearia.slug}`
+    if(e('link-txt'))e('link-txt').textContent=l
+    if(e('link-wrap'))e('link-wrap').style.display='block'
   }
 }
 
@@ -1376,16 +1395,16 @@ function renderDashDinamico(){
 }
 
 function renderSemana(){
-  const strip=document.getElementById('semana-strip');if(!strip)return
   const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
-  const hoje=new Date().toISOString().split('T')[0];const siglas=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];const dias=[]
-  const base=new Date(diaSel+'T12:00:00');for(let i=-3;i<=3;i++){const d=new Date(base);d.setDate(d.getDate()+i);dias.push(d.toISOString().split('T')[0])}
-  strip.innerHTML=dias.map(d=>{const dt=new Date(d+'T12:00:00');const ativo=d===diaSel;const eh=d===hoje;return `<div class="sem-dia${ativo?' ativo':eh?' hoje':''}" onclick="selecionarDia('${d}')"><div class="sem-sigla">${siglas[dt.getDay()]}</div><div class="sem-num">${dt.getDate()}</div></div>`}).join('')
+  const hoje=new Date().toISOString().split('T')[0]
   const lbl=document.getElementById('agenda-dia-label')
-  if(lbl){const dt=new Date(diaSel+'T12:00:00');let txt=dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});if(diaSel===hoje)txt='Hoje — '+txt;lbl.textContent=txt}
+  if(lbl){
+    const dt=new Date(diaSel+'T12:00:00')
+    let txt=dt.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'})
+    if(diaSel===hoje)txt='Hoje — '+txt
+    lbl.textContent=txt
+  }
 }
-
-function selecionarDia(d){const inp=document.getElementById('agenda-dia');if(inp)inp.value=d;renderStats();renderAgenda();renderGrade();renderSemana()}
 
 function renderAgenda(){
   const diaSel=(document.getElementById('agenda-dia')?.value)||new Date().toISOString().split('T')[0]
@@ -1415,7 +1434,10 @@ function renderGrade(){
 }
 
 function mudarDia(delta){
-  const inp=document.getElementById('agenda-dia');const dt=new Date((inp?.value||new Date().toISOString().split('T')[0])+'T12:00:00');dt.setDate(dt.getDate()+delta);if(inp)inp.value=dt.toISOString().split('T')[0]
+  const inp=document.getElementById('agenda-dia')
+  const dt=new Date(((inp?.value)||new Date().toISOString().split('T')[0])+'T12:00:00')
+  dt.setDate(dt.getDate()+delta)
+  if(inp)inp.value=dt.toISOString().split('T')[0]
   renderStats();renderAgenda();renderGrade();renderSemana()
 }
 function irHoje(){const inp=document.getElementById('agenda-dia');if(inp)inp.value=new Date().toISOString().split('T')[0];renderStats();renderAgenda();renderGrade();renderSemana()}
@@ -1446,7 +1468,10 @@ function renderEquipe(barbs){
 
 async function addBarbeiro(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
-  const nome=document.getElementById('eq-nome').value.trim();const email=document.getElementById('eq-email').value.trim().toLowerCase();const esp=document.getElementById('eq-esp').value.trim();const tel=document.getElementById('eq-tel').value.trim()
+  const nome=document.getElementById('eq-nome').value.trim()
+  const email=document.getElementById('eq-email').value.trim().toLowerCase()
+  const esp=document.getElementById('eq-esp').value.trim()
+  const tel=document.getElementById('eq-tel').value.trim()
   const msgEl=document.getElementById('eq-msg')
   if(!nome||!email){msgEl.innerHTML='<div class="msg msg-err">Nome e e-mail são obrigatórios.</div>';return}
   msgEl.innerHTML='<div class="msg" style="background:var(--gray-1);color:var(--gray-5)">Salvando...</div>'
@@ -1480,9 +1505,9 @@ function renderBloqueios(){
 }
 
 function previewLink(){
-  const s = document.getElementById('cfg-slug').value;
-  const baseUrl = window.location.href.split('#')[0].replace(/\/$/, '');
-  document.getElementById('cfg-preview').textContent = s ? `Link: ${baseUrl}/${s}` : '';
+  const s=document.getElementById('cfg-slug').value
+  const baseUrl=window.location.href.split('#')[0].replace(/\/$/,'')
+  document.getElementById('cfg-preview').textContent=s?`Link: ${baseUrl}/${s}`:''
 }
 function copiarLink(){
   navigator.clipboard.writeText(document.getElementById('link-txt').textContent)
@@ -1496,73 +1521,72 @@ function setPanel(btn,id){
   else document.querySelectorAll('.sb-item').forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active')})
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
   const p=document.getElementById('panel-'+id);if(p)p.classList.add('active')
-  if(id==='clientes') carregarClientes()
+  if(id==='clientes'&&barbearia)carregarClientes()
   window.scrollTo(0,0)
   const sidebar=document.querySelector('.sidebar');const overlay=document.getElementById('mobile-overlay')
   if(sidebar&&sidebar.classList.contains('open')){sidebar.classList.remove('open');overlay.classList.remove('open')}
 }
 
 async function salvarBarbearia(){
-  const btn=document.getElementById('cfg-btn'); btn.disabled=true; btn.textContent='Salvando...';
-  document.getElementById('cfg-msg').innerHTML='';
+  const btn=document.getElementById('cfg-btn');btn.disabled=true;btn.textContent='Salvando...'
+  document.getElementById('cfg-msg').innerHTML=''
 
   const payload={
     nome:document.getElementById('cfg-nome').value,
     endereco:document.getElementById('cfg-end').value,
     telefone:document.getElementById('cfg-tel').value,
     slug:document.getElementById('cfg-slug').value.trim()
-  };
-
-  if(barbearia) {
-    payload.id = barbearia.id;
-    payload.logo_url = barbearia.logo_url;
-    payload.capa_url = barbearia.capa_url;
-  } else {
-    payload.owner_id = session.user.id;
   }
 
-  const {data,error} = await sb.from('barbearias').upsert([payload]).select();
+  if(barbearia){
+    payload.id=barbearia.id
+    payload.logo_url=barbearia.logo_url
+    payload.capa_url=barbearia.capa_url
+  }else{
+    payload.owner_id=session.user.id
+  }
+
+  const {data,error}=await sb.from('barbearias').upsert([payload]).select()
   if(error){
-    btn.disabled=false; btn.textContent='Salvar configurações';
-    document.getElementById('cfg-msg').innerHTML=`<div class="msg msg-err">${error.message}</div>`;
-    return;
+    btn.disabled=false;btn.textContent='Salvar configurações'
+    document.getElementById('cfg-msg').innerHTML=`<div class="msg msg-err">${error.message}</div>`
+    return
   }
   
-  let b_atual = data[0];
-  let precisaAtualizar = false;
+  let b_atual=data[0]
+  let precisaAtualizar=false
 
   if(logoBase64){
     try{
-      const blob = await (await fetch(logoBase64)).blob();
-      const path = `barbearias/logo_${b_atual.id}.${blob.type.split('/')[1]||'jpg'}`;
-      await sb.storage.from('avatars').upload(path, blob, {upsert:true, contentType:blob.type});
-      b_atual.logo_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
-      precisaAtualizar = true;
-    } catch(e){ console.error(e); }
+      const blob=await (await fetch(logoBase64)).blob()
+      const path=`barbearias/logo_${b_atual.id}.${blob.type.split('/')[1]||'jpg'}`
+      await sb.storage.from('avatars').upload(path,blob,{upsert:true,contentType:blob.type})
+      b_atual.logo_url=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl+'?t='+Date.now()
+      precisaAtualizar=true
+    }catch(e){console.error(e)}
   }
   if(capaBase64){
     try{
-      const blob = await (await fetch(capaBase64)).blob();
-      const path = `barbearias/capa_${b_atual.id}.${blob.type.split('/')[1]||'jpg'}`;
-      await sb.storage.from('avatars').upload(path, blob, {upsert:true, contentType:blob.type});
-      b_atual.capa_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
-      precisaAtualizar = true;
-    } catch(e){ console.error(e); }
+      const blob=await (await fetch(capaBase64)).blob()
+      const path=`barbearias/capa_${b_atual.id}.${blob.type.split('/')[1]||'jpg'}`
+      await sb.storage.from('avatars').upload(path,blob,{upsert:true,contentType:blob.type})
+      b_atual.capa_url=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl+'?t='+Date.now()
+      precisaAtualizar=true
+    }catch(e){console.error(e)}
   }
 
   if(precisaAtualizar){
-    const {data:d2} = await sb.from('barbearias').update({logo_url: b_atual.logo_url, capa_url: b_atual.capa_url}).eq('id', b_atual.id).select();
-    if(d2) b_atual = d2[0];
+    const {data:d2}=await sb.from('barbearias').update({logo_url:b_atual.logo_url,capa_url:b_atual.capa_url}).eq('id',b_atual.id).select()
+    if(d2)b_atual=d2[0]
   }
 
-  barbearia = b_atual;
-  preencherCfg(barbearia);
-  logoBase64 = null;
-  capaBase64 = null;
+  barbearia=b_atual
+  preencherCfg(barbearia)
+  logoBase64=null;capaBase64=null
 
-  btn.disabled=false; btn.textContent='Salvar configurações';
-  document.getElementById('cfg-msg').innerHTML='<div class="msg msg-ok">Salvo com sucesso!</div>';
-  await recarregar();
+  btn.disabled=false;btn.textContent='Salvar configurações'
+  document.getElementById('cfg-msg').innerHTML='<div class="msg msg-ok">Salvo com sucesso!</div>'
+  await recarregar()
 }
 
 async function addServico(){
@@ -1577,7 +1601,7 @@ async function addServico(){
     svMsg=document.createElement('div')
     svMsg.id='sv-msg'
     const btnSv=document.querySelector('#panel-servicos .card .btn-dark')
-    if(btnSv) btnSv.parentNode.insertBefore(svMsg, btnSv.nextSibling)
+    if(btnSv)btnSv.parentNode.insertBefore(svMsg,btnSv.nextSibling)
   }
   svMsg.innerHTML=''
 
@@ -1590,7 +1614,7 @@ async function addServico(){
 
   if(meuBarbeiro){
     payload.barbeiro_id=meuBarbeiro.id
-  } else {
+  }else{
     const selBarbId=document.getElementById('sv-barb').value
     if(!selBarbId){
       svMsg.innerHTML='<div class="msg msg-err" style="margin-top:10px">Selecione o barbeiro.</div>'
@@ -1616,25 +1640,27 @@ async function addServico(){
   document.getElementById('sv-preco').value=''
   document.getElementById('sv-dur').value=''
   setTimeout(()=>{if(svMsg)svMsg.innerHTML=''},3000)
-  if(meuBarbeiro) await recarregarFuncionario(); else await recarregar()
+  if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
 }
 
 async function remSv(id){if(!confirm('Remover?'))return;await sb.from('servicos').delete().eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
+
 async function confAg(id){
   await sb.from('agendamentos').update({status:'confirmado'}).eq('id',id)
-  notificarEmail('confirmado', id)
+  notificarEmail('confirmado',id)
   if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
 }
 async function cancAg(id){
   if(!confirm('Cancelar agendamento?'))return
   await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id)
-  notificarEmail('cancelado', id)
+  notificarEmail('cancelado',id)
   if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
 }
 
 async function bloquear(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
-  const iniRaw=document.getElementById('blq-ini').value;const fimRaw=document.getElementById('blq-fim').value
+  const iniRaw=document.getElementById('blq-ini').value
+  const fimRaw=document.getElementById('blq-fim').value
   if(!iniRaw||!fimRaw)return
   const payload={
     barbearia_id:barbearia.id,
@@ -1642,14 +1668,16 @@ async function bloquear(){
     data_hora_fim:new Date(fimRaw).toISOString(),
     motivo:document.getElementById('blq-mot').value||'Bloqueado'
   }
-  if(meuBarbeiro) payload.barbeiro_id=meuBarbeiro.id
+  if(meuBarbeiro)payload.barbeiro_id=meuBarbeiro.id
   await sb.from('horarios_bloqueados').insert([payload])
-  document.getElementById('blq-ini').value='';document.getElementById('blq-fim').value='';document.getElementById('blq-mot').value=''
+  document.getElementById('blq-ini').value=''
+  document.getElementById('blq-fim').value=''
+  document.getElementById('blq-mot').value=''
   if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
 }
 async function remBlq(id){await sb.from('horarios_bloqueados').delete().eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
 
-// ── CLIENTE ──
+// ── CLIENTE ──────────────────────────────────────────────────
 let barbeiros=[],selBarb=null,selSv=null,selHora=null,agsBarb=[],blqsBarb=[],todosServicos=[]
 
 async function loadCliente(){
@@ -1658,18 +1686,18 @@ async function loadCliente(){
   if(cliPerfil){
     dadosCliente=cliPerfil
     document.getElementById('cli-email').textContent=cliPerfil.nome
-  } else {
-    const nomeDisplay=session.user.user_metadata?.nome || session.user.email.split('@')[0]
+  }else{
+    const nomeDisplay=session.user.user_metadata?.nome||session.user.email.split('@')[0]
     document.getElementById('cli-email').textContent=nomeDisplay
   }
 
-  let b = null
+  let b=null
   try{
     let q=sb.from('barbearias').select('*')
-    if(slug) q=q.ilike('slug',slug)
+    if(slug)q=q.ilike('slug',slug)
     const {data,error}=await q.limit(1).maybeSingle()
-    if(!error) b=data
-  }catch(e){ console.log('[loadCliente] erro barbearia:', e) }
+    if(!error)b=data
+  }catch(e){console.log('[loadCliente] erro barbearia:',e)}
 
   if(!b){
     document.getElementById('cli-nome').textContent='Acesse via link da barbearia'
@@ -1682,20 +1710,20 @@ async function loadCliente(){
   document.getElementById('cli-nome').textContent=b.nome
   document.getElementById('cli-end').textContent=b.endereco||''
 
-  if(b.capa_url) {
-    const elCapa = document.getElementById('cli-capa');
-    elCapa.style.display = 'block';
-    elCapa.style.backgroundImage = `url('${b.capa_url}')`;
-  } else {
-    document.getElementById('cli-capa').style.display = 'none';
+  if(b.capa_url){
+    const elCapa=document.getElementById('cli-capa')
+    elCapa.style.display='block'
+    elCapa.style.backgroundImage=`url('${b.capa_url}')`
+  }else{
+    document.getElementById('cli-capa').style.display='none'
   }
   
-  const elLogo = document.getElementById('cli-logo');
-  elLogo.style.display = 'flex';
-  if(b.logo_url) {
-    elLogo.innerHTML = `<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>`;
-  } else {
-    elLogo.innerHTML = `✂`; 
+  const elLogo=document.getElementById('cli-logo')
+  elLogo.style.display='flex'
+  if(b.logo_url){
+    elLogo.innerHTML=`<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>`
+  }else{
+    elLogo.innerHTML='✂'
   }
 
   const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
@@ -1706,10 +1734,13 @@ async function loadCliente(){
   todosServicos=sv||[];servicos=sv||[];barbeiros=barb||[]
   selBarb=null;selSv=null;selHora=null
   await irE(1)
-  document.getElementById('btn-e1').disabled=true;document.getElementById('btn-e2').disabled=true;document.getElementById('btn-e3').disabled=true
+  document.getElementById('btn-e1').disabled=true
+  document.getElementById('btn-e2').disabled=true
+  document.getElementById('btn-e3').disabled=true
   renderBarbsCli();renderMeusAgs(ag||[])
   const hoje=new Date().toISOString().split('T')[0]
-  document.getElementById('cli-dia').min=hoje;document.getElementById('cli-dia').value=hoje
+  document.getElementById('cli-dia').min=hoje
+  document.getElementById('cli-dia').value=hoje
 }
 
 function renderBarbsCli(){
@@ -1743,7 +1774,8 @@ function selSvc(id){
 async function renderHorarios(){
   const dia=document.getElementById('cli-dia').value;if(!dia||!selBarb)return
   selHora=null;document.getElementById('btn-e3').disabled=true
-  const inicio=new Date(dia+'T00:00:00').toISOString();const fim=new Date(dia+'T23:59:59').toISOString()
+  const inicio=new Date(dia+'T00:00:00').toISOString()
+  const fim=new Date(dia+'T23:59:59').toISOString()
   const [{data:ags},{data:blqs}]=await Promise.all([
     sb.from('agendamentos').select('data_hora,status').eq('barbeiro_id',selBarb.id).gte('data_hora',inicio).lte('data_hora',fim),
     sb.from('horarios_bloqueados').select('data_hora_inicio,data_hora_fim').eq('barbearia_id',barbearia.id).eq('barbeiro_id',selBarb.id).gte('data_hora_inicio',inicio).lte('data_hora_fim',fim)
@@ -1799,10 +1831,11 @@ async function confirmar(){
   if(!error){
     document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
     const {data:agNovo}=await sb.from('agendamentos').select('id').eq('barbeiro_id',selBarb.id).eq('data_hora',dataHoraParaOBanco).neq('status','cancelado').maybeSingle()
-    if(agNovo) notificarEmail('novo_agendamento', agNovo.id)
+    if(agNovo)notificarEmail('novo_agendamento',agNovo.id)
     setTimeout(()=>loadCliente(),1500)
+  }else{
+    document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
   }
-  else document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
 }
 
 function renderMeusAgs(ags){
@@ -1812,13 +1845,12 @@ function renderMeusAgs(ags){
   el.innerHTML=ags.map(a=>{
     const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
     const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:''
-    const bm2={confirmado:'badge-ok',pendente:'badge-warn',cancelado:'badge-err'}
     return `<div class="tl-item" onclick="abrirModalCliente('${a.id}')" style="cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--black)'" onmouseout="this.style.borderColor='var(--gray-2)'">
       <div class="tl-dot ${a.status}"></div>
       <div class="tl-body">
         <div class="tl-top">
           <span class="tl-name">${a.servicos?.nome||'—'}</span>
-          <span class="badge ${bm2[a.status]}">${a.status}</span>
+          <span class="badge ${bm[a.status]||'badge-warn'}">${a.status}</span>
         </div>
         <small>${dt}${barb}</small>
       </div>
@@ -1827,148 +1859,145 @@ function renderMeusAgs(ags){
   }).join('')
 }
 
-// ── MODAL CLIENTE ────────────────────────────────────────────
+// ── MODAL CLIENTE — detalhes do agendamento ──────────────────
+// CORREÇÃO PRINCIPAL: a função existia mas o HTML do modal estava ausente.
+// Adicionado o modal #modal-cli-ag no HTML acima.
 
-let _agCliModal = null
+let _agCliModal=null
 
 async function abrirModalCliente(id){
-  const {data:ag} = await sb.from('agendamentos')
+  const {data:ag}=await sb.from('agendamentos')
     .select('*,servicos(nome,preco),barbeiros(nome,telefone,especialidade)')
-    .eq('id', id).single()
-  if(!ag) return
-  _agCliModal = ag
+    .eq('id',id).single()
+  if(!ag)return
+  _agCliModal=ag
 
-  const dt = new Date(ag.data_hora).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  const dt=new Date(ag.data_hora).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
 
-  document.getElementById('mc-servico').textContent = ag.servicos?.nome || '—'
-  document.getElementById('mc-barbeiro').textContent = ag.barbeiros?.nome || '—'
-  document.getElementById('mc-data').textContent = dt
-  document.getElementById('mc-valor').textContent = ag.servicos?.preco ? `R$ ${ag.servicos.preco}` : '—'
+  document.getElementById('mc-servico').textContent=ag.servicos?.nome||'—'
+  document.getElementById('mc-barbeiro').textContent=ag.barbeiros?.nome||'—'
+  document.getElementById('mc-data').textContent=dt
+  document.getElementById('mc-valor').textContent=ag.servicos?.preco?`R$ ${ag.servicos.preco}`:'—'
 
-  const bc = ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
-  document.getElementById('mc-status').innerHTML = `<span class="badge ${bc}">${ag.status}</span>`
+  const bc=ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
+  document.getElementById('mc-status').innerHTML=`<span class="badge ${bc}">${ag.status}</span>`
 
   if(barbearia?.endereco){
-    document.getElementById('mc-end').textContent = barbearia.endereco
-    document.getElementById('mc-row-end').style.display = 'flex'
-  } else {
-    document.getElementById('mc-row-end').style.display = 'none'
+    document.getElementById('mc-end').textContent=barbearia.endereco
+    document.getElementById('mc-row-end').style.display='flex'
+  }else{
+    document.getElementById('mc-row-end').style.display='none'
   }
 
   if(barbearia?.telefone){
-    document.getElementById('mc-tel').textContent = barbearia.telefone
-    document.getElementById('mc-row-tel').style.display = 'flex'
-  } else {
-    document.getElementById('mc-row-tel').style.display = 'none'
+    document.getElementById('mc-tel').textContent=barbearia.telefone
+    document.getElementById('mc-row-tel').style.display='flex'
+  }else{
+    document.getElementById('mc-row-tel').style.display='none'
   }
 
-  const acoes = document.getElementById('mc-acoes')
-  acoes.innerHTML = ''
+  const acoes=document.getElementById('mc-acoes')
+  acoes.innerHTML=''
 
   if(ag.barbeiros?.telefone){
-    const tel = ag.barbeiros.telefone.replace(/\D/g,'')
-    const dtFmt = new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
-    const msg = encodeURIComponent(`Olá ${ag.barbeiros.nome}! Gostaria de falar sobre meu agendamento de ${dtFmt}.`)
-    acoes.innerHTML += `<a href="https://wa.me/55${tel}?text=${msg}" target="_blank" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none">
-      <span style="font-size:1.1rem">📱</span> WhatsApp do barbeiro
-    </a>`
-  } else if(barbearia?.telefone){
-    const tel = barbearia.telefone.replace(/\D/g,'')
-    const msg = encodeURIComponent(`Olá! Gostaria de falar sobre meu agendamento.`)
-    acoes.innerHTML += `<a href="https://wa.me/55${tel}?text=${msg}" target="_blank" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none">
-      <span style="font-size:1.1rem">📱</span> WhatsApp da barbearia
-    </a>`
+    const tel=ag.barbeiros.telefone.replace(/\D/g,'')
+    const dtFmt=new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    const msg=encodeURIComponent(`Olá ${ag.barbeiros.nome}! Gostaria de falar sobre meu agendamento de ${dtFmt}.`)
+    acoes.innerHTML+=`<a href="https://wa.me/55${tel}?text=${msg}" target="_blank" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none"><span style="font-size:1.1rem">📱</span> WhatsApp do barbeiro</a>`
+  }else if(barbearia?.telefone){
+    const tel=barbearia.telefone.replace(/\D/g,'')
+    const msg=encodeURIComponent('Olá! Gostaria de falar sobre meu agendamento.')
+    acoes.innerHTML+=`<a href="https://wa.me/55${tel}?text=${msg}" target="_blank" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none"><span style="font-size:1.1rem">📱</span> WhatsApp da barbearia</a>`
   }
 
-  const agData = new Date(ag.data_hora)
-  const agFuturo = agData > new Date()
-  if (ag.status === 'pendente' || (ag.status === 'confirmado' && agFuturo)) {
-    acoes.innerHTML += `<button class="btn btn-danger" style="flex:1" onclick="cancAgCliente('${ag.id}')">✕ Cancelar agendamento</button>`
+  const agData=new Date(ag.data_hora)
+  const agFuturo=agData>new Date()
+  if(ag.status==='pendente'||(ag.status==='confirmado'&&agFuturo)){
+    acoes.innerHTML+=`<button class="btn btn-danger" style="width:100%" onclick="cancAgCliente('${ag.id}')">✕ Cancelar agendamento</button>`
   }
 
-  acoes.innerHTML += `<button class="btn btn-line" onclick="fecharModalCliente()">Fechar</button>`
+  acoes.innerHTML+=`<button class="btn btn-line" style="width:100%" onclick="fecharModalCliente()">Fechar</button>`
 
   document.getElementById('modal-cli-ag').classList.add('open')
 }
 
 function fecharModalCliente(e){
-  if(!e || e.target === document.getElementById('modal-cli-ag')){
+  if(!e||e.target===document.getElementById('modal-cli-ag')){
     document.getElementById('modal-cli-ag').classList.remove('open')
   }
 }
 
 async function cancAgCliente(id){
-  if(!confirm('Tem certeza que deseja cancelar este agendamento?')) return
-  const acoesEl = document.getElementById('mc-acoes')
-  const originalHTML = acoesEl.innerHTML
-  acoesEl.innerHTML = '<div class="msg" style="width:100%;text-align:center;background:var(--gray-1);color:var(--gray-5)">Processando cancelamento...</div>'
+  if(!confirm('Tem certeza que deseja cancelar este agendamento?'))return
+  const acoesEl=document.getElementById('mc-acoes')
+  const originalHTML=acoesEl.innerHTML
+  acoesEl.innerHTML='<div class="msg" style="width:100%;text-align:center;background:var(--gray-1);color:var(--gray-5)">Processando cancelamento...</div>'
 
-  const {data, error} = await sb.from('agendamentos')
+  const {data,error}=await sb.from('agendamentos')
     .update({status:'cancelado'})
-    .eq('id', id)
-    .eq('user_id', session.user.id)
-    .select() 
+    .eq('id',id)
+    .eq('user_id',session.user.id)
+    .select()
   
   if(error){
-    acoesEl.innerHTML = originalHTML
+    acoesEl.innerHTML=originalHTML
     acoesEl.insertAdjacentHTML('afterend',`<div class="msg msg-err temp-msg" style="margin-top:10px">Erro: ${error.message}</div>`)
-    setTimeout(() => { const temp = document.querySelector('.temp-msg'); if(temp) temp.remove() }, 4000)
+    setTimeout(()=>{const temp=document.querySelector('.temp-msg');if(temp)temp.remove()},4000)
     return
   }
-  if(!data || data.length === 0){
-    acoesEl.innerHTML = originalHTML
+  if(!data||data.length===0){
+    acoesEl.innerHTML=originalHTML
     acoesEl.insertAdjacentHTML('afterend',`<div class="msg msg-err temp-msg" style="margin-top:10px">Cancelamento bloqueado pelo banco. Configure o RLS (Update) no Supabase!</div>`)
-    setTimeout(() => { const temp = document.querySelector('.temp-msg'); if(temp) temp.remove() }, 6000)
+    setTimeout(()=>{const temp=document.querySelector('.temp-msg');if(temp)temp.remove()},6000)
     return
   }
   
-  notificarEmail('cancelado_pelo_cliente', id)
-  acoesEl.innerHTML = '<div class="msg msg-ok" style="width:100%;text-align:center">Agendamento cancelado com sucesso!</div>'
+  notificarEmail('cancelado_pelo_cliente',id)
+  acoesEl.innerHTML='<div class="msg msg-ok" style="width:100%;text-align:center">Agendamento cancelado com sucesso!</div>'
   
-  setTimeout(async () => {
+  setTimeout(async()=>{
     document.getElementById('modal-cli-ag').classList.remove('open')
     await loadCliente()
-  }, 1500)
+  },1500)
 }
 
-// ── CLIENTES ────────────────────────────────────────────────
-
-let todosClientes = []
+// ── CLIENTES (painel barbeiro) ───────────────────────────────
+let todosClientes=[]
 
 async function carregarClientes(){
-  if(!barbearia) return
+  if(!barbearia)return
   
-  let q = sb.from('agendamentos')
+  let q=sb.from('agendamentos')
     .select('*,servicos(nome,preco),barbeiros(nome)')
-    .eq('barbearia_id', barbearia.id)
-    .eq('status', 'confirmado')
-    .order('data_hora', {ascending: false})
+    .eq('barbearia_id',barbearia.id)
+    .eq('status','confirmado')
+    .order('data_hora',{ascending:false})
   
-  if(meuBarbeiro) q = q.eq('barbeiro_id', meuBarbeiro.id)
+  if(meuBarbeiro)q=q.eq('barbeiro_id',meuBarbeiro.id)
   
-  const {data:ags} = await q
-  if(!ags) return
+  const {data:ags}=await q
+  if(!ags)return
 
-  const mapa = {}
+  const mapa={}
   for(const ag of ags){
-    const key = ag.user_id || ag.nome_cliente
+    const key=ag.user_id||ag.nome_cliente
     if(!mapa[key]){
-      mapa[key] = {
-        user_id: ag.user_id,
-        nome: ag.nome_cliente,
-        telefone: ag.telefone_cliente || '',
-        agendamentos: [],
-        total: 0
+      mapa[key]={
+        user_id:ag.user_id,
+        nome:ag.nome_cliente,
+        telefone:ag.telefone_cliente||'',
+        agendamentos:[],
+        total:0
       }
     }
     mapa[key].agendamentos.push(ag)
-    mapa[key].total += ag.servicos?.preco || 0
+    mapa[key].total+=ag.servicos?.preco||0
   }
 
-  todosClientes = Object.values(mapa).sort((a,b) => b.total - a.total)
+  todosClientes=Object.values(mapa).sort((a,b)=>b.total-a.total)
   
-  const resumo = document.getElementById('clientes-resumo')
-  if(resumo) resumo.textContent = `${todosClientes.length} clientes · ${ags.length} atendimentos`
+  const resumo=document.getElementById('clientes-resumo')
+  if(resumo)resumo.textContent=`${todosClientes.length} clientes · ${ags.length} atendimentos`
 
   renderClientes(todosClientes)
 }
@@ -1976,18 +2005,18 @@ async function carregarClientes(){
 const _esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 
 function renderClientes(lista){
-  const el = document.getElementById('clientes-lista')
-  if(!el) return
+  const el=document.getElementById('clientes-lista')
+  if(!el)return
   
   if(!lista.length){
-    el.innerHTML = '<div class="ag-empty">Nenhum cliente encontrado.</div>'
+    el.innerHTML='<div class="ag-empty">Nenhum cliente encontrado.</div>'
     return
   }
 
-  el.innerHTML = lista.map((c, i) => {
-    const ultimo = c.agendamentos[0]
-    const dtUltimo = ultimo ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—'
-    const medalha = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : ''
+  el.innerHTML=lista.map((c,i)=>{
+    const ultimo=c.agendamentos[0]
+    const dtUltimo=ultimo?new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'—'
+    const medalha=i===0?'🥇':i===1?'🥈':i===2?'🥉':''
     return `<div class="cli-card" onclick="abrirDetalheCliente('${_esc(c.user_id||'')}','${encodeURIComponent(c.nome)}')">
       <div class="cli-card-top">
         <span class="cli-card-nome">${medalha} ${_esc(c.nome)}</span>
@@ -2004,33 +2033,31 @@ function renderClientes(lista){
 }
 
 function filtrarClientes(){
-  const termo = document.getElementById('clientes-search').value.toLowerCase()
-  if(!termo){ renderClientes(todosClientes); return }
-  const filtrado = todosClientes.filter(c => c.nome.toLowerCase().includes(termo))
+  const termo=document.getElementById('clientes-search').value.toLowerCase()
+  if(!termo){renderClientes(todosClientes);return}
+  const filtrado=todosClientes.filter(c=>c.nome.toLowerCase().includes(termo))
   renderClientes(filtrado)
 }
 
-function abrirDetalheCliente(userId, nomeEnc){
-  const nome = decodeURIComponent(nomeEnc)
-  const cliente = todosClientes.find(c => 
-    (userId && c.user_id === userId) || c.nome === nome
-  )
-  if(!cliente) return
+function abrirDetalheCliente(userId,nomeEnc){
+  const nome=decodeURIComponent(nomeEnc)
+  const cliente=todosClientes.find(c=>(userId&&c.user_id===userId)||c.nome===nome)
+  if(!cliente)return
 
-  document.getElementById('cli-det-nome').textContent = cliente.nome
-  document.getElementById('cli-det-contato').textContent = cliente.telefone || 'Sem telefone cadastrado'
-  document.getElementById('cli-det-total').textContent = `R$ ${cliente.total.toFixed(2)}`
-  document.getElementById('cli-det-qtd').textContent = cliente.agendamentos.length
-  document.getElementById('cli-det-ticket').textContent = `R$ ${(cliente.total/cliente.agendamentos.length).toFixed(2)}`
+  document.getElementById('cli-det-nome').textContent=cliente.nome
+  document.getElementById('cli-det-contato').textContent=cliente.telefone||'Sem telefone cadastrado'
+  document.getElementById('cli-det-total').textContent=`R$ ${cliente.total.toFixed(2)}`
+  document.getElementById('cli-det-qtd').textContent=cliente.agendamentos.length
+  document.getElementById('cli-det-ticket').textContent=`R$ ${(cliente.total/cliente.agendamentos.length).toFixed(2)}`
   
-  const ultimo = cliente.agendamentos[0]
-  document.getElementById('cli-det-ultimo').textContent = ultimo 
-    ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
-    : '—'
+  const ultimo=cliente.agendamentos[0]
+  document.getElementById('cli-det-ultimo').textContent=ultimo
+    ?new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
+    :'—'
 
-  const hist = cliente.agendamentos.map(ag => {
-    const dt = new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
-    const bc = ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
+  const hist=cliente.agendamentos.map(ag=>{
+    const dt=new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
+    const bc=ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
     return `<div class="tl-item">
       <div class="tl-dot ${ag.status}"></div>
       <div class="tl-body">
@@ -2043,117 +2070,113 @@ function abrirDetalheCliente(userId, nomeEnc){
     </div>`
   }).join('')
 
-  document.getElementById('cli-det-historico').innerHTML = hist || '<p style="color:var(--gray-4);font-size:0.88rem">Sem histórico.</p>'
+  document.getElementById('cli-det-historico').innerHTML=hist||'<p style="color:var(--gray-4);font-size:0.88rem">Sem histórico.</p>'
   document.getElementById('cli-detalhe-overlay').classList.add('open')
 }
 
 function fecharDetalheCliente(e){
-  if(!e || e.target === document.getElementById('cli-detalhe-overlay')){
+  if(!e||e.target===document.getElementById('cli-detalhe-overlay')){
     document.getElementById('cli-detalhe-overlay').classList.remove('open')
   }
 }
 
 // ── NOTIFICAÇÕES EMAIL ──────────────────────────────────────
-async function notificarEmail(tipo, agendamento_id){
+async function notificarEmail(tipo,agendamento_id){
   try{
-    await fetch('https://hhcmdnmazwnpehipheec.supabase.co/functions/v1/notificacoes-email', {
+    await fetch('https://hhcmdnmazwnpehipheec.supabase.co/functions/v1/notificacoes-email',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_KEY},
-      body:JSON.stringify({tipo, agendamento_id})
+      body:JSON.stringify({tipo,agendamento_id})
     })
   }catch(e){console.log('Notif email erro:',e)}
 }
 
 // ── PERFIL DO BARBEIRO ──────────────────────────────────────
-
-let fotoBase64 = null
+let fotoBase64=null
 
 function previewFoto(event){
-  const file = event.target.files[0]
-  if(!file) return
-  const reader = new FileReader()
-  reader.onload = e => {
-    fotoBase64 = e.target.result
-    const prev = document.getElementById('perfil-avatar-preview')
-    prev.innerHTML = `<img src="${fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+  const file=event.target.files[0]
+  if(!file)return
+  const reader=new FileReader()
+  reader.onload=e=>{
+    fotoBase64=e.target.result
+    const prev=document.getElementById('perfil-avatar-preview')
+    prev.innerHTML=`<img src="${fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
   }
   reader.readAsDataURL(file)
 }
 
 async function carregarPerfil(){
-  if(!meuBarbeiro) return
-  const {data:b} = await sb.from('barbeiros').select('*').eq('id',meuBarbeiro.id).single()
-  if(!b) return
-  meuBarbeiro = {...meuBarbeiro, ...b}
-  document.getElementById('perfil-nome').value = b.nome||''
-  document.getElementById('perfil-tel').value = b.telefone||''
-  document.getElementById('perfil-esp').value = b.especialidade||''
-  const prev = document.getElementById('perfil-avatar-preview')
+  if(!meuBarbeiro)return
+  const {data:b}=await sb.from('barbeiros').select('*').eq('id',meuBarbeiro.id).single()
+  if(!b)return
+  meuBarbeiro={...meuBarbeiro,...b}
+  document.getElementById('perfil-nome').value=b.nome||''
+  document.getElementById('perfil-tel').value=b.telefone||''
+  document.getElementById('perfil-esp').value=b.especialidade||''
+  const prev=document.getElementById('perfil-avatar-preview')
   if(b.foto_url){
-    prev.innerHTML = `<img src="${b.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
-  } else {
-    prev.innerHTML = '✂'
+    prev.innerHTML=`<img src="${b.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+  }else{
+    prev.innerHTML='✂'
   }
-  const sbIcon = document.querySelector('.sb-brand .perfil-avatar-sb')
-  if(sbIcon && b.foto_url) sbIcon.innerHTML = `<img src="${b.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
 }
 
 async function salvarPerfil(){
-  const btn = document.getElementById('perfil-btn')
-  const msgEl = document.getElementById('perfil-msg')
-  btn.disabled=true; btn.textContent='Salvando...'
+  const btn=document.getElementById('perfil-btn')
+  const msgEl=document.getElementById('perfil-msg')
+  btn.disabled=true;btn.textContent='Salvando...'
   msgEl.innerHTML=''
 
-  const nome = document.getElementById('perfil-nome').value.trim()
-  const tel = document.getElementById('perfil-tel').value.trim()
-  const esp = document.getElementById('perfil-esp').value.trim()
+  const nome=document.getElementById('perfil-nome').value.trim()
+  const tel=document.getElementById('perfil-tel').value.trim()
+  const esp=document.getElementById('perfil-esp').value.trim()
 
   if(!nome){
     msgEl.innerHTML='<div class="msg msg-err">Nome é obrigatório.</div>'
-    btn.disabled=false; btn.textContent='Salvar perfil'
+    btn.disabled=false;btn.textContent='Salvar perfil'
     return
   }
 
-  let foto_url = meuBarbeiro.foto_url || null
+  let foto_url=meuBarbeiro.foto_url||null
 
   if(fotoBase64){
     try{
-      const blob = await (await fetch(fotoBase64)).blob()
-      const ext = blob.type.split('/')[1]||'jpg'
-      const path = `barbeiros/${meuBarbeiro.id}.${ext}`
-      const {error:upErr} = await sb.storage.from('avatars').upload(path, blob, {upsert:true, contentType:blob.type})
-      if(upErr) throw upErr
-      const {data:urlData} = sb.storage.from('avatars').getPublicUrl(path)
-      foto_url = urlData.publicUrl + '?t=' + Date.now()
+      const blob=await (await fetch(fotoBase64)).blob()
+      const ext=blob.type.split('/')[1]||'jpg'
+      const path=`barbeiros/${meuBarbeiro.id}.${ext}`
+      const {error:upErr}=await sb.storage.from('avatars').upload(path,blob,{upsert:true,contentType:blob.type})
+      if(upErr)throw upErr
+      const {data:urlData}=sb.storage.from('avatars').getPublicUrl(path)
+      foto_url=urlData.publicUrl+'?t='+Date.now()
     }catch(e){
       msgEl.innerHTML=`<div class="msg msg-err">Erro no upload da foto: ${e.message}</div>`
-      btn.disabled=false; btn.textContent='Salvar perfil'
+      btn.disabled=false;btn.textContent='Salvar perfil'
       return
     }
   }
 
-  const {error} = await sb.from('barbeiros').update({nome, telefone:tel, especialidade:esp, foto_url}).eq('id', meuBarbeiro.id)
+  const {error}=await sb.from('barbeiros').update({nome,telefone:tel,especialidade:esp,foto_url}).eq('id',meuBarbeiro.id)
 
-  btn.disabled=false; btn.textContent='Salvar perfil'
+  btn.disabled=false;btn.textContent='Salvar perfil'
 
   if(error){
     msgEl.innerHTML=`<div class="msg msg-err">Erro: ${error.message}</div>`
     return
   }
 
-  meuBarbeiro.nome = nome
-  meuBarbeiro.telefone = tel
-  meuBarbeiro.especialidade = esp
-  meuBarbeiro.foto_url = foto_url
-  fotoBase64 = null
+  meuBarbeiro.nome=nome
+  meuBarbeiro.telefone=tel
+  meuBarbeiro.especialidade=esp
+  meuBarbeiro.foto_url=foto_url
+  fotoBase64=null
 
-  document.getElementById('dash-nome-desktop').textContent = nome
-  document.getElementById('sb-nome').textContent = barbearia?.nome || 'Minha Barbearia'
+  document.getElementById('dash-nome-desktop').textContent=nome
+  document.getElementById('sb-nome').textContent=barbearia?.nome||'Minha Barbearia'
 
   msgEl.innerHTML='<div class="msg msg-ok">Perfil atualizado com sucesso!</div>'
-  setTimeout(()=>msgEl.innerHTML='', 3000)
+  setTimeout(()=>msgEl.innerHTML='',3000)
 }
-
 </script>
 </body>
 </html>
