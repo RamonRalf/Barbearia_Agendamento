@@ -439,7 +439,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 /* CLIENTE */
 #cliente{display:none;min-height:100vh;background:var(--bg)}
 #cliente.active{display:block}
-.cli-header{background:var(--white);border-bottom:1px solid var(--gray-2);padding:1rem 5%;display:flex;justify-content:space-between;align-items:center}
+.cli-header{background:var(--white);border-bottom:1px solid var(--gray-2);display:flex;justify-content:space-between;align-items:center}
 .cli-header h3{font-family:var(--serif);font-size:1.1rem;font-weight:600}
 .cli-body{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
 .steps-bar{display:flex;gap:5px;margin-bottom:1.5rem}
@@ -699,7 +699,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   <aside class="sidebar">
     <div class="sb-brand">
       <div style="display:flex;align-items:center;gap:10px">
-        <div class="perfil-avatar-sb" style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden;">✂</div>
+        <div style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">✂</div>
         <div>
           <div id="sb-nome" style="font-weight:600;font-size:0.9rem">Minha Barbearia</div>
           <div id="sb-email" class="sb-email-txt"></div>
@@ -810,7 +810,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
           <div class="field"><label>Preço (R$)</label><input class="inp" type="number" id="sv-preco" placeholder="45"/></div>
           <div class="field"><label>Duração (min)</label><input class="inp" type="number" id="sv-dur" placeholder="30"/></div>
           <button class="btn btn-dark btn-full" onclick="addServico()">Salvar serviço</button>
-          <div id="sv-msg" style="margin-top:10px;"></div>
         </div>
         <div class="card">
           <h3 style="font-size:0.95rem;margin-bottom:1rem">Serviços ativos</h3>
@@ -853,6 +852,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       <h2 class="panel-title desktop-header">Configurações</h2>
       <div class="card" style="max-width:500px">
         <div id="cfg-msg"></div>
+        
         <h3 style="font-size:0.95rem;margin-bottom:1rem;color:var(--gray-5)">Imagens da Barbearia</h3>
         <div style="display:flex; gap:1.5rem; margin-bottom:1.5rem;">
           <div class="perfil-avatar-wrap" style="align-items:flex-start;">
@@ -867,6 +867,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
             <span class="perfil-avatar-label" onclick="document.getElementById('cfg-capa-input').click()">Foto do Local</span>
           </div>
         </div>
+
         <div class="field"><label>Nome da barbearia</label><input class="inp" type="text" id="cfg-nome" placeholder="Barbearia do João"/></div>
         <div class="field"><label>Endereço</label><input class="inp" type="text" id="cfg-end" placeholder="Rua das Flores, 123"/></div>
         <div class="field"><label>Telefone / WhatsApp</label><input class="inp" type="text" id="cfg-tel" placeholder="(11) 99999-9999"/></div>
@@ -1050,12 +1051,12 @@ const sb=createClient(SUPABASE_URL,SUPABASE_KEY)
 let session=null,role=null,barbearia=null,servicos=[],agendamentos=[],bloqueios=[]
 let authMode='login',dadosCliente=null,isRecoveryMode=false,meuBarbeiro=null
 let filtroDashAtual='hoje'
+let logoBase64 = null;
+let capaBase64 = null;
 
 const getDiaLocal=(iso)=>{const d=new Date(iso);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const _path=window.location.pathname.replace(/^\/+|\/+$/g,'')
 const _parts=_path?_path.split('/'):[  ]
-// Para ramonralf.github.io/Barbearia_Agendamento/ o path é 'Barbearia_Agendamento'
-// O slug vem como último segmento da URL, ou do próprio path se for acesso direto
 const slug=_parts.length>=1&&_parts[_parts.length-1]?_parts[_parts.length-1]:null
 console.log('[slug] path:', _path, 'parts:', _parts, 'slug:', slug)
 
@@ -1084,7 +1085,6 @@ async function iniciar(s){
   session=s
   const email=s.user.email.toLowerCase().trim()
 
-  // Verificar role em paralelo
   const [
     {data:bDono, error:eDono},
     {data:bBarb, error:eBarb}
@@ -1092,10 +1092,8 @@ async function iniciar(s){
     sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle(),
     sb.from('barbeiros').select('*,barbearias(*)').eq('email',email).maybeSingle()
   ])
-  console.log('[iniciar] bDono:', bDono, 'erro:', eDono)
+  
   if(bDono){role='dono';await loadBarbeiro();return}
-
-  console.log('[iniciar] bBarb:', bBarb, 'erro:', eBarb)
   if(bBarb){
     if(!bBarb.user_id){
       const {error:uErr}=await sb.from('barbeiros').update({user_id:s.user.id}).eq('id',bBarb.id)
@@ -1105,8 +1103,6 @@ async function iniciar(s){
     role='barbeiro';await loadBarbeiroFuncionario(bBarb);return
   }
 
-  // Cliente
-  console.log('[iniciar] indo como cliente')
   role='cliente'
   await loadCliente()
 }
@@ -1183,33 +1179,17 @@ async function handleAuth(){
       if(!nome||!whatsapp)throw new Error('Nome e WhatsApp são obrigatórios para o cadastro.')
 
       const {data,error}=await sb.auth.signUp({
-        email,
-        password:senha,
-        options:{
-          data:{ nome, whatsapp } // salva no user_metadata também como backup
-        }
+        email, password:senha, options:{ data:{ nome, whatsapp } }
       })
       if(error)throw error
 
       if(data?.session && data?.user){
-        // Sessão ativa imediata (email confirm desativado)
-        const {error:pe}=await sb.from('clientes').insert([{
-          id:data.user.id,
-          nome,
-          whatsapp,
-          email
-        }])
+        const {error:pe}=await sb.from('clientes').insert([{id:data.user.id, nome, whatsapp, email}])
         if(pe) console.warn('Erro ao salvar perfil:', pe.message)
         document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Entrando...</div>'
-        return // onAuthStateChange vai chamar iniciar()
+        return
       } else if(data?.user){
-        // Email de confirmação necessário — salva perfil mesmo assim via upsert
-        const {error:pe}=await sb.from('clientes').insert([{
-          id:data.user.id,
-          nome,
-          whatsapp,
-          email
-        }])
+        const {error:pe}=await sb.from('clientes').insert([{id:data.user.id, nome, whatsapp, email}])
         if(pe) console.warn('Erro ao salvar perfil:', pe.message)
         document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Verifique seu e-mail para confirmar, depois faça login.</div>'
         authMode='login';toggleAuthMode();return
@@ -1236,10 +1216,7 @@ async function atualizarSenha(){
   }
 }
 
-async function signOut(){
-  await sb.auth.signOut();
-  window.location.replace(window.location.origin + window.location.pathname.replace(/\/[^/]+$/, ''));
-}
+async function signOut(){await sb.auth.signOut();showView('landing')}
 
 async function loadBarbeiro(){
   showView('barber')
@@ -1247,7 +1224,7 @@ async function loadBarbeiro(){
   const dd=document.getElementById('dash-data')
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   
-  // O Dono não lança serviços, então escondemos a aba Serviços pra ele
+  // O Dono não lança serviços
   document.querySelectorAll('.sb-item').forEach(el=>{
     const oc = el.getAttribute('onclick') || '';
     if(oc.includes("'servicos'")) el.style.display = 'none';
@@ -1271,8 +1248,6 @@ async function loadBarbeiroFuncionario(barb){
   const dd=document.getElementById('dash-data')
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   
-  // Barbeiro agora tem acesso a TUDO (Configurações, Equipe, etc).
-  // Apenas garantimos que o perfil dele também aparece:
   document.querySelectorAll('.sb-perfil-item').forEach(el=>{el.classList.add('sb-perfil-visivel')})
   document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.classList.add('sb-clientes-visivel')})
   
@@ -1291,11 +1266,9 @@ async function recarregarFuncionario(){
   ])
   agendamentos=ag||[];servicos=sv||[];bloqueios=bl||[]
 
-  // Barbeiro funcionário: esconde o select de barbeiro e mostra o nome dele fixo
   const svBarbField=document.getElementById('wrap-sv-barb')
   if(svBarbField) svBarbField.style.display='none'
 
-  // Garante que o nome do barbeiro aparece acima do formulário de serviços
   let svNomeInfo=document.getElementById('sv-barb-info')
   if(!svNomeInfo){
     svNomeInfo=document.createElement('div')
@@ -1310,6 +1283,22 @@ async function recarregarFuncionario(){
   carregarClientes()
 }
 
+function previewCfgImg(event, tipo) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    if(tipo === 'logo') {
+      logoBase64 = e.target.result;
+      document.getElementById('cfg-logo-preview').innerHTML = `<img src="${logoBase64}" style="width:100%;height:100%;object-fit:cover;"/>`;
+    } else {
+      capaBase64 = e.target.result;
+      document.getElementById('cfg-capa-preview').innerHTML = `<img src="${capaBase64}" style="width:100%;height:100%;object-fit:cover;"/>`;
+    }
+  }
+  reader.readAsDataURL(file);
+}
+
 function preencherCfg(b){
   document.getElementById('sb-nome').textContent=b.nome||'Minha Barbearia'
   document.getElementById('cfg-nome').value=b.nome||''
@@ -1317,6 +1306,9 @@ function preencherCfg(b){
   document.getElementById('cfg-tel').value=b.telefone||''
   document.getElementById('cfg-slug').value=b.slug||''
   previewLink()
+
+  if(b.logo_url) document.getElementById('cfg-logo-preview').innerHTML = `<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>`;
+  if(b.capa_url) document.getElementById('cfg-capa-preview').innerHTML = `<img src="${b.capa_url}" style="width:100%;height:100%;object-fit:cover;"/>`;
 }
 
 async function recarregar(){
@@ -1339,7 +1331,6 @@ async function recarregar(){
     svBarbField.style.display='flex'
     svBarbSelect.innerHTML='<option value="">Selecione o barbeiro...</option>'+(barb||[]).map(b=>`<option value="${b.id}">${b.nome}</option>`).join('')
   }
-  // Carregar clientes automaticamente
   carregarClientes()
   if(barbearia.slug){
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
@@ -1512,14 +1503,66 @@ function setPanel(btn,id){
 }
 
 async function salvarBarbearia(){
-  const btn=document.getElementById('cfg-btn');btn.disabled=true;btn.textContent='Salvando...'
-  document.getElementById('cfg-msg').innerHTML=''
-  const payload={nome:document.getElementById('cfg-nome').value,endereco:document.getElementById('cfg-end').value,telefone:document.getElementById('cfg-tel').value,slug:document.getElementById('cfg-slug').value.trim(),owner_id:session.user.id}
-  if(barbearia)payload.id=barbearia.id
-  const {data,error}=await sb.from('barbearias').upsert([payload]).select()
-  btn.disabled=false;btn.textContent='Salvar configurações'
-  if(!error){barbearia=data[0];preencherCfg(barbearia);document.getElementById('cfg-msg').innerHTML='<div class="msg msg-ok">Salvo!</div>';await recarregar()}
-  else document.getElementById('cfg-msg').innerHTML=`<div class="msg msg-err">${error.message}</div>`
+  const btn=document.getElementById('cfg-btn'); btn.disabled=true; btn.textContent='Salvando...';
+  document.getElementById('cfg-msg').innerHTML='';
+
+  const payload={
+    nome:document.getElementById('cfg-nome').value,
+    endereco:document.getElementById('cfg-end').value,
+    telefone:document.getElementById('cfg-tel').value,
+    slug:document.getElementById('cfg-slug').value.trim()
+  };
+
+  if(barbearia) {
+    payload.id = barbearia.id;
+    payload.logo_url = barbearia.logo_url;
+    payload.capa_url = barbearia.capa_url;
+  } else {
+    payload.owner_id = session.user.id;
+  }
+
+  const {data,error} = await sb.from('barbearias').upsert([payload]).select();
+  if(error){
+    btn.disabled=false; btn.textContent='Salvar configurações';
+    document.getElementById('cfg-msg').innerHTML=`<div class="msg msg-err">${error.message}</div>`;
+    return;
+  }
+  
+  let b_atual = data[0];
+  let precisaAtualizar = false;
+
+  if(logoBase64){
+    try{
+      const blob = await (await fetch(logoBase64)).blob();
+      const path = `barbearias/logo_${b_atual.id}.${blob.type.split('/')[1]||'jpg'}`;
+      await sb.storage.from('avatars').upload(path, blob, {upsert:true, contentType:blob.type});
+      b_atual.logo_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
+      precisaAtualizar = true;
+    } catch(e){ console.error(e); }
+  }
+  if(capaBase64){
+    try{
+      const blob = await (await fetch(capaBase64)).blob();
+      const path = `barbearias/capa_${b_atual.id}.${blob.type.split('/')[1]||'jpg'}`;
+      await sb.storage.from('avatars').upload(path, blob, {upsert:true, contentType:blob.type});
+      b_atual.capa_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
+      precisaAtualizar = true;
+    } catch(e){ console.error(e); }
+  }
+
+  if(precisaAtualizar){
+    const {data:d2} = await sb.from('barbearias').update({logo_url: b_atual.logo_url, capa_url: b_atual.capa_url}).eq('id', b_atual.id).select();
+    if(d2) b_atual = d2[0];
+  }
+
+  barbearia = b_atual;
+  preencherCfg(barbearia);
+  logoBase64 = null;
+  capaBase64 = null;
+
+  btn.disabled=false; btn.textContent='Salvar configurações';
+  document.getElementById('cfg-msg').innerHTML='<div class="msg msg-ok">Salvo com sucesso!</div>';
+  await recarregar();
 }
 
 async function addServico(){
@@ -1529,7 +1572,13 @@ async function addServico(){
   const preco=parseFloat(document.getElementById('sv-preco').value)
   const dur=parseInt(document.getElementById('sv-dur').value)
 
-  const svMsg=document.getElementById('sv-msg')
+  let svMsg=document.getElementById('sv-msg')
+  if(!svMsg){
+    svMsg=document.createElement('div')
+    svMsg.id='sv-msg'
+    const btnSv=document.querySelector('#panel-servicos .card .btn-dark')
+    if(btnSv) btnSv.parentNode.insertBefore(svMsg, btnSv.nextSibling)
+  }
   svMsg.innerHTML=''
 
   if(!nome||isNaN(preco)||isNaN(dur)||preco<=0||dur<=0){
@@ -1593,7 +1642,6 @@ async function bloquear(){
     data_hora_fim:new Date(fimRaw).toISOString(),
     motivo:document.getElementById('blq-mot').value||'Bloqueado'
   }
-  // Cada barbeiro bloqueia apenas seus próprios horários
   if(meuBarbeiro) payload.barbeiro_id=meuBarbeiro.id
   await sb.from('horarios_bloqueados').insert([payload])
   document.getElementById('blq-ini').value='';document.getElementById('blq-fim').value='';document.getElementById('blq-mot').value=''
@@ -1609,17 +1657,12 @@ async function loadCliente(){
   const {data:cliPerfil}=await sb.from('clientes').select('*').eq('id',session.user.id).maybeSingle()
   if(cliPerfil){
     dadosCliente=cliPerfil
-    // O canto esquerdo vai mostrar o nome da Barbearia depois, o que é o correto.
-    // E o canto direito (cli-email) agora vai mostrar o NOME do cliente em vez do e-mail:
     document.getElementById('cli-email').textContent=cliPerfil.nome
   } else {
-    // Se o perfil ainda estiver sincronizando, ele tenta pegar o nome do metadata do cadastro,
-    // se não achar, cai no fallback (antes do @).
     const nomeDisplay=session.user.user_metadata?.nome || session.user.email.split('@')[0]
     document.getElementById('cli-email').textContent=nomeDisplay
   }
 
-  // Busca barbearia pelo slug ou a primeira disponível
   let b = null
   try{
     let q=sb.from('barbearias').select('*')
@@ -1638,6 +1681,22 @@ async function loadCliente(){
   barbearia=b
   document.getElementById('cli-nome').textContent=b.nome
   document.getElementById('cli-end').textContent=b.endereco||''
+
+  if(b.capa_url) {
+    const elCapa = document.getElementById('cli-capa');
+    elCapa.style.display = 'block';
+    elCapa.style.backgroundImage = `url('${b.capa_url}')`;
+  } else {
+    document.getElementById('cli-capa').style.display = 'none';
+  }
+  
+  const elLogo = document.getElementById('cli-logo');
+  elLogo.style.display = 'flex';
+  if(b.logo_url) {
+    elLogo.innerHTML = `<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>`;
+  } else {
+    elLogo.innerHTML = `✂`; 
+  }
 
   const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id',b.id),
@@ -1739,7 +1798,6 @@ async function confirmar(){
   btn.disabled=false;btn.textContent='Confirmar agendamento'
   if(!error){
     document.getElementById('cli-msg-conf').innerHTML='<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
-    // Notificar barbeiro por email
     const {data:agNovo}=await sb.from('agendamentos').select('id').eq('barbeiro_id',selBarb.id).eq('data_hora',dataHoraParaOBanco).neq('status','cancelado').maybeSingle()
     if(agNovo) notificarEmail('novo_agendamento', agNovo.id)
     setTimeout(()=>loadCliente(),1500)
@@ -1774,7 +1832,6 @@ function renderMeusAgs(ags){
 let _agCliModal = null
 
 async function abrirModalCliente(id){
-  // Busca dados completos do agendamento
   const {data:ag} = await sb.from('agendamentos')
     .select('*,servicos(nome,preco),barbeiros(nome,telefone,especialidade)')
     .eq('id', id).single()
@@ -1791,7 +1848,6 @@ async function abrirModalCliente(id){
   const bc = ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
   document.getElementById('mc-status').innerHTML = `<span class="badge ${bc}">${ag.status}</span>`
 
-  // Endereço da barbearia
   if(barbearia?.endereco){
     document.getElementById('mc-end').textContent = barbearia.endereco
     document.getElementById('mc-row-end').style.display = 'flex'
@@ -1799,7 +1855,6 @@ async function abrirModalCliente(id){
     document.getElementById('mc-row-end').style.display = 'none'
   }
 
-  // Telefone da barbearia
   if(barbearia?.telefone){
     document.getElementById('mc-tel').textContent = barbearia.telefone
     document.getElementById('mc-row-tel').style.display = 'flex'
@@ -1807,11 +1862,9 @@ async function abrirModalCliente(id){
     document.getElementById('mc-row-tel').style.display = 'none'
   }
 
-  // Botões de ação
   const acoes = document.getElementById('mc-acoes')
   acoes.innerHTML = ''
 
-  // Botão WhatsApp do barbeiro
   if(ag.barbeiros?.telefone){
     const tel = ag.barbeiros.telefone.replace(/\D/g,'')
     const dtFmt = new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
@@ -1820,7 +1873,6 @@ async function abrirModalCliente(id){
       <span style="font-size:1.1rem">📱</span> WhatsApp do barbeiro
     </a>`
   } else if(barbearia?.telefone){
-    // Fallback: WhatsApp da barbearia
     const tel = barbearia.telefone.replace(/\D/g,'')
     const msg = encodeURIComponent(`Olá! Gostaria de falar sobre meu agendamento.`)
     acoes.innerHTML += `<a href="https://wa.me/55${tel}?text=${msg}" target="_blank" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none">
@@ -1828,10 +1880,9 @@ async function abrirModalCliente(id){
     </a>`
   }
 
-  // Botão cancelar — apenas se pendente ou confirmado e ainda no futuro
   const agData = new Date(ag.data_hora)
   const agFuturo = agData > new Date()
-  if(ag.status !== 'cancelado' && agFuturo){
+  if (ag.status === 'pendente' || (ag.status === 'confirmado' && agFuturo)) {
     acoes.innerHTML += `<button class="btn btn-danger" style="flex:1" onclick="cancAgCliente('${ag.id}')">✕ Cancelar agendamento</button>`
   }
 
@@ -1848,34 +1899,32 @@ function fecharModalCliente(e){
 
 async function cancAgCliente(id){
   if(!confirm('Tem certeza que deseja cancelar este agendamento?')) return
-  
-  // Oculta os botões originais e mostra status de carregamento
   const acoesEl = document.getElementById('mc-acoes')
   const originalHTML = acoesEl.innerHTML
   acoesEl.innerHTML = '<div class="msg" style="width:100%;text-align:center;background:var(--gray-1);color:var(--gray-5)">Processando cancelamento...</div>'
 
-  // Atualiza a tabela no Supabase
-  const {error} = await sb.from('agendamentos')
+  const {data, error} = await sb.from('agendamentos')
     .update({status:'cancelado'})
     .eq('id', id)
     .eq('user_id', session.user.id)
+    .select() 
   
-  // Tratativa caso o Supabase devolva erro
   if(error){
-    acoesEl.innerHTML = originalHTML // Volta os botões normais
+    acoesEl.innerHTML = originalHTML
     acoesEl.insertAdjacentHTML('afterend',`<div class="msg msg-err temp-msg" style="margin-top:10px">Erro: ${error.message}</div>`)
-    setTimeout(() => {
-      const temp = document.querySelector('.temp-msg')
-      if(temp) temp.remove()
-    }, 3000)
+    setTimeout(() => { const temp = document.querySelector('.temp-msg'); if(temp) temp.remove() }, 4000)
+    return
+  }
+  if(!data || data.length === 0){
+    acoesEl.innerHTML = originalHTML
+    acoesEl.insertAdjacentHTML('afterend',`<div class="msg msg-err temp-msg" style="margin-top:10px">Cancelamento bloqueado pelo banco. Configure o RLS (Update) no Supabase!</div>`)
+    setTimeout(() => { const temp = document.querySelector('.temp-msg'); if(temp) temp.remove() }, 6000)
     return
   }
   
-  // Dispara e-mail pro barbeiro e mostra a mensagem de sucesso
   notificarEmail('cancelado_pelo_cliente', id)
   acoesEl.innerHTML = '<div class="msg msg-ok" style="width:100%;text-align:center">Agendamento cancelado com sucesso!</div>'
   
-  // Dá 1.5 segundos pro cliente ler a mensagem, fecha o modal e recarrega
   setTimeout(async () => {
     document.getElementById('modal-cli-ag').classList.remove('open')
     await loadCliente()
@@ -1889,7 +1938,6 @@ let todosClientes = []
 async function carregarClientes(){
   if(!barbearia) return
   
-  // Busca todos agendamentos confirmados da barbearia (ou do barbeiro)
   let q = sb.from('agendamentos')
     .select('*,servicos(nome,preco),barbeiros(nome)')
     .eq('barbearia_id', barbearia.id)
@@ -1901,7 +1949,6 @@ async function carregarClientes(){
   const {data:ags} = await q
   if(!ags) return
 
-  // Agrupa por cliente
   const mapa = {}
   for(const ag of ags){
     const key = ag.user_id || ag.nome_cliente
@@ -1918,7 +1965,6 @@ async function carregarClientes(){
     mapa[key].total += ag.servicos?.preco || 0
   }
 
-  // Ordena por total gasto (maior primeiro)
   todosClientes = Object.values(mapa).sort((a,b) => b.total - a.total)
   
   const resumo = document.getElementById('clientes-resumo')
@@ -1982,7 +2028,6 @@ function abrirDetalheCliente(userId, nomeEnc){
     ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})
     : '—'
 
-  // Histórico
   const hist = cliente.agendamentos.map(ag => {
     const dt = new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
     const bc = ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
@@ -2049,7 +2094,6 @@ async function carregarPerfil(){
   } else {
     prev.innerHTML = '✂'
   }
-  // Atualiza também o avatar da sidebar
   const sbIcon = document.querySelector('.sb-brand .perfil-avatar-sb')
   if(sbIcon && b.foto_url) sbIcon.innerHTML = `<img src="${b.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
 }
@@ -2072,7 +2116,6 @@ async function salvarPerfil(){
 
   let foto_url = meuBarbeiro.foto_url || null
 
-  // Upload da foto para o Supabase Storage (bucket: avatars)
   if(fotoBase64){
     try{
       const blob = await (await fetch(fotoBase64)).blob()
@@ -2098,7 +2141,6 @@ async function salvarPerfil(){
     return
   }
 
-  // Atualiza dados locais
   meuBarbeiro.nome = nome
   meuBarbeiro.telefone = tel
   meuBarbeiro.especialidade = esp
@@ -2113,21 +2155,5 @@ async function salvarPerfil(){
 }
 
 </script>
-
-<div class="modal-overlay" id="modal-cli-ag" onclick="fecharModalCliente(event)">
-  <div class="modal-box">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Detalhes do agendamento</div>
-    <div class="modal-row"><span class="modal-label">Serviço</span><span class="modal-val" id="mc-servico"></span></div>
-    <div class="modal-row"><span class="modal-label">Barbeiro</span><span class="modal-val" id="mc-barbeiro"></span></div>
-    <div class="modal-row"><span class="modal-label">Data / Hora</span><span class="modal-val" id="mc-data"></span></div>
-    <div class="modal-row"><span class="modal-label">Valor</span><span class="modal-val" id="mc-valor"></span></div>
-    <div class="modal-row"><span class="modal-label">Status</span><span class="modal-val" id="mc-status"></span></div>
-    <div class="modal-row" id="mc-row-end" style="display:none"><span class="modal-label">Endereço</span><span class="modal-val" id="mc-end"></span></div>
-    <div class="modal-row" id="mc-row-tel" style="display:none"><span class="modal-label">Telefone</span><span class="modal-val" id="mc-tel"></span></div>
-    <div style="display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap" id="mc-acoes"></div>
-  </div>
-</div>
-
 </body>
 </html>
