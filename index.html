@@ -372,6 +372,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .sb-item:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.9)}
 .sb-item.active{background:rgba(255,255,255,0.12);color:var(--white);font-weight:500}
 .sb-perfil-item{display:none}
+.sb-perfil-item.sb-perfil-visivel{display:flex}
+.sb-clientes-item.sb-clientes-visivel{display:flex}
 .sb-out{margin-top:auto;padding:10px 12px;border-radius:8px;font-size:0.875rem;color:rgba(255,255,255,0.35);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
 .sb-out:hover{color:#ff6b6b;background:rgba(255,100,100,0.1)}
 .mobile-header{display:none!important}
@@ -667,7 +669,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 
   <div class="l-footer">
-    <small>© 2025 BarberApp · Sistema de agendamento para barbearias</small>
+    <small>© 2026 BarberApp · Sistema de agendamento para barbearias</small>
   </div>
 </div>
 
@@ -1043,7 +1045,9 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 ═══════════════════════════════════════ -->
 <script>
 const {createClient}=supabase
-const sb=createClient('https://hhcmdnmazwnpehipheec.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8')
+const SUPABASE_URL='https://hhcmdnmazwnpehipheec.supabase.co'
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8'
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY)
 
 let session=null,role=null,barbearia=null,servicos=[],agendamentos=[],bloqueios=[]
 let authMode='login',dadosCliente=null,isRecoveryMode=false,meuBarbeiro=null
@@ -1082,16 +1086,24 @@ async function iniciar(s){
   session=s
   const email=s.user.email.toLowerCase().trim()
 
-  // Verificar se é dono
-  const {data:bDono, error:eDono}=await sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle()
+  // Verificar role em paralelo
+  const [
+    {data:bDono, error:eDono},
+    {data:bBarb, error:eBarb}
+  ]=await Promise.all([
+    sb.from('barbearias').select('id').eq('owner_id',s.user.id).maybeSingle(),
+    sb.from('barbeiros').select('*,barbearias(*)').eq('email',email).maybeSingle()
+  ])
   console.log('[iniciar] bDono:', bDono, 'erro:', eDono)
   if(bDono){role='dono';await loadBarbeiro();return}
 
-  // Verificar se é barbeiro funcionário
-  const {data:bBarb, error:eBarb}=await sb.from('barbeiros').select('*,barbearias(*)').eq('email',email).maybeSingle()
   console.log('[iniciar] bBarb:', bBarb, 'erro:', eBarb)
   if(bBarb){
-    if(!bBarb.user_id){await sb.from('barbeiros').update({user_id:s.user.id}).eq('id',bBarb.id);bBarb.user_id=s.user.id}
+    if(!bBarb.user_id){
+      const {error:uErr}=await sb.from('barbeiros').update({user_id:s.user.id}).eq('id',bBarb.id)
+      if(uErr) console.warn('[iniciar] erro ao vincular user_id:', uErr.message)
+      else bBarb.user_id=s.user.id
+    }
     role='barbeiro';await loadBarbeiroFuncionario(bBarb);return
   }
 
@@ -1139,8 +1151,8 @@ function voltarLogin(){
 }
 
 function toggleAuthMode(){
-  if(authMode==='recuperacao')authMode='login'
-  authMode=authMode==='login'?'cadastro':'login'
+  if(authMode==='recuperacao'){authMode='login'}
+  else{authMode=authMode==='login'?'cadastro':'login'}
   const l=authMode==='login'
   document.getElementById('auth-title').textContent=l?'Entrar na conta':'Criar conta'
   document.getElementById('auth-sub').textContent=l?'Acesse seu painel':'Crie sua conta gratuitamente'
@@ -1219,7 +1231,11 @@ async function atualizarSenha(){
   const {error}=await sb.auth.updateUser({password:senha})
   btn.disabled=false;btn.textContent='Atualizar Senha'
   if(error){document.getElementById('ns-msg').innerHTML=`<div class="msg msg-err">${error.message}</div>`}
-  else{alert('Senha redefinida com sucesso!');isRecoveryMode=false;window.location.hash='';window.location.reload()}
+  else{
+    document.getElementById('ns-msg').innerHTML='<div class="msg msg-ok">Senha redefinida com sucesso! Redirecionando...</div>'
+    isRecoveryMode=false
+    setTimeout(()=>{window.location.hash='';window.location.reload()},2000)
+  }
 }
 
 async function signOut(){await sb.auth.signOut();showView('landing')}
@@ -1245,8 +1261,8 @@ async function loadBarbeiroFuncionario(barb){
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
   document.querySelectorAll('.sb-item').forEach(el=>{const oc=el.getAttribute('onclick')||'';if(oc.includes("'equipe'")||oc.includes("'config'"))el.style.display='none'})
   // Mostra aba Meu Perfil apenas para funcionário
-  document.querySelectorAll('.sb-perfil-item').forEach(el=>{el.style.display='flex';el.style.setProperty('display','flex','important')})
-  document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.style.display='flex';el.style.setProperty('display','flex','important')})
+  document.querySelectorAll('.sb-perfil-item').forEach(el=>{el.classList.add('sb-perfil-visivel')})
+  document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.classList.add('sb-clientes-visivel')})
   carregarPerfil()
   await recarregarFuncionario()
 }
@@ -1455,7 +1471,11 @@ function renderBloqueios(){
 }
 
 function previewLink(){const s=document.getElementById('cfg-slug').value;document.getElementById('cfg-preview').textContent=s?`Link: ${location.origin}/${s}`:''}
-function copiarLink(){navigator.clipboard.writeText(document.getElementById('link-txt').textContent);alert('Copiado!')}
+function copiarLink(){
+  navigator.clipboard.writeText(document.getElementById('link-txt').textContent)
+  const btn=document.querySelector('#link-wrap .btn')
+  if(btn){const orig=btn.textContent;btn.textContent='✓ Copiado!';setTimeout(()=>{btn.textContent=orig},2000)}
+}
 
 function setPanel(btn,id){
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'))
@@ -1574,7 +1594,7 @@ async function loadCliente(){
   if(cliPerfil){
     dadosCliente=cliPerfil
     document.getElementById('cli-nome').textContent=cliPerfil.nome
-    document.getElementById('cli-email').textContent=cliPerfil.nome
+    document.getElementById('cli-email').textContent=cliPerfil.email
   } else {
     // Sem perfil — mostra só a parte antes do @ como nome
     const nomeDisplay=session.user.email.split('@')[0]
@@ -1867,6 +1887,8 @@ async function carregarClientes(){
   renderClientes(todosClientes)
 }
 
+const _esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+
 function renderClientes(lista){
   const el = document.getElementById('clientes-lista')
   if(!el) return
@@ -1880,15 +1902,15 @@ function renderClientes(lista){
     const ultimo = c.agendamentos[0]
     const dtUltimo = ultimo ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—'
     const medalha = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : ''
-    return `<div class="cli-card" onclick="abrirDetalheCliente('${c.user_id||''}','${encodeURIComponent(c.nome)}')">
+    return `<div class="cli-card" onclick="abrirDetalheCliente('${_esc(c.user_id||'')}','${encodeURIComponent(c.nome)}')">
       <div class="cli-card-top">
-        <span class="cli-card-nome">${medalha} ${c.nome}</span>
+        <span class="cli-card-nome">${medalha} ${_esc(c.nome)}</span>
         <span class="cli-card-gasto">R$ ${c.total.toFixed(2)}</span>
       </div>
       <div class="cli-card-info">
         <small>📅 ${c.agendamentos.length} visita${c.agendamentos.length>1?'s':''}</small>
         <small>🕐 Último: ${dtUltimo}</small>
-        ${c.telefone?`<small>📱 ${c.telefone}</small>`:''}
+        ${c.telefone?`<small>📱 ${_esc(c.telefone)}</small>`:''}
         <small style="color:var(--gold);font-weight:500">Ticket médio: R$ ${(c.total/c.agendamentos.length).toFixed(2)}</small>
       </div>
     </div>`
@@ -1951,7 +1973,7 @@ async function notificarEmail(tipo, agendamento_id){
   try{
     await fetch('https://hhcmdnmazwnpehipheec.supabase.co/functions/v1/notificacoes-email', {
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SUPABASE_KEY},
       body:JSON.stringify({tipo, agendamento_id})
     })
   }catch(e){console.log('Notif email erro:',e)}
