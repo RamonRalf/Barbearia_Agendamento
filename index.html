@@ -1609,7 +1609,7 @@ async function loadCliente(){
   const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id',b.id),
     sb.from('barbeiros').select('id,nome,especialidade,telefone,foto_url,barbearia_id').eq('barbearia_id',b.id),
-    sb.from('agendamentos').select('*,servicos(nome),barbeiros(nome)').eq('user_id',session.user.id).neq('status','cancelado').order('data_hora',{ascending:false})
+    sb.from('agendamentos').select('*,servicos(nome),barbeiros(nome)').eq('user_id',session.user.id).order('data_hora',{ascending:false})
   ])
   todosServicos=sv||[];servicos=sv||[];barbeiros=barb||[]
   selBarb=null;selSv=null;selHora=null
