@@ -1834,9 +1834,17 @@ function fecharModalCliente(e){
 
 async function cancAgCliente(id){
   if(!confirm('Tem certeza que deseja cancelar este agendamento?')) return
-  const {error} = await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id)
-  if(error){ alert('Erro ao cancelar: ' + error.message); return }
-  // Notifica barbeiro por email
+  // .eq('user_id') garante que o cliente so cancela agendamentos proprios
+  // e satisfaz a RLS policy do Supabase: users can only update their own rows
+  const {error} = await sb.from('agendamentos')
+    .update({status:'cancelado'})
+    .eq('id', id)
+    .eq('user_id', session.user.id)
+  if(error){
+    const acoesEl = document.getElementById('mc-acoes')
+    if(acoesEl) acoesEl.insertAdjacentHTML('afterend','<div class="msg msg-err" style="margin-top:10px">Erro ao cancelar: '+error.message+'</div>')
+    return
+  }
   notificarEmail('cancelado_pelo_cliente', id)
   document.getElementById('modal-cli-ag').classList.remove('open')
   await loadCliente()
