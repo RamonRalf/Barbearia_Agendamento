@@ -1246,6 +1246,15 @@ async function loadBarbeiro(){
   document.getElementById('sb-email').textContent=session.user.email
   const dd=document.getElementById('dash-data')
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+  
+  // O Dono não lança serviços, então escondemos a aba Serviços pra ele
+  document.querySelectorAll('.sb-item').forEach(el=>{
+    const oc = el.getAttribute('onclick') || '';
+    if(oc.includes("'servicos'")) el.style.display = 'none';
+  });
+
+  document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.classList.add('sb-clientes-visivel')})
+
   const {data:b}=await sb.from('barbearias').select('*').eq('owner_id',session.user.id).maybeSingle()
   if(b){barbearia=b;preencherCfg(b);await recarregar()}
   else{if(document.getElementById('dash-nome-desktop'))document.getElementById('dash-nome-desktop').textContent='Configure sua barbearia';setPanel(null,'config')}
@@ -1256,14 +1265,17 @@ async function loadBarbeiroFuncionario(barb){
   meuBarbeiro=barb
   if(barb.barbearias&&barb.barbearias.id){barbearia=barb.barbearias}
   else{const {data:b}=await sb.from('barbearias').select('*').eq('id',barb.barbearia_id).maybeSingle();if(!b)return;barbearia=b}
+  
   document.getElementById('sb-email').textContent=session.user.email
   document.getElementById('dash-nome-desktop').textContent=barb.nome||'Meu Painel'
   const dd=document.getElementById('dash-data')
   if(dd)dd.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
-  document.querySelectorAll('.sb-item').forEach(el=>{const oc=el.getAttribute('onclick')||'';if(oc.includes("'equipe'")||oc.includes("'config'"))el.style.display='none'})
-  // Mostra aba Meu Perfil apenas para funcionário
+  
+  // Barbeiro agora tem acesso a TUDO (Configurações, Equipe, etc).
+  // Apenas garantimos que o perfil dele também aparece:
   document.querySelectorAll('.sb-perfil-item').forEach(el=>{el.classList.add('sb-perfil-visivel')})
   document.querySelectorAll('.sb-clientes-item').forEach(el=>{el.classList.add('sb-clientes-visivel')})
+  
   carregarPerfil()
   await recarregarFuncionario()
 }
