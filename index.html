@@ -458,7 +458,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 .tl-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
 .tl-name{font-weight:500;font-size:0.9rem}
 
-
 /* PERFIL DO BARBEIRO */
 .perfil-avatar-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:1.5rem}
 .perfil-avatar{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--gray-2);background:var(--gray-1);display:flex;align-items:center;justify-content:center;font-size:2.5rem;overflow:hidden;cursor:pointer;position:relative}
@@ -496,9 +495,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════
-     LANDING
-═══════════════════════════════════════ -->
 <div id="landing" class="view active">
 
   <nav class="l-nav">
@@ -512,9 +508,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </nav>
 
-  <!-- HERO -->
   <div class="hero-wrap">
-    <!-- Esquerda -->
     <div class="hero-left">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>
@@ -542,7 +536,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
       </div>
     </div>
 
-    <!-- Direita — preview do app -->
     <div class="hero-right">
       <div class="hero-card-wrap">
         <div class="float-badge">
@@ -607,14 +600,12 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
-  <!-- DIVIDER -->
   <div class="l-divider" style="margin:0 auto 0;max-width:1200px;padding:0 5%">
     <div class="l-divider-line"></div>
     <div class="l-divider-text">Funcionalidades</div>
     <div class="l-divider-line"></div>
   </div>
 
-  <!-- FEATURES GRID -->
   <div class="l-features">
     <div class="l-feat">
       <div class="l-feat-num">01</div>
@@ -633,7 +624,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
-  <!-- HOW IT WORKS -->
   <div class="l-how">
     <div class="l-how-inner">
       <div class="l-section-tag">Como funciona</div>
@@ -658,7 +648,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
     </div>
   </div>
 
-  <!-- CTA FINAL -->
   <div class="l-cta">
     <h2>Pronto para começar?<br/><em>É gratuito.</em></h2>
     <p>Configure sua barbearia em minutos e comece a receber agendamentos hoje.</p>
@@ -673,9 +662,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     AUTH
-═══════════════════════════════════════ -->
 <div id="auth">
   <div class="auth-box">
     <button class="auth-back" onclick="showView('landing')">← Voltar</button>
@@ -709,14 +695,11 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
 
 <div class="menu-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
-<!-- ═══════════════════════════════════════
-     BARBER PANEL
-═══════════════════════════════════════ -->
 <div id="barber">
   <aside class="sidebar">
     <div class="sb-brand">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">✂</div>
+        <div class="perfil-avatar-sb" style="width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden;">✂</div>
         <div>
           <div id="sb-nome" style="font-weight:600;font-size:0.9rem">Minha Barbearia</div>
           <div id="sb-email" class="sb-email-txt"></div>
@@ -827,6 +810,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
           <div class="field"><label>Preço (R$)</label><input class="inp" type="number" id="sv-preco" placeholder="45"/></div>
           <div class="field"><label>Duração (min)</label><input class="inp" type="number" id="sv-dur" placeholder="30"/></div>
           <button class="btn btn-dark btn-full" onclick="addServico()">Salvar serviço</button>
+          <div id="sv-msg" style="margin-top:10px;"></div>
         </div>
         <div class="card">
           <h3 style="font-size:0.95rem;margin-bottom:1rem">Serviços ativos</h3>
@@ -953,9 +937,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </main>
 </div>
 
-<!-- ═══════════════════════════════════════
-     CLIENTE
-═══════════════════════════════════════ -->
 <div id="cliente">
   <header class="cli-header">
     <div>
@@ -1026,7 +1007,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modal-ag" onclick="fecharModal(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -1040,9 +1020,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--b
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     JAVASCRIPT — 100% original
-═══════════════════════════════════════ -->
 <script>
 const {createClient}=supabase
 const SUPABASE_URL='https://hhcmdnmazwnpehipheec.supabase.co'
@@ -1238,7 +1215,10 @@ async function atualizarSenha(){
   }
 }
 
-async function signOut(){await sb.auth.signOut();showView('landing')}
+async function signOut(){
+  await sb.auth.signOut();
+  window.location.replace(window.location.origin + window.location.pathname.replace(/\/[^/]+$/, ''));
+}
 
 async function loadBarbeiro(){
   showView('barber')
@@ -1328,7 +1308,12 @@ async function recarregar(){
   }
   // Carregar clientes automaticamente
   carregarClientes()
-  if(barbearia.slug){const l=`${location.origin}/${barbearia.slug}`;if(e('link-txt'))e('link-txt').textContent=l;if(e('link-wrap'))e('link-wrap').style.display='block'}
+  if(barbearia.slug){
+    const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
+    const l = `${baseUrl}/${barbearia.slug}`;
+    if(e('link-txt')) e('link-txt').textContent = l;
+    if(e('link-wrap')) e('link-wrap').style.display = 'block';
+  }
 }
 
 function renderStats(){renderDashDinamico()}
@@ -1470,7 +1455,11 @@ function renderBloqueios(){
   el.innerHTML=bloqueios.map(b=>{const f=dt=>new Date(dt).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});return `<div class="svc-row"><div style="flex:1"><div style="font-weight:500;font-size:0.9rem">${b.motivo}</div><small style="color:var(--gray-4)">${f(b.data_hora_inicio)} → ${f(b.data_hora_fim)}</small></div><button class="btn btn-sm btn-danger" onclick="remBlq('${b.id}')">Remover</button></div>`}).join('')
 }
 
-function previewLink(){const s=document.getElementById('cfg-slug').value;document.getElementById('cfg-preview').textContent=s?`Link: ${location.origin}/${s}`:''}
+function previewLink(){
+  const s = document.getElementById('cfg-slug').value;
+  const baseUrl = window.location.href.split('#')[0].replace(/\/$/, '');
+  document.getElementById('cfg-preview').textContent = s ? `Link: ${baseUrl}/${s}` : '';
+}
 function copiarLink(){
   navigator.clipboard.writeText(document.getElementById('link-txt').textContent)
   const btn=document.querySelector('#link-wrap .btn')
@@ -1507,13 +1496,7 @@ async function addServico(){
   const preco=parseFloat(document.getElementById('sv-preco').value)
   const dur=parseInt(document.getElementById('sv-dur').value)
 
-  let svMsg=document.getElementById('sv-msg')
-  if(!svMsg){
-    svMsg=document.createElement('div')
-    svMsg.id='sv-msg'
-    const btnSv=document.querySelector('#panel-servicos .card .btn-dark')
-    if(btnSv) btnSv.parentNode.insertBefore(svMsg, btnSv.nextSibling)
-  }
+  const svMsg=document.getElementById('sv-msg')
   svMsg.innerHTML=''
 
   if(!nome||isNaN(preco)||isNaN(dur)||preco<=0||dur<=0){
@@ -1751,9 +1734,6 @@ function renderMeusAgs(ags){
     </div>`
   }).join('')
 }
-
-
-
 
 // ── MODAL CLIENTE ────────────────────────────────────────────
 
@@ -2082,7 +2062,6 @@ async function salvarPerfil(){
 
 </script>
 
-<!-- MODAL CLIENTE -->
 <div class="modal-overlay" id="modal-cli-ag" onclick="fecharModalCliente(event)">
   <div class="modal-box">
     <div class="modal-handle"></div>
