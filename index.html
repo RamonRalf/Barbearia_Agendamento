@@ -1097,7 +1097,8 @@ async function iniciar(s){
 
   // Cliente
   console.log('[iniciar] indo como cliente')
-  role='cliente';await loadCliente()
+  role='cliente'
+  await loadCliente()
 }
 
 function showView(id){
@@ -1170,20 +1171,36 @@ async function handleAuth(){
       const nome=document.getElementById('auth-nome').value.trim()
       const whatsapp=document.getElementById('auth-whatsapp').value.trim()
       if(!nome||!whatsapp)throw new Error('Nome e WhatsApp são obrigatórios para o cadastro.')
-      const {data,error}=await sb.auth.signUp({email,password:senha})
+
+      const {data,error}=await sb.auth.signUp({
+        email,
+        password:senha,
+        options:{
+          data:{ nome, whatsapp } // salva no user_metadata também como backup
+        }
+      })
       if(error)throw error
 
-      // Supabase pode retornar sessão imediata (email confirm desativado)
-      // ou apenas user sem sessão (email confirm ativado)
-      if(data?.session){
-        // Sessão ativa — insere perfil e entra direto
-        if(data.user){
-          await sb.from('clientes').insert([{id:data.user.id,nome,whatsapp}]).maybeSingle()
-        }
+      if(data?.session && data?.user){
+        // Sessão ativa imediata (email confirm desativado)
+        const {error:pe}=await sb.from('clientes').insert([{
+          id:data.user.id,
+          nome,
+          whatsapp,
+          email
+        }])
+        if(pe) console.warn('Erro ao salvar perfil:', pe.message)
         document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Entrando...</div>'
         return // onAuthStateChange vai chamar iniciar()
       } else if(data?.user){
-        // Email de confirmação enviado
+        // Email de confirmação necessário — salva perfil mesmo assim via upsert
+        const {error:pe}=await sb.from('clientes').insert([{
+          id:data.user.id,
+          nome,
+          whatsapp,
+          email
+        }])
+        if(pe) console.warn('Erro ao salvar perfil:', pe.message)
         document.getElementById('auth-msg').innerHTML='<div class="msg msg-ok">Conta criada! Verifique seu e-mail para confirmar, depois faça login.</div>'
         authMode='login';toggleAuthMode();return
       }
@@ -1523,7 +1540,12 @@ async function confAg(id){
   notificarEmail('confirmado', id)
   if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
 }
-async function cancAg(id){if(!confirm('Cancelar agendamento?'))return;await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id);if(meuBarbeiro)await recarregarFuncionario();else await recarregar()}
+async function cancAg(id){
+  if(!confirm('Cancelar agendamento?'))return
+  await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id)
+  notificarEmail('cancelado', id)
+  if(meuBarbeiro)await recarregarFuncionario();else await recarregar()
+}
 
 async function bloquear(){
   if(!barbearia){alert('Salve a barbearia primeiro.');return}
@@ -1684,10 +1706,113 @@ function renderMeusAgs(ags){
   const el=document.getElementById('meus-ags')
   if(!ags.length){el.innerHTML='<p style="color:var(--gray-4);font-size:0.88rem;text-align:center;padding:1rem">Nenhum agendamento ainda.</p>';return}
   const bm={confirmado:'badge-ok',pendente:'badge-warn',cancelado:'badge-err'}
-  el.innerHTML=ags.map(a=>{const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:'';return `<div class="tl-item"><div class="tl-dot ${a.status}"></div><div class="tl-body"><div class="tl-top"><span class="tl-name">${a.servicos?.nome||'—'}</span><span class="badge ${bm[a.status]}">${a.status}</span></div><small>${dt}${barb}</small></div></div>`}).join('')
+  el.innerHTML=ags.map(a=>{
+    const dt=new Date(a.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    const barb=a.barbeiros?.nome?` · ${a.barbeiros.nome}`:''
+    const bm2={confirmado:'badge-ok',pendente:'badge-warn',cancelado:'badge-err'}
+    return `<div class="tl-item" onclick="abrirModalCliente('${a.id}')" style="cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--black)'" onmouseout="this.style.borderColor='var(--gray-2)'">
+      <div class="tl-dot ${a.status}"></div>
+      <div class="tl-body">
+        <div class="tl-top">
+          <span class="tl-name">${a.servicos?.nome||'—'}</span>
+          <span class="badge ${bm2[a.status]}">${a.status}</span>
+        </div>
+        <small>${dt}${barb}</small>
+      </div>
+      <span style="color:var(--gray-3);font-size:1.2rem;margin-left:8px">›</span>
+    </div>`
+  }).join('')
 }
 
 
+
+
+// ── MODAL CLIENTE ────────────────────────────────────────────
+
+let _agCliModal = null
+
+async function abrirModalCliente(id){
+  // Busca dados completos do agendamento
+  const {data:ag} = await sb.from('agendamentos')
+    .select('*,servicos(nome,preco),barbeiros(nome,telefone,especialidade)')
+    .eq('id', id).single()
+  if(!ag) return
+  _agCliModal = ag
+
+  const dt = new Date(ag.data_hora).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+
+  document.getElementById('mc-servico').textContent = ag.servicos?.nome || '—'
+  document.getElementById('mc-barbeiro').textContent = ag.barbeiros?.nome || '—'
+  document.getElementById('mc-data').textContent = dt
+  document.getElementById('mc-valor').textContent = ag.servicos?.preco ? `R$ ${ag.servicos.preco}` : '—'
+
+  const bc = ag.status==='confirmado'?'badge-ok':ag.status==='cancelado'?'badge-err':'badge-warn'
+  document.getElementById('mc-status').innerHTML = `<span class="badge ${bc}">${ag.status}</span>`
+
+  // Endereço da barbearia
+  if(barbearia?.endereco){
+    document.getElementById('mc-end').textContent = barbearia.endereco
+    document.getElementById('mc-row-end').style.display = 'flex'
+  } else {
+    document.getElementById('mc-row-end').style.display = 'none'
+  }
+
+  // Telefone da barbearia
+  if(barbearia?.telefone){
+    document.getElementById('mc-tel').textContent = barbearia.telefone
+    document.getElementById('mc-row-tel').style.display = 'flex'
+  } else {
+    document.getElementById('mc-row-tel').style.display = 'none'
+  }
+
+  // Botões de ação
+  const acoes = document.getElementById('mc-acoes')
+  acoes.innerHTML = ''
+
+  // Botão WhatsApp do barbeiro
+  if(ag.barbeiros?.telefone){
+    const tel = ag.barbeiros.telefone.replace(/\D/g,'')
+    const dtFmt = new Date(ag.data_hora).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    const msg = encodeURIComponent(`Olá ${ag.barbeiros.nome}! Gostaria de falar sobre meu agendamento de ${dtFmt}.`)
+    acoes.innerHTML += `<a href="https://wa.me/55${tel}?text=${msg}" target="_blank" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none">
+      <span style="font-size:1.1rem">📱</span> WhatsApp do barbeiro
+    </a>`
+  } else if(barbearia?.telefone){
+    // Fallback: WhatsApp da barbearia
+    const tel = barbearia.telefone.replace(/\D/g,'')
+    const msg = encodeURIComponent(`Olá! Gostaria de falar sobre meu agendamento.`)
+    acoes.innerHTML += `<a href="https://wa.me/55${tel}?text=${msg}" target="_blank" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none">
+      <span style="font-size:1.1rem">📱</span> WhatsApp da barbearia
+    </a>`
+  }
+
+  // Botão cancelar — apenas se pendente ou confirmado e ainda no futuro
+  const agData = new Date(ag.data_hora)
+  const agFuturo = agData > new Date()
+  if(ag.status !== 'cancelado' && agFuturo){
+    acoes.innerHTML += `<button class="btn btn-danger" style="flex:1" onclick="cancAgCliente('${ag.id}')">✕ Cancelar agendamento</button>`
+  }
+
+  acoes.innerHTML += `<button class="btn btn-line" onclick="fecharModalCliente()">Fechar</button>`
+
+  document.getElementById('modal-cli-ag').classList.add('open')
+}
+
+function fecharModalCliente(e){
+  if(!e || e.target === document.getElementById('modal-cli-ag')){
+    document.getElementById('modal-cli-ag').classList.remove('open')
+  }
+}
+
+async function cancAgCliente(id){
+  if(!confirm('Tem certeza que deseja cancelar este agendamento?')) return
+  const {error} = await sb.from('agendamentos').update({status:'cancelado'}).eq('id',id)
+  if(error){ alert('Erro ao cancelar: ' + error.message); return }
+  // Notifica barbeiro por email
+  notificarEmail('cancelado_pelo_cliente', id)
+  fecharModalCliente()
+  await loadCliente()
+}
 
 // ── CLIENTES ────────────────────────────────────────────────
 
@@ -1918,5 +2043,22 @@ async function salvarPerfil(){
 }
 
 </script>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-cli-ag" onclick="fecharModalCliente(event)">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Detalhes do agendamento</div>
+    <div class="modal-row"><span class="modal-label">Serviço</span><span class="modal-val" id="mc-servico"></span></div>
+    <div class="modal-row"><span class="modal-label">Barbeiro</span><span class="modal-val" id="mc-barbeiro"></span></div>
+    <div class="modal-row"><span class="modal-label">Data / Hora</span><span class="modal-val" id="mc-data"></span></div>
+    <div class="modal-row"><span class="modal-label">Valor</span><span class="modal-val" id="mc-valor"></span></div>
+    <div class="modal-row"><span class="modal-label">Status</span><span class="modal-val" id="mc-status"></span></div>
+    <div class="modal-row" id="mc-row-end" style="display:none"><span class="modal-label">Endereço</span><span class="modal-val" id="mc-end"></span></div>
+    <div class="modal-row" id="mc-row-tel" style="display:none"><span class="modal-label">Telefone</span><span class="modal-val" id="mc-tel"></span></div>
+    <div style="display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap" id="mc-acoes"></div>
+  </div>
+</div>
+
 </body>
 </html>
