@@ -1815,20 +1815,38 @@ function fecharModalCliente(e){
 
 async function cancAgCliente(id){
   if(!confirm('Tem certeza que deseja cancelar este agendamento?')) return
-  // .eq('user_id') garante que o cliente so cancela agendamentos proprios
-  // e satisfaz a RLS policy do Supabase: users can only update their own rows
+  
+  // Oculta os botões originais e mostra status de carregamento
+  const acoesEl = document.getElementById('mc-acoes')
+  const originalHTML = acoesEl.innerHTML
+  acoesEl.innerHTML = '<div class="msg" style="width:100%;text-align:center;background:var(--gray-1);color:var(--gray-5)">Processando cancelamento...</div>'
+
+  // Atualiza a tabela no Supabase
   const {error} = await sb.from('agendamentos')
     .update({status:'cancelado'})
     .eq('id', id)
     .eq('user_id', session.user.id)
+  
+  // Tratativa caso o Supabase devolva erro
   if(error){
-    const acoesEl = document.getElementById('mc-acoes')
-    if(acoesEl) acoesEl.insertAdjacentHTML('afterend','<div class="msg msg-err" style="margin-top:10px">Erro ao cancelar: '+error.message+'</div>')
+    acoesEl.innerHTML = originalHTML // Volta os botões normais
+    acoesEl.insertAdjacentHTML('afterend',`<div class="msg msg-err temp-msg" style="margin-top:10px">Erro: ${error.message}</div>`)
+    setTimeout(() => {
+      const temp = document.querySelector('.temp-msg')
+      if(temp) temp.remove()
+    }, 3000)
     return
   }
+  
+  // Dispara e-mail pro barbeiro e mostra a mensagem de sucesso
   notificarEmail('cancelado_pelo_cliente', id)
-  document.getElementById('modal-cli-ag').classList.remove('open')
-  await loadCliente()
+  acoesEl.innerHTML = '<div class="msg msg-ok" style="width:100%;text-align:center">Agendamento cancelado com sucesso!</div>'
+  
+  // Dá 1.5 segundos pro cliente ler a mensagem, fecha o modal e recarrega
+  setTimeout(async () => {
+    document.getElementById('modal-cli-ag').classList.remove('open')
+    await loadCliente()
+  }, 1500)
 }
 
 // ── CLIENTES ────────────────────────────────────────────────
