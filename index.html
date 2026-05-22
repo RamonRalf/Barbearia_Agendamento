@@ -1576,12 +1576,13 @@ async function loadCliente(){
   const {data:cliPerfil}=await sb.from('clientes').select('*').eq('id',session.user.id).maybeSingle()
   if(cliPerfil){
     dadosCliente=cliPerfil
-    document.getElementById('cli-nome').textContent=cliPerfil.nome
-    document.getElementById('cli-email').textContent=cliPerfil.email
+    // O canto esquerdo vai mostrar o nome da Barbearia depois, o que é o correto.
+    // E o canto direito (cli-email) agora vai mostrar o NOME do cliente em vez do e-mail:
+    document.getElementById('cli-email').textContent=cliPerfil.nome
   } else {
-    // Sem perfil — mostra só a parte antes do @ como nome
-    const nomeDisplay=session.user.email.split('@')[0]
-    document.getElementById('cli-nome').textContent=nomeDisplay
+    // Se o perfil ainda estiver sincronizando, ele tenta pegar o nome do metadata do cadastro,
+    // se não achar, cai no fallback (antes do @).
+    const nomeDisplay=session.user.user_metadata?.nome || session.user.email.split('@')[0]
     document.getElementById('cli-email').textContent=nomeDisplay
   }
 
