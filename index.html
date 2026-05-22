@@ -1574,10 +1574,12 @@ async function loadCliente(){
   if(cliPerfil){
     dadosCliente=cliPerfil
     document.getElementById('cli-nome').textContent=cliPerfil.nome
-    document.getElementById('cli-email').textContent=session.user.email
+    document.getElementById('cli-email').textContent=cliPerfil.nome
   } else {
-    document.getElementById('cli-nome').textContent=session.user.email.split('@')[0]
-    document.getElementById('cli-email').textContent=session.user.email
+    // Sem perfil — mostra só a parte antes do @ como nome
+    const nomeDisplay=session.user.email.split('@')[0]
+    document.getElementById('cli-nome').textContent=nomeDisplay
+    document.getElementById('cli-email').textContent=nomeDisplay
   }
 
   // Busca barbearia pelo slug ou a primeira disponível
@@ -1603,7 +1605,7 @@ async function loadCliente(){
   const [{data:sv},{data:barb},{data:ag}]=await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id',b.id),
     sb.from('barbeiros').select('id,nome,especialidade,telefone,foto_url,barbearia_id').eq('barbearia_id',b.id),
-    sb.from('agendamentos').select('*,servicos(nome),barbeiros(nome)').eq('user_id',session.user.id).order('data_hora',{ascending:false})
+    sb.from('agendamentos').select('*,servicos(nome),barbeiros(nome)').eq('user_id',session.user.id).neq('status','cancelado').order('data_hora',{ascending:false})
   ])
   todosServicos=sv||[];servicos=sv||[];barbeiros=barb||[]
   selBarb=null;selSv=null;selHora=null
