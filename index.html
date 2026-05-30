@@ -1375,6 +1375,14 @@ async function iniciar(s) {
     sb.from('barbeiros').select('*,barbearias(*)').eq('email', email).maybeSingle()
   ])
 
+  // Se há slug na URL, o usuário quer agendar como cliente
+  // independente de ser dono ou barbeiro
+  if (slug) {
+    role = 'cliente'
+    await loadCliente()
+    return
+  }
+
   if (bDono) { role = 'dono'; await loadBarbeiro(); return }
   if (bBarb) {
     if (!bBarb.user_id) {
@@ -1388,6 +1396,7 @@ async function iniciar(s) {
 
   role = 'cliente'
   await loadCliente()
+}
 }
 
 // ═══════════════════════════════════════
@@ -1516,7 +1525,7 @@ async function recarregar() {
 
   carregarClientes()
 
-  if (barbearia.slug) {
+  if (barbearia.slug && role === 'dono') {
     const origin = window.location.origin
     const pathSemSlug = window.location.pathname
       .replace(/\/+$/, '')
@@ -1529,7 +1538,6 @@ async function recarregar() {
     const linkWrap = document.getElementById('link-wrap')
     if (linkTxt) linkTxt.textContent = linkUrl
     if (linkWrap) linkWrap.style.display = 'flex'
-    // Botão WhatsApp com link
     const btnWa = document.getElementById('btn-link-wa')
     if (btnWa) {
       btnWa.onclick = () => {
@@ -1539,6 +1547,10 @@ async function recarregar() {
         else { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok') }
       }
     }
+  } else {
+    // Esconde explicitamente para barbeiro funcionário
+    const linkWrap = document.getElementById('link-wrap')
+    if (linkWrap) linkWrap.style.display = 'none'
   }
 }
 
