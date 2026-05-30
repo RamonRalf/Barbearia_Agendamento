@@ -1392,15 +1392,10 @@ async function iniciar(s) {
     sb.from('barbeiros').select('*,barbearias(*)').eq('email', email).maybeSingle()
   ])
 
-  // Se há slug na URL, o usuário quer agendar como cliente
-  // independente de ser dono ou barbeiro
-  if (slug) {
-    role = 'cliente'
-    await loadCliente()
-    return
-  }
-
+  // Dono sempre vai pro painel, independente da URL
   if (bDono) { role = 'dono'; await loadBarbeiro(); return }
+
+  // Barbeiro convidado sempre vai pro painel dele
   if (bBarb) {
     if (!bBarb.user_id) {
       await sb.from('barbeiros').update({ user_id: s.user.id }).eq('id', bBarb.id)
@@ -1411,6 +1406,7 @@ async function iniciar(s) {
     return
   }
 
+  // Cliente comum — vai para view de agendamento (com ou sem slug)
   role = 'cliente'
   await loadCliente()
 }
