@@ -1203,6 +1203,8 @@ console.log('[slug] rawPath:', _rawPath, 'base:', BASE_PATH, 'candidate:', _cand
 // ═══════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════
+let _iniciado = false
+
 ;(async () => {
   const urlHash = window.location.hash || ''
   if (urlHash.includes('type=recovery') || urlHash.includes('access_token=')) {
@@ -1211,14 +1213,22 @@ console.log('[slug] rawPath:', _rawPath, 'base:', BASE_PATH, 'candidate:', _cand
     return
   }
   const { data: { session: s } } = await sb.auth.getSession()
-  if (s && !isRecoveryMode) await iniciar(s)
-  else if (slug && !isRecoveryMode) showView('auth')
+  if (s && !isRecoveryMode) {
+    _iniciado = true
+    await iniciar(s)
+  } else if (slug && !isRecoveryMode) showView('auth')
 
   sb.auth.onAuthStateChange(async (event, s) => {
     if (event === 'PASSWORD_RECOVERY') { isRecoveryMode = true; showView('nova-senha'); return }
     if (s) {
-      if (!isRecoveryMode && !window.location.hash.includes('type=recovery')) await iniciar(s)
+      if (!isRecoveryMode && !window.location.hash.includes('type=recovery')) {
+        // SIGNED_IN disparado logo após getSession já processado — ignorar duplicata
+        if (event === 'SIGNED_IN' && _iniciado) return
+        _iniciado = true
+        await iniciar(s)
+      }
     } else {
+      _iniciado = false
       session = null
       showView('landing')
     }
