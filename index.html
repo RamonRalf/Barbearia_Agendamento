@@ -338,6 +338,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 .dash-greeting{font-size:0.8rem;color:var(--text-muted);margin-bottom:3px}
 .dash-nome{font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--text);line-height:1.1}
 .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+@media(max-width:600px){.metrics-grid{grid-template-columns:repeat(2,1fr)}.fat-grid{grid-template-columns:repeat(2,1fr)}}
 .metric-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;transition:all 0.2s;position:relative;overflow:hidden}
 .metric-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.2s}
 .metric-card:hover{border-color:var(--border-light);box-shadow:0 4px 20px rgba(26,20,16,0.07);transform:translateY(-2px)}
@@ -1180,7 +1181,9 @@ const _path = window.location.pathname.replace(/^\/+|\/+$/g, '')
 const _parts = _path ? _path.split('/') : []
 // Ignora segmentos que são apenas arquivos (ex: "index.html")
 const _lastPart = _parts.length >= 1 ? _parts[_parts.length - 1] : ''
-const slug = (_lastPart && !_lastPart.includes('.')) ? _lastPart : null
+// Slugs reservados que não devem ser tratados como barbearia
+const _RESERVED = new Set(['index','app','www','api','admin','login','auth','dashboard'])
+const slug = (_lastPart && !_lastPart.includes('.') && !_RESERVED.has(_lastPart.toLowerCase()) && _lastPart.length >= 3) ? _lastPart : null
 console.log('[slug] path:', _path, 'slug:', slug)
 
 // ═══════════════════════════════════════
@@ -1397,7 +1400,6 @@ async function iniciar(s) {
   role = 'cliente'
   await loadCliente()
 }
-}
 
 // ═══════════════════════════════════════
 // PAINEL DONO
@@ -1412,10 +1414,7 @@ async function loadBarbeiro() {
   // Dono vê: Barbeiros, Config, Clientes — NÃO vê Perfil
   document.querySelectorAll('.sb-dono-item').forEach(el => el.classList.add('sb-dono-visivel'))
   document.querySelectorAll('.sb-clientes-item').forEach(el => el.classList.add('sb-clientes-visivel'))
-  // Dono não cadastra serviços diretamente (cada barbeiro cadastra os seus)
-  document.querySelectorAll('.sb-item').forEach(el => {
-    if ((el.getAttribute('onclick') || '').includes("'servicos'")) el.style.display = 'none'
-  })
+  // Dono vê todos os menus exceto Perfil
 
   const { data: b } = await sb.from('barbearias').select('*').eq('owner_id', session.user.id).maybeSingle()
   if (b) {
@@ -1471,15 +1470,27 @@ async function recarregarFuncionario() {
   ])
   agendamentos = ag || []; servicos = sv || []; bloqueios = bl || []
 
-  document.getElementById('wrap-sv-barb').style.display = 'none'
-  let svInfo = document.getElementById('sv-barb-info')
-  if (!svInfo) {
-    svInfo = document.createElement('div')
-    svInfo.id = 'sv-barb-info'
-    svInfo.style.cssText = 'font-size:0.82rem;color:var(--text-muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-weight:500'
-    document.getElementById('wrap-sv-barb').after(svInfo)
+  const wrapSvBarb = document.getElementById('wrap-sv-barb')
+  if (wrapSvBarb) {
+    wrapSvBarb.style.display = 'none'
+    let svInfo = document.getElementById('sv-barb-info')
+    if (!svInfo) {
+      svInfo = document.createElement('div')
+      svInfo.id = 'sv-barb-info'
+      svInfo.style.cssText = 'font-size:0.82rem;color:var(--text-muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-weight:500'
+      wrapSvBarb.after(svInfo)
+    }
+    svInfo.textContent = '✂ Cadastrando serviço para: ' + meuBarbeiro.nome
   }
-  svInfo.textContent = '✂ Cadastrando serviço para: ' + meuBarbeiro.nome
+
+  // Atualiza métricas do barbeiro funcionário
+  const hoje = hojeLocal()
+  const agHoje = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status !== 'cancelado').length
+  const mHoje = document.getElementById('m-hoje'); if (mHoje) mHoje.textContent = agHoje
+  const mSv = document.getElementById('m-sv'); if (mSv) mSv.textContent = servicos.filter(s => !s.inativo).length
+  const mBarb = document.getElementById('m-barb'); if (mBarb) mBarb.textContent = '—'
+  const clientesUnicos = new Set(agendamentos.filter(a => a.status === 'confirmado').map(a => a.user_id || a.nome_cliente)).size
+  const mCli = document.getElementById('m-cli'); if (mCli) mCli.textContent = clientesUnicos
 
   renderStats(); renderAgenda(); renderGrade(); renderSemana(); renderServicos(); renderBloqueios()
   carregarClientes()
@@ -1502,7 +1513,7 @@ async function recarregar() {
   agendamentos = ag || []; servicos = sv || []; bloqueios = bl || []
 
   const nomeEl = document.getElementById('dash-nome-desktop')
-  if (nomeEl) nomeEl.textContent = barbearia.nome ? 'barbeiro' : 'barbeiro'
+  if (nomeEl) nomeEl.textContent = session?.user?.user_metadata?.nome || session?.user?.email?.split('@')[0] || 'barbeiro'
   const barbNomeEl = document.getElementById('dash-barbearia-nome')
   if (barbNomeEl) barbNomeEl.textContent = barbearia.nome || 'Minha Barbearia'
 
@@ -1569,7 +1580,7 @@ function renderStats() {
   // Faturamento
   const mesAtual = hoje.slice(0, 7) // YYYY-MM
   const agConfHoje = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status === 'confirmado')
-  const agConfMes = agendamentos.filter(a => a.data_hora.startsWith(mesAtual) && a.status === 'confirmado')
+  const agConfMes = agendamentos.filter(a => getDiaLocal(a.data_hora).startsWith(mesAtual) && a.status === 'confirmado')
   const agPrevHoje = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status !== 'cancelado')
 
   const fatPrev = agPrevHoje.reduce((s, a) => s + (a.servicos?.preco || 0), 0)
@@ -1822,7 +1833,7 @@ function abrirModal(id) {
   const btnFechar = document.createElement('button')
   btnFechar.className = 'btn btn-line'
   btnFechar.textContent = 'Fechar'
-  btnFechar.addEventListener('click', fecharModal)
+  btnFechar.addEventListener('click', () => fecharModal())
   acoes.appendChild(btnFechar)
 
   document.getElementById('modal-ag').classList.add('open')
@@ -1951,10 +1962,6 @@ function renderServicos() {
     const sw = document.getElementById(id)
     if (!sw) return
     sw.classList.toggle('on', mostrarInativos)
-    if (!sw.dataset.bound) {
-      sw.dataset.bound = '1'
-      sw.parentElement.addEventListener('click', () => { mostrarInativos = !mostrarInativos; renderServicos() })
-    }
   })
 
   el.innerHTML = ''
@@ -2067,7 +2074,11 @@ function renderComboChips() {
   comboItens.forEach(id => {
     const sv = servicos.find(s => s.id === id); if (!sv) return
     const chip = document.createElement('div'); chip.className = 'combo-chip'
-    chip.innerHTML = `${esc(sv.nome)}<button onclick="removeComboItem('${esc(id)}')">✕</button>`
+    chip.textContent = sv.nome
+    const btnX = document.createElement('button')
+    btnX.textContent = '✕'
+    btnX.addEventListener('click', e => { e.stopPropagation(); removeComboItem(id) })
+    chip.appendChild(btnX)
     el.appendChild(chip)
   })
 }
@@ -2084,11 +2095,26 @@ function atualizarPreviewDesconto() {
   prev.textContent = `Preço com desconto: ${fmt(Math.max(0, final))}`
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('sv-preco')?.addEventListener('input', atualizarPreviewDesconto)
-  document.getElementById('sv-desc-val')?.addEventListener('input', atualizarPreviewDesconto)
-  document.getElementById('sv-desc-tipo')?.addEventListener('change', atualizarPreviewDesconto)
-})
+// Listeners de preview de desconto — DOM já está pronto (script no fim do body)
+;(function() {
+  const attach = () => {
+    document.getElementById('sv-preco')?.addEventListener('input', atualizarPreviewDesconto)
+    document.getElementById('sv-desc-val')?.addEventListener('input', atualizarPreviewDesconto)
+    document.getElementById('sv-desc-tipo')?.addEventListener('change', atualizarPreviewDesconto)
+    // Toggle inativos — registrar uma única vez nos labels
+    const bindToggle = id => {
+      const label = document.getElementById(id)
+      if (label && !label.dataset.bound) {
+        label.dataset.bound = '1'
+        label.addEventListener('click', () => { mostrarInativos = !mostrarInativos; renderServicos() })
+      }
+    }
+    bindToggle('toggle-inativos-wrap')
+    bindToggle('toggle-inativos-wrap-m')
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attach)
+  else attach()
+})()
 
 async function salvarServico() {
   if (!barbearia) { toast('Salve a barbearia primeiro.', 'err'); return }
@@ -2869,7 +2895,8 @@ async function confirmar() {
       renderMeusAgs(ag || [])
       // Reseta o wizard de agendamento
       selBarb = null; selSv = null; selHora = null
-      setTimeout(() => irE(1), 1500)
+      servicos = todosServicos
+      setTimeout(() => { irE(1); renderBarbsCli() }, 1500)
     } else {
       document.getElementById('cli-msg-conf').innerHTML = '<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
       console.error('Erro ao confirmar agendamento:', error)
@@ -2977,7 +3004,7 @@ async function abrirModalCliente(id) {
   btnFechar.className = 'btn btn-line'
   btnFechar.style.width = '100%'
   btnFechar.textContent = 'Fechar'
-  btnFechar.addEventListener('click', fecharModalCliente)
+  btnFechar.addEventListener('click', () => fecharModalCliente())
   acoes.appendChild(btnFechar)
 
   document.getElementById('modal-cli-ag').classList.add('open')
