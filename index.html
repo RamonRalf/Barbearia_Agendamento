@@ -1174,17 +1174,31 @@ function debounce(fn, delay) {
 // ═══════════════════════════════════════
 // SLUG E ROTEAMENTO
 // ═══════════════════════════════════════
-// Remove barras iniciais/finais e pega o último segmento do path.
-// Ex: "/app/barbearia-do-joao" → "barbearia-do-joao"
-// Ex: "/barbearia-do-joao/"   → "barbearia-do-joao"
-const _path = window.location.pathname.replace(/^\/+|\/+$/g, '')
-const _parts = _path ? _path.split('/') : []
-// Ignora segmentos que são apenas arquivos (ex: "index.html")
-const _lastPart = _parts.length >= 1 ? _parts[_parts.length - 1] : ''
-// Slugs reservados que não devem ser tratados como barbearia
-const _RESERVED = new Set(['index','app','www','api','admin','login','auth','dashboard'])
-const slug = (_lastPart && !_lastPart.includes('.') && !_RESERVED.has(_lastPart.toLowerCase()) && _lastPart.length >= 3) ? _lastPart : null
-console.log('[slug] path:', _path, 'slug:', slug)
+// BASE_PATH: o caminho base do site (repositório GitHub Pages, subpasta, etc.)
+// Ex: GitHub Pages em ramonralf.github.io/Barbearia_Agendamento/ → BASE_PATH = 'Barbearia_Agendamento'
+// Ex: domínio próprio em meusite.com/ → BASE_PATH = ''
+// O slug da barbearia é o segmento APÓS o BASE_PATH.
+const BASE_PATH = 'Barbearia_Agendamento' // ← altere aqui se mudar o repositório
+
+const _rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '') // sem barras nas pontas
+const _baseParts = BASE_PATH ? BASE_PATH.replace(/^\/+|\/+$/g, '').split('/') : []
+
+// Remove o BASE_PATH do início do path para obter o restante
+let _remainingParts = _rawPath.split('/')
+if (BASE_PATH) {
+  // Verifica se o path começa com o BASE_PATH
+  const matchesBase = _baseParts.every((seg, i) => _remainingParts[i]?.toLowerCase() === seg.toLowerCase())
+  if (matchesBase) _remainingParts = _remainingParts.slice(_baseParts.length)
+}
+
+// O slug é o primeiro segmento restante (se existir e não for arquivo/reservado)
+const _RESERVED = new Set(['index','app','www','api','admin','login','auth','dashboard',''])
+const _candidate = _remainingParts[0] || ''
+const slug = (_candidate && !_candidate.includes('.') && !_RESERVED.has(_candidate.toLowerCase()) && _candidate.length >= 3)
+  ? _candidate
+  : null
+
+console.log('[slug] rawPath:', _rawPath, 'base:', BASE_PATH, 'candidate:', _candidate, 'slug:', slug)
 
 // ═══════════════════════════════════════
 // BOOT
@@ -1537,13 +1551,9 @@ async function recarregar() {
   carregarClientes()
 
   if (barbearia.slug && role === 'dono') {
-    const origin = window.location.origin
-    const pathSemSlug = window.location.pathname
-      .replace(/\/+$/, '')
-      .split('/')
-      .filter(p => p && p !== barbearia.slug && !p.includes('.'))
-      .join('/')
-    const base = origin + (pathSemSlug ? '/' + pathSemSlug : '')
+    const base = BASE_PATH
+      ? `${window.location.origin}/${BASE_PATH}`
+      : window.location.origin
     const linkUrl = `${base}/${barbearia.slug}`
     const linkTxt = document.getElementById('link-txt')
     const linkWrap = document.getElementById('link-wrap')
@@ -2312,14 +2322,9 @@ function preencherCfg(b) {
 function previewLink() {
   const s = document.getElementById('cfg-slug').value
   if (!s) { document.getElementById('cfg-preview').textContent = ''; return }
-  // Usa origin + pathname sem o slug atual para evitar duplicação
-  const origin = window.location.origin
-  const pathLimpo = window.location.pathname
-    .replace(/\/+$/, '')
-    .split('/')
-    .filter(p => p && !p.includes('.'))
-    .join('/')
-  const base = origin + (pathLimpo ? '/' + pathLimpo : '')
+  const base = BASE_PATH
+    ? `${window.location.origin}/${BASE_PATH}`
+    : window.location.origin
   document.getElementById('cfg-preview').textContent = `Link: ${base}/${s}`
 }
 
