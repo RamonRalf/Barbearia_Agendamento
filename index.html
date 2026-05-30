@@ -188,6 +188,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 .sb-perfil-item.sb-perfil-visivel{display:flex}
 .sb-clientes-item{display:none}
 .sb-clientes-item.sb-clientes-visivel{display:flex}
+.sb-dono-item{display:none}
+.sb-dono-item.sb-dono-visivel{display:flex}
 .sb-out{margin-top:auto;padding:10px 13px;border-radius:10px;font-size:0.875rem;color:var(--text-dim);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
 .sb-out:hover{color:var(--danger);background:var(--danger-bg)}
 .mobile-header{display:none!important}
@@ -583,13 +585,13 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
     </div>
     <nav class="sb-nav">
       <button class="sb-item active" onclick="setPanel(this,'dashboard')"><span>⊞</span> Painel / Financeiro</button>
-      <button class="sb-item" onclick="setPanel(this,'agenda')"><span>📅</span> Agendamentos Antigos</button>
+      <button class="sb-item" onclick="setPanel(this,'agenda')"><span>📅</span> Agendamentos</button>
       <button class="sb-item" onclick="setPanel(this,'servicos')"><span>✂️</span> Serviços</button>
-      <button class="sb-item" onclick="setPanel(this,'equipe')"><span>👥</span> Barbeiros</button>
+      <button class="sb-item sb-dono-item" onclick="setPanel(this,'equipe')"><span>👥</span> Barbeiros</button>
       <button class="sb-item" onclick="setPanel(this,'horarios')"><span>🔒</span> Bloquear Horários</button>
       <button class="sb-item sb-clientes-item" onclick="setPanel(this,'clientes')"><span>👥</span> Clientes</button>
       <button class="sb-item sb-perfil-item" onclick="setPanel(this,'perfil')"><span>👤</span> Meu Perfil</button>
-      <button class="sb-item" onclick="setPanel(this,'config')"><span>⚙️</span> Configurações</button>
+      <button class="sb-item sb-dono-item" onclick="setPanel(this,'config')"><span>⚙️</span> Configurações</button>
     </nav>
     <button class="sb-out" onclick="signOut()">← Sair</button>
   </aside>
@@ -1393,15 +1395,18 @@ async function iniciar(s) {
 // ═══════════════════════════════════════
 async function loadBarbeiro() {
   showView('barber')
+  role = 'dono'
   document.getElementById('sb-email').textContent = session.user.email
   const dd = document.getElementById('dash-data')
   if (dd) dd.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  // Dono não cadastra serviços diretamente: esconde item do menu
+  // Dono vê: Barbeiros, Config, Clientes — NÃO vê Perfil
+  document.querySelectorAll('.sb-dono-item').forEach(el => el.classList.add('sb-dono-visivel'))
+  document.querySelectorAll('.sb-clientes-item').forEach(el => el.classList.add('sb-clientes-visivel'))
+  // Dono não cadastra serviços diretamente (cada barbeiro cadastra os seus)
   document.querySelectorAll('.sb-item').forEach(el => {
     if ((el.getAttribute('onclick') || '').includes("'servicos'")) el.style.display = 'none'
   })
-  document.querySelectorAll('.sb-clientes-item').forEach(el => el.classList.add('sb-clientes-visivel'))
 
   const { data: b } = await sb.from('barbearias').select('*').eq('owner_id', session.user.id).maybeSingle()
   if (b) {
@@ -1420,15 +1425,13 @@ async function loadBarbeiro() {
 // ═══════════════════════════════════════
 async function loadBarbeiroFuncionario(barb) {
   showView('barber')
+  role = 'barbeiro'
   meuBarbeiro = barb
   if (barb.barbearias?.id) {
     barbearia = barb.barbearias
   } else {
     const { data: b } = await sb.from('barbearias').select('*').eq('id', barb.barbearia_id).maybeSingle()
-    if (!b) {
-      toast('Barbearia não encontrada. Contate o dono.', 'err')
-      return
-    }
+    if (!b) { toast('Barbearia não encontrada. Contate o dono.', 'err'); return }
     barbearia = b
   }
 
@@ -1438,8 +1441,10 @@ async function loadBarbeiroFuncionario(barb) {
   const dd = document.getElementById('dash-data')
   if (dd) dd.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
+  // Barbeiro convidado: vê Perfil e Clientes — NÃO vê Barbeiros nem Config
   document.querySelectorAll('.sb-perfil-item').forEach(el => el.classList.add('sb-perfil-visivel'))
   document.querySelectorAll('.sb-clientes-item').forEach(el => el.classList.add('sb-clientes-visivel'))
+  // sb-dono-item permanece oculto (display:none por padrão no CSS)
 
   carregarPerfil()
   await recarregarFuncionario()
@@ -1861,6 +1866,7 @@ function renderEquipe(barbs) {
 }
 
 async function addBarbeiro() {
+  if (role !== 'dono') { toast('Sem permissão.', 'err'); return }
   if (!barbearia) { toast('Salve a barbearia primeiro.', 'err'); return }
   const nome = document.getElementById('eq-nome').value.trim()
   const email = document.getElementById('eq-email').value.trim().toLowerCase()
@@ -1900,6 +1906,7 @@ async function addBarbeiro() {
 }
 
 async function remBarbeiro(id) {
+  if (role !== 'dono') { toast('Sem permissão.', 'err'); return }
   const ok = await confirmarModal('Remover barbeiro', 'Esta ação não pode ser desfeita. Remover mesmo assim?', { labelOk: 'Remover' })
   if (!ok) return
   const { data: barb } = await sb.from('barbeiros').select('convite_id,email').eq('id', id).single()
@@ -2285,6 +2292,9 @@ function copiarLink() {
 }
 
 async function salvarBarbearia() {
+  // Proteção: só o dono pode salvar configurações
+  if (role !== 'dono') { toast('Sem permissão.', 'err'); return }
+
   const btn = document.getElementById('cfg-btn')
   btn.disabled = true
   btn.innerHTML = '<span class="spinner spinner-dark"></span> Salvando...'
@@ -2302,15 +2312,22 @@ async function salvarBarbearia() {
     btn.disabled = false; btn.textContent = 'Salvar configurações'; return
   }
 
-  if (barbearia) {
-    payload.id = barbearia.id
-    payload.logo_url = barbearia.logo_url
-    payload.capa_url = barbearia.capa_url
+  let data, error
+
+  if (barbearia?.id) {
+    // UPDATE — barbearia já existe
+    ;({ data, error } = await sb.from('barbearias')
+      .update({ ...payload, logo_url: barbearia.logo_url, capa_url: barbearia.capa_url })
+      .eq('id', barbearia.id)
+      .eq('owner_id', session.user.id) // segurança extra no cliente
+      .select())
   } else {
-    payload.owner_id = session.user.id
+    // INSERT — primeira vez criando
+    ;({ data, error } = await sb.from('barbearias')
+      .insert([{ ...payload, owner_id: session.user.id }])
+      .select())
   }
 
-  const { data, error } = await sb.from('barbearias').upsert([payload]).select()
   if (error) {
     btn.disabled = false; btn.textContent = 'Salvar configurações'
     document.getElementById('cfg-msg').innerHTML = `<div class="msg msg-err">${esc(error.message)}</div>`
@@ -2338,8 +2355,11 @@ async function salvarBarbearia() {
   }
 
   if (precisaAtualizar) {
-    const { data: d2 } = await sb.from('barbearias').update({ logo_url: b_atual.logo_url, capa_url: b_atual.capa_url }).eq('id', b_atual.id).select()
-    if (d2) b_atual = d2[0]
+    const { data: d2 } = await sb.from('barbearias')
+      .update({ logo_url: b_atual.logo_url, capa_url: b_atual.capa_url })
+      .eq('id', b_atual.id)
+      .select()
+    if (d2?.[0]) b_atual = d2[0]
   }
 
   barbearia = b_atual
