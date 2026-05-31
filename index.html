@@ -44,7 +44,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 ::selection{background:var(--gold);color:white}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--surface-2)}::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:99px}
 
-
 /* VIEWS */
 .view{display:none;min-height:100vh}
 .view.active{display:block}
@@ -167,7 +166,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 /* ═══ AUTH ═══ */
 .auth-box{width:100%;max-width:420px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2.75rem;box-shadow:0 8px 40px rgba(26,20,16,0.1),0 2px 8px rgba(26,20,16,0.06);position:relative;overflow:hidden;z-index:1}
 .auth-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--text),var(--gold),var(--text))}
-
 .auth-icon{font-size:2rem;margin-bottom:1rem}
 .auth-box h2{font-family:var(--serif);font-size:1.9rem;font-weight:700;margin-bottom:6px;color:var(--text)}
 .auth-box p{font-size:0.88rem;color:var(--text-muted);margin-bottom:2rem}
@@ -190,6 +188,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 .sb-perfil-item.sb-perfil-visivel{display:flex}
 .sb-clientes-item{display:none}
 .sb-clientes-item.sb-clientes-visivel{display:flex}
+.sb-dono-item{display:none}
+.sb-dono-item.sb-dono-visivel{display:flex}
 .sb-out{margin-top:auto;padding:10px 13px;border-radius:10px;font-size:0.875rem;color:var(--text-dim);cursor:pointer;border:none;background:none;font-family:var(--sans);text-align:left;width:100%;transition:all 0.15s}
 .sb-out:hover{color:var(--danger);background:var(--danger-bg)}
 .mobile-header{display:none!important}
@@ -268,6 +268,14 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 .link-box{display:flex;align-items:center;gap:8px;background:var(--surface-3);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
 .link-box code{flex:1;font-size:0.78rem;color:var(--gold);word-break:break-all}
 
+/* ═══ MODAL CONFIRMAÇÃO (substitui confirm() nativo) ═══ */
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(26,20,16,0.5);z-index:400;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(6px)}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(26,20,16,0.2)}
+.confirm-box h3{font-family:var(--serif);font-size:1.25rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+.confirm-box p{font-size:0.88rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.6}
+.confirm-actions{display:flex;gap:10px}
+
 /* ═══ CLIENTE VIEW ═══ */
 #cliente{display:none;min-height:100vh;background:var(--bg)}
 #cliente.active{display:block}
@@ -282,7 +290,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 .sel-card.picked{border-color:var(--text);background:var(--surface-3);box-shadow:0 0 0 1px rgba(26,20,16,0.1)}
 .resumo-box{background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:1.25rem}
 .resumo-box .rl{font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;font-weight:600}
-
 .resumo-box .rv{font-weight:600;font-size:0.95rem;margin-bottom:3px;color:var(--text)}
 .tl-item{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;background:var(--white);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;transition:all 0.2s}
 .tl-item:hover{border-color:var(--border-light)}
@@ -326,6 +333,87 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 .toast.toast-ok{background:var(--success-bg);color:var(--success);border-color:var(--success-border)}
 .toast.toast-err{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
 
+/* ═══ DASHBOARD NOVO ═══ */
+.dash-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.75rem;gap:12px;flex-wrap:wrap}
+.dash-greeting{font-size:0.8rem;color:var(--text-muted);margin-bottom:3px}
+.dash-nome{font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--text);line-height:1.1}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+@media(max-width:600px){.metrics-grid{grid-template-columns:repeat(2,1fr)}.fat-grid{grid-template-columns:repeat(2,1fr)}}
+.metric-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;transition:all 0.2s;position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.2s}
+.metric-card:hover{border-color:var(--border-light);box-shadow:0 4px 20px rgba(26,20,16,0.07);transform:translateY(-2px)}
+.metric-card:hover::before{opacity:1}
+.mc-agenda::before{background:var(--gold)}
+.mc-barbeiros::before{background:var(--success)}
+.mc-servicos::before{background:#6366f1}
+.mc-clientes::before{background:#0ea5e9}
+.metric-icon{font-size:1.3rem;margin-bottom:8px;display:block}
+.metric-val{font-family:var(--serif);font-size:1.9rem;font-weight:700;color:var(--text);line-height:1;display:block}
+.metric-lbl{font-size:0.72rem;color:var(--text-muted);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+.fat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.fat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem}
+.fat-lbl{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px}
+.fat-val{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--text)}
+.fat-val.green{color:var(--success)}
+.meta-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:1.25rem}
+.meta-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.meta-title{font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:6px}
+.meta-pct{font-size:0.8rem;font-weight:700;color:var(--gold)}
+.meta-bar{height:6px;background:var(--surface-3);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.meta-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--gold-2));transition:width 0.8s ease}
+.meta-sub{font-size:0.72rem;color:var(--text-muted);display:flex;justify-content:space-between}
+.link-card{background:var(--white);border:1.5px dashed var(--border-light);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.link-card-left{display:flex;align-items:center;gap:10px}
+.link-card-icon{width:38px;height:38px;border-radius:10px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;border:1px solid rgba(160,120,48,0.2)}
+.link-card-title{font-weight:600;font-size:0.88rem;color:var(--text);margin-bottom:2px}
+.link-card-url{font-size:0.72rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.link-card-btns{display:flex;gap:8px}
+.btn-wa{background:#25D366;color:white;border-color:#25D366;font-weight:600}
+.btn-wa:hover:not(:disabled){background:#1fba59;border-color:#1fba59}
+.dash-tabs{display:flex;gap:6px;margin-bottom:1.25rem;overflow-x:auto;padding-bottom:4px}
+.dash-tab{padding:7px 16px;border-radius:8px;font-size:0.82rem;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--text-muted);transition:all 0.15s;white-space:nowrap;font-family:var(--sans)}
+.dash-tab.active{background:var(--text);color:var(--white);border-color:var(--text)}
+
+/* ═══ SERVIÇOS NOVO ═══ */
+.sv-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px}
+.sv-toggle{display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-muted);cursor:pointer;user-select:none}
+.toggle-sw{width:36px;height:20px;border-radius:99px;background:var(--border);position:relative;transition:background 0.2s;flex-shrink:0;cursor:pointer}
+.toggle-sw::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:white;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+.toggle-sw.on{background:var(--success)}
+.toggle-sw.on::after{transform:translateX(16px)}
+.sv-cat-label{font-size:0.68rem;font-weight:700;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin:1.25rem 0 8px;display:flex;align-items:center;gap:8px}
+.sv-cat-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.sv-item{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:all 0.15s}
+.sv-item:hover{border-color:var(--border-light);box-shadow:0 2px 10px rgba(26,20,16,0.07)}
+.sv-item.inativo{opacity:0.45}
+.sv-item-info{flex:1;min-width:0}
+.sv-item-nome{font-weight:600;font-size:0.9rem;color:var(--text);display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.sv-item-tag{font-size:0.62rem;font-weight:600;padding:2px 7px;border-radius:99px;background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border)}
+.sv-item-tag.combo{background:rgba(99,102,241,0.08);color:#6366f1;border-color:rgba(99,102,241,0.2)}
+.sv-item-meta{font-size:0.75rem;color:var(--text-muted);display:flex;gap:10px;flex-wrap:wrap}
+.sv-item-preco{font-weight:700;font-size:0.9rem;color:var(--text);text-align:right;flex-shrink:0}
+.sv-item-pix{font-size:0.7rem;color:var(--success);font-weight:600;margin-top:2px}
+.sv-actions{display:flex;gap:4px;flex-shrink:0}
+.sv-act-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.85rem;transition:all 0.15s;color:var(--text-muted)}
+.sv-act-btn:hover{border-color:var(--text);color:var(--text);background:var(--surface-3)}
+.sv-act-btn.del:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+/* Modal serviço */
+.sv-modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,20,16,0.45);z-index:300;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}
+.sv-modal-overlay.open{display:flex}
+.sv-modal-box{background:var(--white);border:1px solid var(--border);border-radius:24px 24px 0 0;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1)}
+.sv-tipo-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.sv-tipo-btn{padding:14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer;text-align:center;transition:all 0.15s}
+.sv-tipo-btn:hover{border-color:var(--gold)}
+.sv-tipo-btn.sel{border-color:var(--text);background:var(--surface-3)}
+.sv-tipo-icon{font-size:1.4rem;display:block;margin-bottom:5px}
+.sv-tipo-nome{font-size:0.82rem;font-weight:600;color:var(--text)}
+.sv-tipo-desc{font-size:0.7rem;color:var(--text-muted);margin-top:2px}
+.desconto-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+.desconto-tipo{padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--sans);font-size:0.88rem;background:var(--white);color:var(--text);outline:none;cursor:pointer}
+.combo-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.combo-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:0.75rem;font-weight:500;background:var(--surface-2);border:1px solid var(--border);color:var(--text)}
+.combo-chip button{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.9rem;line-height:1;padding:0}
+
 /* ═══ RESPONSIVO BARBER ═══ */
 @media(max-width:860px){
   #barber.active{flex-direction:column!important}
@@ -346,6 +434,18 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>
 
+<!-- MODAL DE CONFIRMAÇÃO (substitui confirm() nativo) -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h3 id="confirm-title">Confirmar ação</h3>
+    <p id="confirm-msg">Tem certeza?</p>
+    <div class="confirm-actions">
+      <button class="btn btn-line" style="flex:1" id="confirm-cancel-btn">Cancelar</button>
+      <button class="btn btn-danger" style="flex:1" id="confirm-ok-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ LANDING ═══ -->
 <div id="landing" class="view active">
   <nav class="l-nav">
@@ -365,7 +465,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
         <span class="hero-eyebrow-dot"></span>
         Sistema de agendamento
       </div>
-      <h1>Sua barbearia,<br/><em>organizada.</em></h1>
+      <h1 class="hero">Sua barbearia,<br/><em>organizada.</em></h1>
       <p class="hero-sub">Gerencie agenda, serviços e clientes em um só lugar. Cada barbeiro com seu próprio painel profissional.</p>
       <div class="hero-ctas">
         <button class="btn btn-dark" onclick="showAuth()">Acessar sistema →</button>
@@ -486,13 +586,13 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
     </div>
     <nav class="sb-nav">
       <button class="sb-item active" onclick="setPanel(this,'dashboard')"><span>⊞</span> Painel / Financeiro</button>
-      <button class="sb-item" onclick="setPanel(this,'agenda')"><span>📅</span> Agendamentos Antigos</button>
+      <button class="sb-item" onclick="setPanel(this,'agenda')"><span>📅</span> Agendamentos</button>
       <button class="sb-item" onclick="setPanel(this,'servicos')"><span>✂️</span> Serviços</button>
-      <button class="sb-item" onclick="setPanel(this,'equipe')"><span>👥</span> Barbeiros</button>
+      <button class="sb-item sb-dono-item" onclick="setPanel(this,'equipe')"><span>👥</span> Barbeiros</button>
       <button class="sb-item" onclick="setPanel(this,'horarios')"><span>🔒</span> Bloquear Horários</button>
       <button class="sb-item sb-clientes-item" onclick="setPanel(this,'clientes')"><span>👥</span> Clientes</button>
       <button class="sb-item sb-perfil-item" onclick="setPanel(this,'perfil')"><span>👤</span> Meu Perfil</button>
-      <button class="sb-item" onclick="setPanel(this,'config')"><span>⚙️</span> Configurações</button>
+      <button class="sb-item sb-dono-item" onclick="setPanel(this,'config')"><span>⚙️</span> Configurações</button>
     </nav>
     <button class="sb-out" onclick="signOut()">← Sair</button>
   </aside>
@@ -501,32 +601,69 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 
     <!-- DASHBOARD -->
     <div id="panel-dashboard" class="panel active">
+      <!-- Mobile header -->
       <div class="mobile-header" style="display:none;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
         <button class="btn btn-ghost" style="font-size:1.5rem;padding:0;color:var(--text)" onclick="toggleMobileMenu()">☰</button>
-        <span style="font-family:var(--serif);font-size:1.4rem;font-weight:600">Painel / Financeiro</span>
+        <span style="font-family:var(--serif);font-size:1.3rem;font-weight:700">Painel</span>
         <div style="width:24px"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px" class="desktop-header">
+      <!-- Greeting desktop -->
+      <div class="dash-header desktop-header">
         <div>
-          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px" id="dash-data"></p>
-          <h2 style="font-size:1.4rem;font-weight:600;color:var(--text)">Bem-vindo, <span id="dash-nome-desktop">barbeiro</span>!</h2>
-        </div>
-        <div id="link-wrap" style="display:none">
-          <div class="link-box"><span style="font-size:0.75rem;color:var(--text-muted);margin-right:4px">🔗</span><code id="link-txt"></code><button class="btn btn-dark btn-sm" onclick="copiarLink()" style="margin-left:8px">Copiar</button></div>
+          <div class="dash-greeting" id="dash-data"></div>
+          <div class="dash-nome"><span id="dash-barbearia-nome">Minha Barbearia</span></div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px">Olá, <span id="dash-nome-desktop">barbeiro</span>!</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:1.5rem;overflow-x:auto;padding-bottom:5px;white-space:nowrap">
-        <button class="btn btn-dark" id="tab-hoje" onclick="setFiltroDash('hoje')">📅 Hoje</button>
-        <button class="btn btn-line" id="tab-conf" onclick="setFiltroDash('confirmados')">✅ Confirmados</button>
-        <button class="btn btn-line" id="tab-canc" onclick="setFiltroDash('cancelados')">❌ Cancelados</button>
+      <!-- Métricas 4 cards -->
+      <div class="metrics-grid" id="metrics-grid">
+        <div class="metric-card mc-agenda"><span class="metric-icon">📅</span><span class="metric-val" id="m-hoje">—</span><span class="metric-lbl">Hoje</span></div>
+        <div class="metric-card mc-barbeiros"><span class="metric-icon">✂</span><span class="metric-val" id="m-barb">—</span><span class="metric-lbl">Barbeiros</span></div>
+        <div class="metric-card mc-servicos"><span class="metric-icon">⚡</span><span class="metric-val" id="m-sv">—</span><span class="metric-lbl">Serviços</span></div>
+        <div class="metric-card mc-clientes"><span class="metric-icon">👥</span><span class="metric-val" id="m-cli">—</span><span class="metric-lbl">Clientes</span></div>
       </div>
-      <div class="card" style="margin-bottom:1.5rem;background:linear-gradient(135deg,var(--surface) 0%,var(--surface-2) 100%);border-left:4px solid var(--gold)">
-        <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:1px" id="dash-resumo-titulo">Faturamento Previsto (Hoje)</div>
-        <div style="font-size:2.2rem;font-weight:700;color:var(--success);margin-top:5px;font-family:var(--serif)" id="dash-resumo-valor">R$ 0,00</div>
+      <!-- Faturamento 4 sub-cards -->
+      <div class="fat-grid">
+        <div class="fat-card"><div class="fat-lbl">Previsão hoje</div><div class="fat-val" id="fat-prev">R$ 0,00</div></div>
+        <div class="fat-card"><div class="fat-lbl">Recebido hoje</div><div class="fat-val green" id="fat-hoje">R$ 0,00</div></div>
+        <div class="fat-card"><div class="fat-lbl">Recebido no mês</div><div class="fat-val" id="fat-mes">R$ 0,00</div></div>
+        <div class="fat-card"><div class="fat-lbl">Meta diária</div><div class="fat-val" id="fat-meta-diaria">—</div><div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px" id="fat-meta-dias"></div></div>
+      </div>
+      <!-- Barra de meta mensal -->
+      <div class="meta-card" id="meta-card" style="display:none">
+        <div class="meta-header">
+          <div class="meta-title">🎯 Meta do mês</div>
+          <div class="meta-pct" id="meta-pct">0%</div>
+        </div>
+        <div class="meta-bar"><div class="meta-bar-fill" id="meta-bar-fill" style="width:0%"></div></div>
+        <div class="meta-sub"><span id="meta-sub-left">R$ 0,00 de R$ 0,00</span><span id="meta-sub-right"></span></div>
+      </div>
+      <!-- Link de agendamento -->
+      <div class="link-card" id="link-wrap" style="display:none">
+        <div class="link-card-left">
+          <div class="link-card-icon">🔗</div>
+          <div>
+            <div class="link-card-title">Link de agendamento</div>
+            <div class="link-card-url" id="link-txt"></div>
+          </div>
+        </div>
+        <div class="link-card-btns">
+          <button class="btn btn-line btn-sm" onclick="copiarLink()">Copiar</button>
+          <button class="btn btn-wa btn-sm" id="btn-link-wa">📱 WhatsApp</button>
+        </div>
+      </div>
+      <!-- Tabs + lista -->
+      <div class="dash-tabs">
+        <button class="dash-tab active" id="tab-hoje" onclick="setFiltroDash('hoje')">📅 Hoje</button>
+        <button class="dash-tab" id="tab-conf" onclick="setFiltroDash('confirmados')">✅ Confirmados</button>
+        <button class="dash-tab" id="tab-canc" onclick="setFiltroDash('cancelados')">❌ Cancelados</button>
       </div>
       <div class="card">
-        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem" id="dash-lista-titulo">Agendamentos de Hoje</h3>
-        <div id="dash-lista-dinamica"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 style="font-size:0.95rem;font-weight:600" id="dash-lista-titulo">Agendamentos de Hoje</h3>
+          <span style="font-size:0.8rem;font-weight:700;color:var(--gold)" id="dash-resumo-valor"></span>
+        </div>
+        <div id="dash-lista-dinamica"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
       </div>
     </div>
 
@@ -584,20 +721,77 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
         <span style="font-family:var(--serif);font-size:1.4rem;font-weight:600">Serviços</span>
         <div style="width:24px"></div>
       </div>
-      <h2 class="panel-title desktop-header">Serviços</h2>
-      <div class="grid-2">
-        <div class="card">
-          <h3 style="font-size:0.95rem;margin-bottom:1rem">Novo serviço</h3>
-          <div class="field" id="wrap-sv-barb" style="display:none"><label>Barbeiro</label><select class="inp" id="sv-barb"></select></div>
-          <div class="field"><label>Nome</label><input class="inp" type="text" id="sv-nome" placeholder="Ex: Degradê navalhado"/></div>
-          <div class="field"><label>Preço (R$)</label><input class="inp" type="number" id="sv-preco" placeholder="45" min="0" step="0.01"/></div>
-          <div class="field"><label>Duração (min)</label><input class="inp" type="number" id="sv-dur" placeholder="30" min="1"/></div>
-          <div id="sv-msg"></div>
-          <button class="btn btn-dark btn-full" id="sv-btn" onclick="addServico()">Salvar serviço</button>
+      <div class="sv-toolbar desktop-header" style="margin-bottom:1.25rem">
+        <h2 class="panel-title" style="margin:0">Serviços</h2>
+        <div style="display:flex;align-items:center;gap:12px">
+          <label class="sv-toggle" id="toggle-inativos-wrap">
+            <div class="toggle-sw" id="toggle-inativos-sw"></div>
+            <span>Mostrar inativos (<span id="sv-inativos-count">0</span>)</span>
+          </label>
+          <button class="btn btn-dark btn-sm" onclick="abrirModalSv()">+ Adicionar serviço</button>
         </div>
-        <div class="card">
-          <h3 style="font-size:0.95rem;margin-bottom:1rem">Serviços ativos</h3>
-          <div id="servicos-lista"><p style="color:var(--text-muted);font-size:0.88rem">Nenhum serviço.</p></div>
+      </div>
+      <!-- Mobile toolbar -->
+      <div class="mobile-header" style="display:none;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <label class="sv-toggle" id="toggle-inativos-wrap-m">
+          <div class="toggle-sw" id="toggle-inativos-sw-m"></div>
+          <span>Inativos (<span id="sv-inativos-count-m">0</span>)</span>
+        </label>
+        <button class="btn btn-dark btn-sm" onclick="abrirModalSv()">+ Adicionar</button>
+      </div>
+      <div id="servicos-lista-nova"></div>
+    </div>
+
+    <!-- MODAL ADICIONAR/EDITAR SERVIÇO -->
+    <div class="sv-modal-overlay" id="sv-modal" onclick="fecharModalSv(event)">
+      <div class="sv-modal-box">
+        <div class="modal-handle"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+          <div class="modal-title" style="margin:0" id="sv-modal-titulo">Novo serviço</div>
+          <button class="btn btn-ghost btn-sm" onclick="fecharModalSv()" style="font-size:1.2rem;padding:4px 8px">✕</button>
+        </div>
+        <!-- Seleção de tipo (só na criação) -->
+        <div id="sv-tipo-wrap">
+          <div class="sv-tipo-btns">
+            <div class="sv-tipo-btn sel" id="sv-tipo-simples" onclick="selTipoSv('simples')">
+              <span class="sv-tipo-icon">✂</span>
+              <div class="sv-tipo-nome">Simples</div>
+              <div class="sv-tipo-desc">Um serviço único</div>
+            </div>
+            <div class="sv-tipo-btn" id="sv-tipo-combo" onclick="selTipoSv('combo')">
+              <span class="sv-tipo-icon">⚡</span>
+              <div class="sv-tipo-nome">Combo</div>
+              <div class="sv-tipo-desc">Pacote de serviços</div>
+            </div>
+          </div>
+        </div>
+        <div class="field" id="wrap-sv-barb" style="display:none"><label>Barbeiro</label><select class="inp" id="sv-barb"></select></div>
+        <div class="field"><label>Nome do serviço</label><input class="inp" type="text" id="sv-nome" placeholder="Ex: Corte masculino"/></div>
+        <!-- Combo: seleção de serviços incluídos -->
+        <div id="combo-wrap" style="display:none">
+          <div class="field">
+            <label>Serviços incluídos</label>
+            <select class="inp" id="combo-select" onchange="addComboItem()"><option value="">Selecionar serviço...</option></select>
+            <div class="combo-chips" id="combo-chips"></div>
+          </div>
+        </div>
+        <div class="field"><label>Preço (R$)</label><input class="inp" type="number" id="sv-preco" placeholder="0,00" min="0" step="0.01"/></div>
+        <div class="field">
+          <label>Desconto Dinheiro/PIX</label>
+          <div class="desconto-row">
+            <input class="inp" type="number" id="sv-desc-val" placeholder="0" min="0" step="0.01"/>
+            <select class="desconto-tipo inp" id="sv-desc-tipo" style="width:80px">
+              <option value="R$">R$</option>
+              <option value="%">%</option>
+            </select>
+          </div>
+          <small style="color:var(--text-muted);margin-top:4px;font-size:0.72rem" id="sv-desc-preview"></small>
+        </div>
+        <div class="field"><label>Duração (min)</label><input class="inp" type="number" id="sv-dur" placeholder="30" min="1"/></div>
+        <div id="sv-msg" style="margin-bottom:10px"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-line" style="flex:1" onclick="fecharModalSv()">Cancelar</button>
+          <button class="btn btn-dark" style="flex:1" id="sv-btn" onclick="salvarServico()">Salvar serviço</button>
         </div>
       </div>
     </div>
@@ -696,7 +890,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
         <h2 class="panel-title" style="margin:0">Clientes</h2>
         <div id="clientes-resumo" style="font-size:0.85rem;color:var(--text-muted)"></div>
       </div>
-      <input type="text" class="cli-search" id="clientes-search" placeholder="Buscar cliente pelo nome..." oninput="filtrarClientes()"/>
+      <input type="text" class="cli-search" id="clientes-search" placeholder="Buscar cliente pelo nome..." oninput="filtrarClientesDebounce()"/>
       <div id="clientes-lista"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
       <div id="clientes-paginacao" class="pagination" style="display:none"></div>
     </div>
@@ -843,6 +1037,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
 // ═══════════════════════════════════════
 const { createClient } = supabase
 const SUPABASE_URL = 'https://hhcmdnmazwnpehipheec.supabase.co'
+// Anon key é pública por design no Supabase — segurança real fica nas RLS policies.
+// NUNCA use a service_role key aqui.
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoY21kbm1henducGVoaXBoZWVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzMxMDQsImV4cCI6MjA5NDkwOTEwNH0.1IBgtF24JIHTid2UeaGru0YzHMnXlLuOS4F_sMzUUU8'
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY)
 
@@ -856,16 +1052,37 @@ let isRecoveryMode = false, meuBarbeiro = null
 let filtroDashAtual = 'hoje'
 let logoBase64 = null, capaBase64 = null, fotoBase64 = null
 
+// Meta mensal (configurável pelo dono)
+let metaMensal = 0
+
+// Estado inativos
+let mostrarInativos = false
+
+// Serviço sendo editado (null = novo)
+let svEditandoId = null
+let svTipoAtual = 'simples'
+let comboItens = [] // ids de serviços no combo
+
 // Estado paginação clientes
 let todosClientes = []
 let paginaAtual = 1
 const POR_PAGINA = 20
 
+// Flag para evitar race condition no confirmar()
+let _confirmando = false
+
+// Debounce timer para busca de clientes
+let _filtroTimer = null
+
 // ═══════════════════════════════════════
 // UTILITÁRIOS
 // ═══════════════════════════════════════
 
-/** Converte ISO para string de data local (YYYY-MM-DD) sem bug de timezone */
+/**
+ * Converte ISO para string de data LOCAL (YYYY-MM-DD).
+ * Usa getFullYear/getMonth/getDate para respeitar o fuso do dispositivo,
+ * evitando o bug de "dia anterior" em fusos negativos.
+ */
 function getDiaLocal(iso) {
   const d = new Date(iso)
   return d.getFullYear() + '-' +
@@ -873,14 +1090,23 @@ function getDiaLocal(iso) {
     String(d.getDate()).padStart(2, '0')
 }
 
+/**
+ * Retorna YYYY-MM-DD de hoje no fuso local do dispositivo.
+ * Use esta função em vez de new Date().toISOString().split('T')[0],
+ * que retorna a data em UTC e pode divergir do dia local.
+ */
+function hojeLocal() {
+  return getDiaLocal(new Date())
+}
+
 /** Escapa HTML para evitar XSS em conteúdo inserido via innerHTML */
 function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')
 }
 
 /** Formata valor monetário */
 function fmt(v) {
-  return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',')
 }
 
 /** Exibe toast de feedback */
@@ -897,6 +1123,33 @@ function toast(msg, tipo = 'ok', duracao = 3000) {
   }, duracao)
 }
 
+/**
+ * Modal de confirmação — substitui confirm() nativo (bloqueante, feio em mobile).
+ * Retorna uma Promise que resolve true (ok) ou false (cancelado).
+ */
+function confirmarModal(titulo, mensagem, { labelOk = 'Confirmar', labelCancel = 'Cancelar', danger = true } = {}) {
+  return new Promise(resolve => {
+    document.getElementById('confirm-title').textContent = titulo
+    document.getElementById('confirm-msg').textContent = mensagem
+    const okBtn = document.getElementById('confirm-ok-btn')
+    const cancelBtn = document.getElementById('confirm-cancel-btn')
+    okBtn.textContent = labelOk
+    cancelBtn.textContent = labelCancel
+    okBtn.className = `btn ${danger ? 'btn-danger' : 'btn-dark'}`
+    okBtn.style.flex = '1'
+    cancelBtn.style.flex = '1'
+    const overlay = document.getElementById('confirm-overlay')
+    overlay.classList.add('open')
+
+    const cleanup = val => {
+      overlay.classList.remove('open')
+      resolve(val)
+    }
+    okBtn.addEventListener('click', () => cleanup(true), { once: true })
+    cancelBtn.addEventListener('click', () => cleanup(false), { once: true })
+  })
+}
+
 /** Normaliza slug: apenas letras minúsculas, números e hífens */
 function normalizarSlug(input) {
   input.value = input.value
@@ -907,17 +1160,49 @@ function normalizarSlug(input) {
     .replace(/^-|-$/g, '')
 }
 
+/** Debounce genérico */
+function debounce(fn, delay) {
+  let timer
+  return (...args) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
+}
+
 // ═══════════════════════════════════════
 // SLUG E ROTEAMENTO
 // ═══════════════════════════════════════
-const _path = window.location.pathname.replace(/^\/+|\/+$/g, '')
-const _parts = _path ? _path.split('/') : []
-const slug = (_parts.length >= 1 && _parts[_parts.length - 1]) ? _parts[_parts.length - 1] : null
-console.log('[slug] path:', _path, 'slug:', slug)
+// BASE_PATH: o caminho base do site (repositório GitHub Pages, subpasta, etc.)
+// Ex: GitHub Pages em ramonralf.github.io/Barbearia_Agendamento/ → BASE_PATH = 'Barbearia_Agendamento'
+// Ex: domínio próprio em meusite.com/ → BASE_PATH = ''
+// O slug da barbearia é o segmento APÓS o BASE_PATH.
+const BASE_PATH = 'Barbearia_Agendamento' // ← altere aqui se mudar o repositório
+
+const _rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '') // sem barras nas pontas
+const _baseParts = BASE_PATH ? BASE_PATH.replace(/^\/+|\/+$/g, '').split('/') : []
+
+// Remove o BASE_PATH do início do path para obter o restante
+let _remainingParts = _rawPath.split('/')
+if (BASE_PATH) {
+  // Verifica se o path começa com o BASE_PATH
+  const matchesBase = _baseParts.every((seg, i) => _remainingParts[i]?.toLowerCase() === seg.toLowerCase())
+  if (matchesBase) _remainingParts = _remainingParts.slice(_baseParts.length)
+}
+
+// O slug é o primeiro segmento restante (se existir e não for arquivo/reservado)
+const _RESERVED = new Set(['index','app','www','api','admin','login','auth','dashboard',''])
+const _candidate = _remainingParts[0] || ''
+const slug = (_candidate && !_candidate.includes('.') && !_RESERVED.has(_candidate.toLowerCase()) && _candidate.length >= 3)
+  ? _candidate
+  : null
+
+console.log('[slug] rawPath:', _rawPath, 'base:', BASE_PATH, 'candidate:', _candidate, 'slug:', slug)
 
 // ═══════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════
+let _iniciado = false
+
 ;(async () => {
   const urlHash = window.location.hash || ''
   if (urlHash.includes('type=recovery') || urlHash.includes('access_token=')) {
@@ -926,14 +1211,30 @@ console.log('[slug] path:', _path, 'slug:', slug)
     return
   }
   const { data: { session: s } } = await sb.auth.getSession()
-  if (s && !isRecoveryMode) await iniciar(s)
-  else if (slug && !isRecoveryMode) showView('auth')
+  if (s && !isRecoveryMode) {
+    _iniciado = true
+    await iniciar(s)
+  } else if (!isRecoveryMode) {
+    // Mostra auth se há slug (cliente acessando link da barbearia) OU
+    // se não há sessão e não é a landing pública (BASE_PATH presente = app, não site)
+    if (slug || BASE_PATH) showView('auth')
+  }
 
   sb.auth.onAuthStateChange(async (event, s) => {
     if (event === 'PASSWORD_RECOVERY') { isRecoveryMode = true; showView('nova-senha'); return }
+    // INITIAL_SESSION é disparado logo após getSession — já tratado acima, ignorar
+    if (event === 'INITIAL_SESSION') return
     if (s) {
-      if (!isRecoveryMode && !window.location.hash.includes('type=recovery')) await iniciar(s)
+      if (!isRecoveryMode && !window.location.hash.includes('type=recovery')) {
+        // SIGNED_IN duplicado após getSession já ter inicializado — ignorar
+        if (event === 'SIGNED_IN' && _iniciado) return
+        // TOKEN_REFRESHED: atualiza a sessão sem reinicializar a UI
+        if (event === 'TOKEN_REFRESHED') { session = s; return }
+        _iniciado = true
+        await iniciar(s)
+      }
     } else {
+      _iniciado = false
       session = null
       showView('landing')
     }
@@ -1044,8 +1345,7 @@ async function handleAuth() {
       if (error) throw error
 
       if (data?.user) {
-        const { error: insertErr } = await sb.from('clientes').insert([{ id: data.user.id, nome, whatsapp, email }]).select()
-        if (insertErr) console.warn('[signUp] Erro ao inserir cliente:', insertErr.message)
+        await sb.from('clientes').insert([{ id: data.user.id, nome, whatsapp, email }])
       }
 
       if (data?.session) {
@@ -1054,19 +1354,12 @@ async function handleAuth() {
       } else {
         document.getElementById('auth-msg').innerHTML = '<div class="msg msg-ok">Conta criada! Verifique seu e-mail para confirmar, depois faça login.</div>'
         authMode = 'login'
-        document.getElementById('auth-title').textContent = 'Entrar na conta'
-        document.getElementById('auth-sub').textContent = 'Acesse seu painel ou crie sua conta'
-        document.getElementById('auth-btn').textContent = 'Entrar'
-        document.querySelectorAll('.reg-field').forEach(el => el.style.display = 'none')
-        document.querySelector('.log-field').style.display = 'flex'
-        document.getElementById('auth-toggle-btn').innerHTML = 'Novo por aqui? <span>Cadastre-se</span>'
-        document.getElementById('auth-toggle-btn').style.display = 'block'
-        document.getElementById('auth-back-log').style.display = 'none'
+        toggleAuthMode()
         return
       }
     }
   } catch (e) {
-    document.getElementById('auth-msg').innerHTML = `<div class="msg msg-err">${ERROS[e.message] || e.message}</div>`
+    document.getElementById('auth-msg').innerHTML = `<div class="msg msg-err">${esc(ERROS[e.message] || e.message)}</div>`
   } finally {
     btn.disabled = false
     btn.textContent = authMode === 'login' ? 'Entrar' : authMode === 'recuperacao' ? 'Enviar link' : 'Criar conta'
@@ -1086,7 +1379,7 @@ async function atualizarSenha() {
   btn.disabled = false
   btn.textContent = 'Atualizar Senha'
   if (error) {
-    document.getElementById('ns-msg').innerHTML = `<div class="msg msg-err">${error.message}</div>`
+    document.getElementById('ns-msg').innerHTML = `<div class="msg msg-err">${esc(error.message)}</div>`
   } else {
     document.getElementById('ns-msg').innerHTML = '<div class="msg msg-ok">Senha redefinida com sucesso! Redirecionando...</div>'
     isRecoveryMode = false
@@ -1115,7 +1408,10 @@ async function iniciar(s) {
     sb.from('barbeiros').select('*,barbearias(*)').eq('email', email).maybeSingle()
   ])
 
+  // Dono sempre vai pro painel, independente da URL
   if (bDono) { role = 'dono'; await loadBarbeiro(); return }
+
+  // Barbeiro convidado sempre vai pro painel dele
   if (bBarb) {
     if (!bBarb.user_id) {
       await sb.from('barbeiros').update({ user_id: s.user.id }).eq('id', bBarb.id)
@@ -1126,6 +1422,7 @@ async function iniciar(s) {
     return
   }
 
+  // Cliente comum — vai para view de agendamento (com ou sem slug)
   role = 'cliente'
   await loadCliente()
 }
@@ -1135,15 +1432,15 @@ async function iniciar(s) {
 // ═══════════════════════════════════════
 async function loadBarbeiro() {
   showView('barber')
+  role = 'dono'
   document.getElementById('sb-email').textContent = session.user.email
   const dd = document.getElementById('dash-data')
   if (dd) dd.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  // Dono não cadastra serviços diretamente: esconde item do menu
-  document.querySelectorAll('.sb-item').forEach(el => {
-    if ((el.getAttribute('onclick') || '').includes("'servicos'")) el.style.display = 'none'
-  })
+  // Dono vê: Barbeiros, Config, Clientes — NÃO vê Perfil
+  document.querySelectorAll('.sb-dono-item').forEach(el => el.classList.add('sb-dono-visivel'))
   document.querySelectorAll('.sb-clientes-item').forEach(el => el.classList.add('sb-clientes-visivel'))
+  // Dono vê todos os menus exceto Perfil
 
   const { data: b } = await sb.from('barbearias').select('*').eq('owner_id', session.user.id).maybeSingle()
   if (b) {
@@ -1162,12 +1459,13 @@ async function loadBarbeiro() {
 // ═══════════════════════════════════════
 async function loadBarbeiroFuncionario(barb) {
   showView('barber')
+  role = 'barbeiro'
   meuBarbeiro = barb
   if (barb.barbearias?.id) {
     barbearia = barb.barbearias
   } else {
     const { data: b } = await sb.from('barbearias').select('*').eq('id', barb.barbearia_id).maybeSingle()
-    if (!b) return
+    if (!b) { toast('Barbearia não encontrada. Contate o dono.', 'err'); return }
     barbearia = b
   }
 
@@ -1177,8 +1475,10 @@ async function loadBarbeiroFuncionario(barb) {
   const dd = document.getElementById('dash-data')
   if (dd) dd.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
+  // Barbeiro convidado: vê Perfil e Clientes — NÃO vê Barbeiros nem Config
   document.querySelectorAll('.sb-perfil-item').forEach(el => el.classList.add('sb-perfil-visivel'))
   document.querySelectorAll('.sb-clientes-item').forEach(el => el.classList.add('sb-clientes-visivel'))
+  // sb-dono-item permanece oculto (display:none por padrão no CSS)
 
   carregarPerfil()
   await recarregarFuncionario()
@@ -1187,7 +1487,7 @@ async function loadBarbeiroFuncionario(barb) {
 async function recarregarFuncionario() {
   if (!meuBarbeiro || !barbearia) return
   const inp = document.getElementById('agenda-dia')
-  if (inp && !inp.value) inp.value = new Date().toISOString().split('T')[0]
+  if (inp && !inp.value) inp.value = hojeLocal()
 
   const [{ data: ag }, { data: sv }, { data: bl }] = await Promise.all([
     sb.from('agendamentos').select('*,servicos(nome,preco),barbeiros(nome)').eq('barbearia_id', barbearia.id).eq('barbeiro_id', meuBarbeiro.id).order('data_hora'),
@@ -1196,16 +1496,27 @@ async function recarregarFuncionario() {
   ])
   agendamentos = ag || []; servicos = sv || []; bloqueios = bl || []
 
-  // Mostra label do barbeiro no painel de serviços
-  document.getElementById('wrap-sv-barb').style.display = 'none'
-  let svInfo = document.getElementById('sv-barb-info')
-  if (!svInfo) {
-    svInfo = document.createElement('div')
-    svInfo.id = 'sv-barb-info'
-    svInfo.style.cssText = 'font-size:0.82rem;color:var(--text-muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-weight:500'
-    document.getElementById('wrap-sv-barb').after(svInfo)
+  const wrapSvBarb = document.getElementById('wrap-sv-barb')
+  if (wrapSvBarb) {
+    wrapSvBarb.style.display = 'none'
+    let svInfo = document.getElementById('sv-barb-info')
+    if (!svInfo) {
+      svInfo = document.createElement('div')
+      svInfo.id = 'sv-barb-info'
+      svInfo.style.cssText = 'font-size:0.82rem;color:var(--text-muted);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:14px;font-weight:500'
+      wrapSvBarb.after(svInfo)
+    }
+    svInfo.textContent = '✂ Cadastrando serviço para: ' + meuBarbeiro.nome
   }
-  svInfo.textContent = '✂ Cadastrando serviço para: ' + meuBarbeiro.nome
+
+  // Atualiza métricas do barbeiro funcionário
+  const hoje = hojeLocal()
+  const agHoje = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status !== 'cancelado').length
+  const mHoje = document.getElementById('m-hoje'); if (mHoje) mHoje.textContent = agHoje
+  const mSv = document.getElementById('m-sv'); if (mSv) mSv.textContent = servicos.filter(s => !s.inativo).length
+  const mBarb = document.getElementById('m-barb'); if (mBarb) mBarb.textContent = '—'
+  const clientesUnicos = new Set(agendamentos.filter(a => a.status === 'confirmado').map(a => a.user_id || a.nome_cliente)).size
+  const mCli = document.getElementById('m-cli'); if (mCli) mCli.textContent = clientesUnicos
 
   renderStats(); renderAgenda(); renderGrade(); renderSemana(); renderServicos(); renderBloqueios()
   carregarClientes()
@@ -1217,7 +1528,7 @@ async function recarregarFuncionario() {
 async function recarregar() {
   if (!barbearia) return
   const inp = document.getElementById('agenda-dia')
-  if (inp && !inp.value) inp.value = new Date().toISOString().split('T')[0]
+  if (inp && !inp.value) inp.value = hojeLocal()
 
   const [{ data: ag }, { data: sv }, { data: bl }, { data: barb }] = await Promise.all([
     sb.from('agendamentos').select('*,servicos(nome,preco),barbeiros(nome)').eq('barbearia_id', barbearia.id).order('data_hora'),
@@ -1228,11 +1539,19 @@ async function recarregar() {
   agendamentos = ag || []; servicos = sv || []; bloqueios = bl || []
 
   const nomeEl = document.getElementById('dash-nome-desktop')
-  if (nomeEl) nomeEl.textContent = barbearia.nome || 'barbeiro'
+  if (nomeEl) nomeEl.textContent = session?.user?.user_metadata?.nome || session?.user?.email?.split('@')[0] || 'barbeiro'
+  const barbNomeEl = document.getElementById('dash-barbearia-nome')
+  if (barbNomeEl) barbNomeEl.textContent = barbearia.nome || 'Minha Barbearia'
+
+  // Métricas extras (requerem contagem de clientes únicos)
+  const clientesUnicos = new Set((ag || []).filter(a => a.status === 'confirmado').map(a => a.user_id || a.nome_cliente)).size
+  const mBarb = document.getElementById('m-barb')
+  if (mBarb) mBarb.textContent = (barb || []).length
+  const mCli = document.getElementById('m-cli')
+  if (mCli) mCli.textContent = clientesUnicos
 
   renderStats(); renderAgenda(); renderGrade(); renderSemana(); renderServicos(); renderBloqueios(); renderEquipe(barb || [])
 
-  // Popula select de barbeiros no form de serviços
   const svBarbField = document.getElementById('wrap-sv-barb')
   const svBarbSelect = document.getElementById('sv-barb')
   if (svBarbField && svBarbSelect) {
@@ -1243,45 +1562,104 @@ async function recarregar() {
 
   carregarClientes()
 
-  if (barbearia.slug) {
-    const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '')
-    const l = `${baseUrl}/${barbearia.slug}`
+  if (barbearia.slug && role === 'dono') {
+    const base = BASE_PATH
+      ? `${window.location.origin}/${BASE_PATH}`
+      : window.location.origin
+    const linkUrl = `${base}/${barbearia.slug}`
     const linkTxt = document.getElementById('link-txt')
     const linkWrap = document.getElementById('link-wrap')
-    if (linkTxt) linkTxt.textContent = l
-    if (linkWrap) linkWrap.style.display = 'block'
+    if (linkTxt) linkTxt.textContent = linkUrl
+    if (linkWrap) linkWrap.style.display = 'flex'
+    const btnWa = document.getElementById('btn-link-wa')
+    if (btnWa) {
+      btnWa.onclick = () => {
+        const tel = (barbearia.telefone || '').replace(/\D/g, '')
+        const msg = encodeURIComponent(`Olá! Acesse aqui para agendar seu horário: ${linkUrl}`)
+        if (tel) window.open(`https://wa.me/55${tel}?text=${msg}`, '_blank')
+        else { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok') }
+      }
+    }
+  } else {
+    // Esconde explicitamente para barbeiro funcionário
+    const linkWrap = document.getElementById('link-wrap')
+    if (linkWrap) linkWrap.style.display = 'none'
   }
 }
 
 // ═══════════════════════════════════════
-// DASHBOARD
+// DASHBOARD NOVO
 // ═══════════════════════════════════════
-function renderStats() { renderDashDinamico() }
+function renderStats() {
+  // Cards de métricas
+  const hoje = hojeLocal()
+  const agHoje = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status !== 'cancelado').length
+  const set = id => document.getElementById(id)
+
+  if (set('m-hoje')) set('m-hoje').textContent = agHoje
+  if (set('m-sv')) set('m-sv').textContent = servicos.filter(s => !s.inativo).length
+
+  // Faturamento
+  const mesAtual = hoje.slice(0, 7) // YYYY-MM
+  const agConfHoje = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status === 'confirmado')
+  const agConfMes = agendamentos.filter(a => getDiaLocal(a.data_hora).startsWith(mesAtual) && a.status === 'confirmado')
+  const agPrevHoje = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status !== 'cancelado')
+
+  const fatPrev = agPrevHoje.reduce((s, a) => s + (a.servicos?.preco || 0), 0)
+  const fatHoje = agConfHoje.reduce((s, a) => s + (a.servicos?.preco || 0), 0)
+  const fatMes = agConfMes.reduce((s, a) => s + (a.servicos?.preco || 0), 0)
+
+  if (set('fat-prev')) set('fat-prev').textContent = fmt(fatPrev)
+  if (set('fat-hoje')) set('fat-hoje').textContent = fmt(fatHoje)
+  if (set('fat-mes')) set('fat-mes').textContent = fmt(fatMes)
+
+  // Meta diária (meta mensal / dias úteis aproximados)
+  if (metaMensal > 0) {
+    const diasNoMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
+    const metaDiaria = metaMensal / diasNoMes
+    if (set('fat-meta-diaria')) set('fat-meta-diaria').textContent = fmt(metaDiaria)
+    if (set('fat-meta-dias')) set('fat-meta-dias').textContent = `${diasNoMes} dias no mês`
+
+    const pct = Math.min(100, Math.round((fatMes / metaMensal) * 100))
+    const metaCard = document.getElementById('meta-card')
+    if (metaCard) {
+      metaCard.style.display = 'block'
+      document.getElementById('meta-pct').textContent = pct + '%'
+      document.getElementById('meta-bar-fill').style.width = pct + '%'
+      document.getElementById('meta-sub-left').textContent = `${fmt(fatMes)} de ${fmt(metaMensal)}`
+      document.getElementById('meta-sub-right').textContent = `Falta ${fmt(Math.max(0, metaMensal - fatMes))}`
+    }
+  } else {
+    if (set('fat-meta-diaria')) set('fat-meta-diaria').textContent = '—'
+    if (set('fat-meta-dias')) set('fat-meta-dias').textContent = 'Configure a meta'
+    const metaCard = document.getElementById('meta-card')
+    if (metaCard) metaCard.style.display = 'none'
+  }
+
+  renderDashDinamico()
+}
 
 function setFiltroDash(filtro) {
   filtroDashAtual = filtro
-  ;['hoje', 'conf', 'canc'].forEach(t => document.getElementById('tab-' + t).className = 'btn btn-line')
+  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'))
   const map = { hoje: 'tab-hoje', confirmados: 'tab-conf', cancelados: 'tab-canc' }
-  if (map[filtro]) document.getElementById(map[filtro]).className = 'btn btn-dark'
+  if (map[filtro]) document.getElementById(map[filtro])?.classList.add('active')
   renderDashDinamico()
 }
 
 function renderDashDinamico() {
-  const hojeLocal = getDiaLocal(new Date().toISOString())
-  let filtrados = [], tituloFin = '', tituloLista = '', corFin = 'var(--success)'
+  const hoje = hojeLocal()
+  let filtrados = [], tituloLista = '', corFin = 'var(--success)'
 
   if (filtroDashAtual === 'hoje') {
-    tituloFin = 'Faturamento Previsto (Hoje)'
     tituloLista = 'Agendamentos de Hoje'
-    filtrados = agendamentos.filter(a => getDiaLocal(a.data_hora) === hojeLocal && a.status !== 'cancelado')
+    filtrados = agendamentos.filter(a => getDiaLocal(a.data_hora) === hoje && a.status !== 'cancelado')
     filtrados.sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora))
   } else if (filtroDashAtual === 'confirmados') {
-    tituloFin = 'Faturamento Total (Confirmados)'
     tituloLista = 'Todos os Confirmados'
     filtrados = agendamentos.filter(a => a.status === 'confirmado')
     filtrados.sort((a, b) => new Date(b.data_hora) - new Date(a.data_hora))
   } else if (filtroDashAtual === 'cancelados') {
-    tituloFin = 'Perdas em Cancelamentos'
     tituloLista = 'Agendamentos Cancelados'
     corFin = 'var(--danger)'
     filtrados = agendamentos.filter(a => a.status === 'cancelado')
@@ -1289,44 +1667,53 @@ function renderDashDinamico() {
   }
 
   const fat = filtrados.reduce((acc, a) => acc + (a.servicos?.preco || 0), 0)
-
   const el = id => document.getElementById(id)
-  if (el('dash-resumo-titulo')) el('dash-resumo-titulo').textContent = tituloFin
+
+  if (el('dash-lista-titulo')) el('dash-lista-titulo').textContent = tituloLista
   if (el('dash-resumo-valor')) {
     el('dash-resumo-valor').textContent = fmt(fat)
     el('dash-resumo-valor').style.color = corFin
   }
-  if (el('dash-lista-titulo')) el('dash-lista-titulo').textContent = tituloLista
-  if (el('dash-lista-dinamica')) {
-    el('dash-lista-dinamica').innerHTML = filtrados.length
-      ? filtrados.map(a => {
-          const dt = new Date(a.data_hora)
-          const hr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-          const dtFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-          const bc = a.status === 'confirmado' ? 'badge-ok' : a.status === 'cancelado' ? 'badge-err' : 'badge-warn'
-          return `<div class="ag-card" onclick="abrirModal('${esc(a.id)}')">
-            <div class="ag-card-top">
-              <span class="ag-card-nome" style="font-size:1.1rem">${esc(a.nome_cliente)}</span>
-              <span class="badge ${bc}">${esc(a.status)}</span>
-            </div>
-            <div class="ag-card-info" style="margin-top:6px">
-              <small>✂ ${esc(a.servicos?.nome || '—')}</small>
-              <small>👤 ${esc(a.barbeiros?.nome || '—')}</small>
-              <small>🕐 ${dtFmt} às ${hr}</small>
-              <small style="color:var(--gold);font-weight:600;font-size:0.9rem">${fmt(a.servicos?.preco)}</small>
-            </div>
-          </div>`
-        }).join('')
-      : '<div class="ag-empty">Nenhum agendamento encontrado nesta aba.</div>'
+
+  const container = el('dash-lista-dinamica')
+  if (!container) return
+
+  if (!filtrados.length) {
+    container.innerHTML = '<div class="ag-empty">Nenhum agendamento encontrado.</div>'
+    return
   }
+
+  container.innerHTML = ''
+  filtrados.forEach(a => {
+    const dt = new Date(a.data_hora)
+    const hr = dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    const dtFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    const bc = a.status === 'confirmado' ? 'badge-ok' : a.status === 'cancelado' ? 'badge-err' : 'badge-warn'
+    const card = document.createElement('div')
+    card.className = 'ag-card'
+    card.dataset.id = a.id
+    card.innerHTML = `
+      <div class="ag-card-top">
+        <span class="ag-card-nome" style="font-size:1rem">${esc(a.nome_cliente)}</span>
+        <span class="badge ${bc}">${esc(a.status)}</span>
+      </div>
+      <div class="ag-card-info" style="margin-top:6px">
+        <small>✂ ${esc(a.servicos?.nome || '—')}</small>
+        <small>👤 ${esc(a.barbeiros?.nome || '—')}</small>
+        <small>🕐 ${esc(dtFmt)} às ${esc(hr)}</small>
+        <small style="color:var(--gold);font-weight:600">${fmt(a.servicos?.preco)}</small>
+      </div>`
+    card.addEventListener('click', () => abrirModal(a.id))
+    container.appendChild(card)
+  })
 }
 
 // ═══════════════════════════════════════
 // CALENDÁRIO / AGENDA
 // ═══════════════════════════════════════
 function renderSemana() {
-  const diaSel = document.getElementById('agenda-dia')?.value || new Date().toISOString().split('T')[0]
-  const hoje = new Date().toISOString().split('T')[0]
+  const diaSel = document.getElementById('agenda-dia')?.value || hojeLocal()
+  const hoje = hojeLocal()
   const lbl = document.getElementById('agenda-dia-label')
   if (lbl) {
     const dt = new Date(diaSel + 'T12:00:00')
@@ -1337,64 +1724,91 @@ function renderSemana() {
 }
 
 function renderAgenda() {
-  const diaSel = document.getElementById('agenda-dia')?.value || new Date().toISOString().split('T')[0]
+  const diaSel = document.getElementById('agenda-dia')?.value || hojeLocal()
   const dodia = agendamentos
     .filter(a => getDiaLocal(a.data_hora) === diaSel)
     .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora))
 
-  const html = dodia.length
-    ? dodia.map(a => {
-        const hr = new Date(a.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-        const bc = a.status === 'confirmado' ? 'badge-ok' : a.status === 'cancelado' ? 'badge-err' : 'badge-warn'
-        return `<div class="ag-card" onclick="abrirModal('${esc(a.id)}')">
-          <div class="ag-card-top"><span class="ag-card-nome">${esc(a.nome_cliente)}</span><span class="badge ${bc}">${esc(a.status)}</span></div>
-          <div class="ag-card-info"><small>✂ ${esc(a.servicos?.nome || '—')}</small><small>👤 ${esc(a.barbeiros?.nome || '—')}</small><small>🕐 ${hr}</small></div>
-        </div>`
-      }).join('')
-    : '<div class="ag-empty">Nenhum agendamento neste dia.</div>'
+  const container = document.getElementById('agenda-lista-2')
+  if (!container) return
 
-  const el2 = document.getElementById('agenda-lista-2')
-  if (el2) el2.innerHTML = html
+  if (!dodia.length) {
+    container.innerHTML = '<div class="ag-empty">Nenhum agendamento neste dia.</div>'
+    return
+  }
+
+  container.innerHTML = ''
+  dodia.forEach(a => {
+    const hr = new Date(a.data_hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    const bc = a.status === 'confirmado' ? 'badge-ok' : a.status === 'cancelado' ? 'badge-err' : 'badge-warn'
+    const card = document.createElement('div')
+    card.className = 'ag-card'
+    card.innerHTML = `
+      <div class="ag-card-top"><span class="ag-card-nome">${esc(a.nome_cliente)}</span><span class="badge ${bc}">${esc(a.status)}</span></div>
+      <div class="ag-card-info"><small>✂ ${esc(a.servicos?.nome || '—')}</small><small>👤 ${esc(a.barbeiros?.nome || '—')}</small><small>🕐 ${esc(hr)}</small></div>`
+    card.addEventListener('click', () => abrirModal(a.id))
+    container.appendChild(card)
+  })
 }
 
 function renderGrade() {
   const el = document.getElementById('grade-horarios')
   if (!el) return
-  const diaSel = document.getElementById('agenda-dia')?.value || new Date().toISOString().split('T')[0]
+  const diaSel = document.getElementById('agenda-dia')?.value || hojeLocal()
   const slots = []
   for (let h = 8; h < 20; h++) for (let m = 0; m < 60; m += 30)
     slots.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'))
 
-  el.innerHTML = slots.map(slot => {
+  el.innerHTML = ''
+  slots.forEach(slot => {
     const dtSlot = new Date(diaSel + 'T' + slot + ':00')
     const ag = agendamentos.find(a => a.status !== 'cancelado' && Math.abs(new Date(a.data_hora) - dtSlot) < 60000)
     const blq = bloqueios.find(b => dtSlot >= new Date(b.data_hora_inicio) && dtSlot < new Date(b.data_hora_fim))
-    let bg, border, color, onclk = ''
-    if (blq) { bg = 'var(--danger-bg)'; border = 'var(--danger)'; color = 'var(--danger)' }
-    else if (ag) {
+
+    const div = document.createElement('div')
+    div.style.cssText = 'padding:9px 4px;border-radius:8px;text-align:center;font-size:0.8rem;font-weight:500'
+
+    if (blq) {
+      div.style.background = 'var(--danger-bg)'
+      div.style.border = '1px solid var(--danger)'
+      div.style.color = 'var(--danger)'
+      div.style.cursor = 'default'
+    } else if (ag) {
       const isConf = ag.status === 'confirmado'
-      bg = isConf ? 'var(--success-bg)' : 'var(--warn-bg)'
-      border = isConf ? 'var(--success)' : 'var(--warn)'
-      color = isConf ? 'var(--success)' : 'var(--warn)'
-      onclk = `onclick="abrirModal('${esc(ag.id)}')"`
-    } else { bg = 'var(--surface-2)'; border = 'var(--border)'; color = 'var(--text-muted)' }
-    return `<div ${onclk} style="padding:9px 4px;border-radius:8px;background:${bg};border:1px solid ${border};text-align:center;font-size:0.8rem;font-weight:500;color:${color};cursor:${ag ? 'pointer' : 'default'}">
-      ${slot}${ag ? `<div style="font-size:0.65rem;margin-top:2px;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(ag.nome_cliente.split('@')[0])}</div>` : ''}
-    </div>`
-  }).join('')
+      div.style.background = isConf ? 'var(--success-bg)' : 'var(--warn-bg)'
+      div.style.border = `1px solid ${isConf ? 'var(--success)' : 'var(--warn)'}`
+      div.style.color = isConf ? 'var(--success)' : 'var(--warn)'
+      div.style.cursor = 'pointer'
+      div.addEventListener('click', () => abrirModal(ag.id))
+    } else {
+      div.style.background = 'var(--surface-2)'
+      div.style.border = '1px solid var(--border)'
+      div.style.color = 'var(--text-muted)'
+      div.style.cursor = 'default'
+    }
+
+    div.textContent = slot
+    if (ag) {
+      const sub = document.createElement('div')
+      sub.style.cssText = 'font-size:0.65rem;margin-top:2px;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'
+      sub.textContent = ag.nome_cliente.split('@')[0]
+      div.appendChild(sub)
+    }
+    el.appendChild(div)
+  })
 }
 
 function mudarDia(delta) {
   const inp = document.getElementById('agenda-dia')
-  const dt = new Date(((inp?.value) || new Date().toISOString().split('T')[0]) + 'T12:00:00')
+  const dt = new Date(((inp?.value) || hojeLocal()) + 'T12:00:00')
   dt.setDate(dt.getDate() + delta)
-  if (inp) inp.value = dt.toISOString().split('T')[0]
+  if (inp) inp.value = getDiaLocal(dt)
   renderStats(); renderAgenda(); renderGrade(); renderSemana()
 }
 
 function irHoje() {
   const inp = document.getElementById('agenda-dia')
-  if (inp) inp.value = new Date().toISOString().split('T')[0]
+  if (inp) inp.value = hojeLocal()
   renderStats(); renderAgenda(); renderGrade(); renderSemana()
 }
 
@@ -1413,11 +1827,37 @@ function abrirModal(id) {
   document.getElementById('m-data').textContent = dt
   const bc = _agModal.status === 'confirmado' ? 'badge-ok' : _agModal.status === 'cancelado' ? 'badge-err' : 'badge-warn'
   document.getElementById('m-status').innerHTML = `<span class="badge ${bc}">${esc(_agModal.status)}</span>`
+
   const acoes = document.getElementById('m-acoes')
   acoes.innerHTML = ''
-  if (_agModal.status === 'pendente') acoes.innerHTML += `<button class="btn btn-dark" style="flex:1" onclick="confAg('${esc(_agModal.id)}');fecharModal()">✓ Confirmar</button>`
-  if (_agModal.status !== 'cancelado') acoes.innerHTML += `<button class="btn btn-danger" style="flex:1" onclick="cancAg('${esc(_agModal.id)}');fecharModal()">✕ Cancelar</button>`
-  acoes.innerHTML += `<button class="btn btn-line" onclick="fecharModal()">Fechar</button>`
+
+  if (_agModal.status === 'pendente') {
+    const btnConf = document.createElement('button')
+    btnConf.className = 'btn btn-dark'
+    btnConf.style.flex = '1'
+    btnConf.textContent = '✓ Confirmar'
+    btnConf.addEventListener('click', () => { confAg(_agModal.id); fecharModal() })
+    acoes.appendChild(btnConf)
+  }
+
+  if (_agModal.status !== 'cancelado') {
+    const btnCanc = document.createElement('button')
+    btnCanc.className = 'btn btn-danger'
+    btnCanc.style.flex = '1'
+    btnCanc.textContent = '✕ Cancelar'
+    btnCanc.addEventListener('click', async () => {
+      fecharModal()
+      await cancAg(_agModal.id)
+    })
+    acoes.appendChild(btnCanc)
+  }
+
+  const btnFechar = document.createElement('button')
+  btnFechar.className = 'btn btn-line'
+  btnFechar.textContent = 'Fechar'
+  btnFechar.addEventListener('click', () => fecharModal())
+  acoes.appendChild(btnFechar)
+
   document.getElementById('modal-ag').classList.add('open')
 }
 
@@ -1431,21 +1871,47 @@ function fecharModal(e) {
 function renderEquipe(barbs) {
   const el = document.getElementById('equipe-lista')
   if (!barbs.length) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem">Nenhum barbeiro.</p>'; return }
-  el.innerHTML = barbs.map(b => `
-    <div class="svc-row">
-      <div style="width:40px;height:40px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden">
-        ${b.foto_url ? `<img src="${esc(b.foto_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : '✂'}
-      </div>
-      <div style="flex:1">
-        <div style="font-weight:500;font-size:0.9rem">${esc(b.nome)}</div>
-        <div style="font-size:0.75rem;color:var(--text-muted)">${esc(b.email || 'Sem e-mail')} · ${esc(b.telefone || '—')} · ${esc(b.especialidade || '—')}</div>
-        <div style="font-size:0.72rem;margin-top:2px">${b.user_id ? '<span style="color:var(--success);font-weight:500">✓ Conta ativa</span>' : '<span style="color:var(--warn)">⏳ Aguardando primeiro acesso</span>'}</div>
-      </div>
-      <button class="btn btn-sm btn-danger" onclick="remBarbeiro('${esc(b.id)}')">✕</button>
-    </div>`).join('')
+
+  el.innerHTML = ''
+  barbs.forEach(b => {
+    const row = document.createElement('div')
+    row.className = 'svc-row'
+
+    const avatar = document.createElement('div')
+    avatar.style.cssText = 'width:40px;height:40px;border-radius:50%;background:var(--surface-3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden'
+    if (b.foto_url) {
+      const img = document.createElement('img')
+      img.src = b.foto_url
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'
+      img.alt = b.nome || 'Foto do barbeiro'
+      avatar.appendChild(img)
+    } else {
+      avatar.textContent = '✂'
+    }
+
+    const info = document.createElement('div')
+    info.style.flex = '1'
+    info.innerHTML = `
+      <div style="font-weight:500;font-size:0.9rem">${esc(b.nome)}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted)">${esc(b.email || 'Sem e-mail')} · ${esc(b.telefone || '—')} · ${esc(b.especialidade || '—')}</div>
+      <div style="font-size:0.72rem;margin-top:2px">${b.user_id
+        ? '<span style="color:var(--success);font-weight:500">✓ Conta ativa</span>'
+        : '<span style="color:var(--warn)">⏳ Aguardando primeiro acesso</span>'}</div>`
+
+    const btnRem = document.createElement('button')
+    btnRem.className = 'btn btn-sm btn-danger'
+    btnRem.textContent = '✕'
+    btnRem.addEventListener('click', () => remBarbeiro(b.id))
+
+    row.appendChild(avatar)
+    row.appendChild(info)
+    row.appendChild(btnRem)
+    el.appendChild(row)
+  })
 }
 
 async function addBarbeiro() {
+  if (role !== 'dono') { toast('Sem permissão.', 'err'); return }
   if (!barbearia) { toast('Salve a barbearia primeiro.', 'err'); return }
   const nome = document.getElementById('eq-nome').value.trim()
   const email = document.getElementById('eq-email').value.trim().toLowerCase()
@@ -1464,7 +1930,10 @@ async function addBarbeiro() {
     .upsert([{ email, barbearia_id: barbearia.id, nome }], { onConflict: 'email' })
     .select().single()
 
-  if (ce) { msgEl.innerHTML = `<div class="msg msg-err">${esc(ce.message)}</div>`; btn.disabled = false; btn.textContent = 'Adicionar barbeiro'; return }
+  if (ce) {
+    msgEl.innerHTML = `<div class="msg msg-err">${esc(ce.message)}</div>`
+    btn.disabled = false; btn.textContent = 'Adicionar barbeiro'; return
+  }
 
   const { error: be } = await sb.from('barbeiros').insert([{ nome, email, especialidade: esp, telefone: tel, barbearia_id: barbearia.id, convite_id: convite.id }])
 
@@ -1482,7 +1951,9 @@ async function addBarbeiro() {
 }
 
 async function remBarbeiro(id) {
-  if (!confirm('Remover barbeiro? Esta ação não pode ser desfeita.')) return
+  if (role !== 'dono') { toast('Sem permissão.', 'err'); return }
+  const ok = await confirmarModal('Remover barbeiro', 'Esta ação não pode ser desfeita. Remover mesmo assim?', { labelOk: 'Remover' })
+  if (!ok) return
   const { data: barb } = await sb.from('barbeiros').select('convite_id,email').eq('id', id).single()
   await sb.from('barbeiros').delete().eq('id', id)
   if (barb?.convite_id) await sb.from('convites').delete().eq('id', barb.convite_id)
@@ -1491,68 +1962,233 @@ async function remBarbeiro(id) {
 }
 
 // ═══════════════════════════════════════
-// SERVIÇOS
+// SERVIÇOS — NOVO SISTEMA
 // ═══════════════════════════════════════
 function renderServicos() {
-  const el = document.getElementById('servicos-lista')
-  if (!servicos.length) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem">Nenhum serviço.</p>'; return }
-  el.innerHTML = servicos.map(s => `
-    <div class="svc-row">
-      <div style="flex:1">
-        <div style="font-weight:500;font-size:0.9rem">${esc(s.nome)}</div>
-        <small style="color:var(--text-muted)">${esc(s.duracao_minutos)} min</small>
-      </div>
-      <span style="font-weight:500">${fmt(s.preco)}</span>
-      <button class="btn btn-sm btn-danger" onclick="remSv('${esc(s.id)}')">✕</button>
-    </div>`).join('')
+  const el = document.getElementById('servicos-lista-nova')
+  if (!el) return
+
+  const inativos = servicos.filter(s => s.inativo)
+  const simples = servicos.filter(s => !s.inativo && s.tipo !== 'combo')
+  const combos = servicos.filter(s => !s.inativo && s.tipo === 'combo')
+  const simplesInat = servicos.filter(s => s.inativo && s.tipo !== 'combo')
+  const combosInat = servicos.filter(s => s.inativo && s.tipo === 'combo')
+
+  const listaSimples = mostrarInativos ? [...simples, ...simplesInat] : simples
+  const listaCombos = mostrarInativos ? [...combos, ...combosInat] : combos
+
+  ;['sv-inativos-count', 'sv-inativos-count-m'].forEach(id => {
+    const c = document.getElementById(id); if (c) c.textContent = inativos.length
+  })
+  ;['toggle-inativos-sw', 'toggle-inativos-sw-m'].forEach(id => {
+    const sw = document.getElementById(id)
+    if (!sw) return
+    sw.classList.toggle('on', mostrarInativos)
+  })
+
+  el.innerHTML = ''
+
+  const renderGrupo = (lista, titulo) => {
+    if (!lista.length) return
+    const lbl = document.createElement('div')
+    lbl.className = 'sv-cat-label'
+    lbl.textContent = titulo
+    el.appendChild(lbl)
+    lista.forEach(s => {
+      const row = document.createElement('div')
+      row.className = 'sv-item' + (s.inativo ? ' inativo' : '')
+      const precoFinal = s.desconto_valor > 0
+        ? (s.desconto_tipo === '%' ? s.preco * (1 - s.desconto_valor / 100) : s.preco - s.desconto_valor)
+        : null
+      row.innerHTML = `
+        <div class="sv-item-info">
+          <div class="sv-item-nome">
+            ${esc(s.nome)}
+            <span class="sv-item-tag${s.tipo === 'combo' ? ' combo' : ''}">${s.tipo === 'combo' ? 'combo' : 'simples'}</span>
+            ${s.inativo ? '<span class="sv-item-tag">inativo</span>' : ''}
+          </div>
+          <div class="sv-item-meta">
+            <span>🕐 ${esc(String(s.duracao_minutos))} min</span>
+            ${s.tipo === 'combo' && s.combo_servicos && s.combo_servicos.length ? `<span>⚡ ${s.combo_servicos.length} serviços</span>` : ''}
+          </div>
+        </div>
+        <div>
+          <div class="sv-item-preco">${fmt(s.preco)}</div>
+          ${precoFinal !== null ? `<div class="sv-item-pix">PIX: ${fmt(precoFinal)} (${s.desconto_tipo === '%' ? s.desconto_valor + '%' : fmt(s.desconto_valor)} desc.)</div>` : ''}
+        </div>`
+      const actions = document.createElement('div')
+      actions.className = 'sv-actions'
+      const btnEdit = document.createElement('button'); btnEdit.className = 'sv-act-btn'; btnEdit.title = 'Editar'; btnEdit.textContent = '✏️'; btnEdit.addEventListener('click', () => abrirModalSv(s.id))
+      const btnDup = document.createElement('button'); btnDup.className = 'sv-act-btn'; btnDup.title = 'Duplicar'; btnDup.textContent = '⧉'; btnDup.addEventListener('click', () => duplicarSv(s.id))
+      const btnTog = document.createElement('button'); btnTog.className = 'sv-act-btn'; btnTog.title = s.inativo ? 'Reativar' : 'Desativar'; btnTog.textContent = s.inativo ? '▶' : '⏸'; btnTog.addEventListener('click', () => toggleSvAtivo(s.id, !s.inativo))
+      const btnDel = document.createElement('button'); btnDel.className = 'sv-act-btn del'; btnDel.title = 'Excluir'; btnDel.textContent = '🗑'; btnDel.addEventListener('click', () => remSv(s.id))
+      actions.appendChild(btnEdit); actions.appendChild(btnDup); actions.appendChild(btnTog); actions.appendChild(btnDel)
+      row.appendChild(actions)
+      el.appendChild(row)
+    })
+  }
+
+  renderGrupo(listaSimples, '✂ SIMPLES')
+  renderGrupo(listaCombos, '⚡ COMBOS')
+  if (!listaSimples.length && !listaCombos.length) {
+    el.innerHTML = '<div class="ag-empty">Nenhum serviço cadastrado ainda.</div>'
+  }
 }
 
-async function addServico() {
+function abrirModalSv(id = null) {
+  svEditandoId = id; comboItens = []; svTipoAtual = 'simples'
+  const tipoWrap = document.getElementById('sv-tipo-wrap')
+  const svBarbField = document.getElementById('wrap-sv-barb')
+  if (svBarbField) svBarbField.style.display = meuBarbeiro ? 'none' : 'flex'
+  const comboSel = document.getElementById('combo-select')
+  if (comboSel) {
+    comboSel.innerHTML = '<option value="">Adicionar serviço ao combo...</option>' +
+      servicos.filter(s => s.tipo !== 'combo' && !s.inativo).map(s => `<option value="${esc(s.id)}">${esc(s.nome)} — ${fmt(s.preco)}</option>`).join('')
+  }
+  if (id) {
+    const sv = servicos.find(s => s.id === id); if (!sv) return
+    document.getElementById('sv-modal-titulo').textContent = 'Editar serviço'
+    tipoWrap.style.display = 'none'
+    document.getElementById('sv-nome').value = sv.nome || ''
+    document.getElementById('sv-preco').value = sv.preco || ''
+    document.getElementById('sv-dur').value = sv.duracao_minutos || ''
+    document.getElementById('sv-desc-val').value = sv.desconto_valor || ''
+    document.getElementById('sv-desc-tipo').value = sv.desconto_tipo || 'R$'
+    svTipoAtual = sv.tipo || 'simples'; comboItens = sv.combo_servicos ? [...sv.combo_servicos] : []
+    document.getElementById('combo-wrap').style.display = svTipoAtual === 'combo' ? 'block' : 'none'
+    renderComboChips()
+  } else {
+    document.getElementById('sv-modal-titulo').textContent = 'Novo serviço'
+    tipoWrap.style.display = 'block'
+    ;['sv-nome','sv-preco','sv-dur','sv-desc-val'].forEach(i => { const el = document.getElementById(i); if(el) el.value = '' })
+    document.getElementById('sv-desc-tipo').value = 'R$'
+    document.getElementById('sv-msg').innerHTML = ''
+    selTipoSv('simples')
+  }
+  atualizarPreviewDesconto()
+  document.getElementById('sv-modal').classList.add('open')
+}
+
+function fecharModalSv(e) {
+  if (!e || e.target === document.getElementById('sv-modal')) {
+    document.getElementById('sv-modal').classList.remove('open')
+    document.getElementById('sv-msg').innerHTML = ''
+  }
+}
+
+function selTipoSv(tipo) {
+  svTipoAtual = tipo
+  document.getElementById('sv-tipo-simples').classList.toggle('sel', tipo === 'simples')
+  document.getElementById('sv-tipo-combo').classList.toggle('sel', tipo === 'combo')
+  document.getElementById('combo-wrap').style.display = tipo === 'combo' ? 'block' : 'none'
+}
+
+function addComboItem() {
+  const sel = document.getElementById('combo-select')
+  const id = sel.value
+  if (!id || comboItens.includes(id)) { sel.value = ''; return }
+  comboItens.push(id); sel.value = ''; renderComboChips()
+}
+
+function renderComboChips() {
+  const el = document.getElementById('combo-chips'); if (!el) return
+  el.innerHTML = ''
+  comboItens.forEach(id => {
+    const sv = servicos.find(s => s.id === id); if (!sv) return
+    const chip = document.createElement('div'); chip.className = 'combo-chip'
+    chip.textContent = sv.nome
+    const btnX = document.createElement('button')
+    btnX.textContent = '✕'
+    btnX.addEventListener('click', e => { e.stopPropagation(); removeComboItem(id) })
+    chip.appendChild(btnX)
+    el.appendChild(chip)
+  })
+}
+
+function removeComboItem(id) { comboItens = comboItens.filter(i => i !== id); renderComboChips() }
+
+function atualizarPreviewDesconto() {
+  const preco = parseFloat(document.getElementById('sv-preco')?.value) || 0
+  const desc = parseFloat(document.getElementById('sv-desc-val')?.value) || 0
+  const tipo = document.getElementById('sv-desc-tipo')?.value || 'R$'
+  const prev = document.getElementById('sv-desc-preview'); if (!prev) return
+  if (!preco || !desc) { prev.textContent = ''; return }
+  const final = tipo === '%' ? preco * (1 - desc / 100) : preco - desc
+  prev.textContent = `Preço com desconto: ${fmt(Math.max(0, final))}`
+}
+
+// Listeners de preview de desconto — DOM já está pronto (script no fim do body)
+;(function() {
+  const attach = () => {
+    document.getElementById('sv-preco')?.addEventListener('input', atualizarPreviewDesconto)
+    document.getElementById('sv-desc-val')?.addEventListener('input', atualizarPreviewDesconto)
+    document.getElementById('sv-desc-tipo')?.addEventListener('change', atualizarPreviewDesconto)
+    // Toggle inativos — registrar uma única vez nos labels
+    const bindToggle = id => {
+      const label = document.getElementById(id)
+      if (label && !label.dataset.bound) {
+        label.dataset.bound = '1'
+        label.addEventListener('click', () => { mostrarInativos = !mostrarInativos; renderServicos() })
+      }
+    }
+    bindToggle('toggle-inativos-wrap')
+    bindToggle('toggle-inativos-wrap-m')
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attach)
+  else attach()
+})()
+
+async function salvarServico() {
   if (!barbearia) { toast('Salve a barbearia primeiro.', 'err'); return }
   const nome = document.getElementById('sv-nome').value.trim()
-  const preco = parseFloat(document.getElementById('sv-preco').value)
-  const dur = parseInt(document.getElementById('sv-dur').value)
-  const msgEl = document.getElementById('sv-msg')
-  const btn = document.getElementById('sv-btn')
+  const preco = parseFloat(document.getElementById('sv-preco').value) || 0
+  const dur = parseInt(document.getElementById('sv-dur').value) || 0
+  const descVal = parseFloat(document.getElementById('sv-desc-val').value) || 0
+  const descTipo = document.getElementById('sv-desc-tipo').value || 'R$'
+  const msgEl = document.getElementById('sv-msg'); const btn = document.getElementById('sv-btn')
   msgEl.innerHTML = ''
-
-  if (!nome || isNaN(preco) || isNaN(dur) || preco <= 0 || dur <= 0) {
-    msgEl.innerHTML = '<div class="msg msg-err">Preencha nome, preço e duração corretamente.</div>'
-    return
-  }
-
-  const payload = { nome, preco, duracao_minutos: dur, barbearia_id: barbearia.id }
-
-  if (meuBarbeiro) {
-    payload.barbeiro_id = meuBarbeiro.id
-  } else {
+  if (!nome || dur <= 0) { msgEl.innerHTML = '<div class="msg msg-err">Preencha nome e duração.</div>'; return }
+  if (svTipoAtual === 'combo' && comboItens.length < 2) { msgEl.innerHTML = '<div class="msg msg-err">Combo precisa de pelo menos 2 serviços.</div>'; return }
+  const payload = { nome, preco, duracao_minutos: dur, barbearia_id: barbearia.id, tipo: svTipoAtual, desconto_valor: descVal, desconto_tipo: descTipo, combo_servicos: svTipoAtual === 'combo' ? comboItens : null }
+  if (meuBarbeiro) { payload.barbeiro_id = meuBarbeiro.id } else {
     const selBarbId = document.getElementById('sv-barb').value
-    if (!selBarbId) { msgEl.innerHTML = '<div class="msg msg-err">Selecione o barbeiro.</div>'; return }
-    payload.barbeiro_id = selBarbId
+    if (!selBarbId && !svEditandoId) { msgEl.innerHTML = '<div class="msg msg-err">Selecione o barbeiro.</div>'; return }
+    if (selBarbId) payload.barbeiro_id = selBarbId
   }
-
-  btn.disabled = true
-  btn.innerHTML = '<span class="spinner"></span> Salvando...'
-
-  const { error } = await sb.from('servicos').insert([payload])
-  btn.disabled = false
-  btn.textContent = 'Salvar serviço'
-
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Salvando...'
+  let error
+  if (svEditandoId) { ;({ error } = await sb.from('servicos').update(payload).eq('id', svEditandoId)) }
+  else { ;({ error } = await sb.from('servicos').insert([payload])) }
+  btn.disabled = false; btn.textContent = 'Salvar serviço'
   if (error) { msgEl.innerHTML = `<div class="msg msg-err">${esc(error.message)}</div>`; return }
+  toast(svEditandoId ? 'Serviço atualizado!' : 'Serviço salvo!', 'ok')
+  fecharModalSv()
+  if (meuBarbeiro) await recarregarFuncionario(); else await recarregar()
+}
 
-  toast('Serviço salvo com sucesso!', 'ok')
-  document.getElementById('sv-nome').value = ''
-  document.getElementById('sv-preco').value = ''
-  document.getElementById('sv-dur').value = ''
+async function duplicarSv(id) {
+  const sv = servicos.find(s => s.id === id); if (!sv) return
+  const { error } = await sb.from('servicos').insert([{ nome: sv.nome + ' (cópia)', preco: sv.preco, duracao_minutos: sv.duracao_minutos, barbearia_id: sv.barbearia_id, barbeiro_id: sv.barbeiro_id, tipo: sv.tipo, desconto_valor: sv.desconto_valor, desconto_tipo: sv.desconto_tipo, combo_servicos: sv.combo_servicos }])
+  if (error) { toast('Erro ao duplicar.', 'err'); return }
+  toast('Serviço duplicado!', 'ok')
+  if (meuBarbeiro) await recarregarFuncionario(); else await recarregar()
+}
+
+async function toggleSvAtivo(id, inativo) {
+  await sb.from('servicos').update({ inativo }).eq('id', id)
+  toast(inativo ? 'Serviço desativado.' : 'Serviço reativado.', 'ok')
   if (meuBarbeiro) await recarregarFuncionario(); else await recarregar()
 }
 
 async function remSv(id) {
-  if (!confirm('Remover serviço?')) return
+  const ok = await confirmarModal('Remover serviço', 'Remover este serviço permanentemente?', { labelOk: 'Remover' })
+  if (!ok) return
   await sb.from('servicos').delete().eq('id', id)
   toast('Serviço removido.')
   if (meuBarbeiro) await recarregarFuncionario(); else await recarregar()
 }
+
+async function addServico() { abrirModalSv() }
 
 // ═══════════════════════════════════════
 // CONFIRMAÇÃO / CANCELAMENTO (BARBEIRO)
@@ -1565,7 +2201,10 @@ async function confAg(id) {
 }
 
 async function cancAg(id) {
-  if (!confirm('Cancelar agendamento?')) return
+  const ag = agendamentos.find(a => a.id === id)
+  const nomeCliente = ag?.nome_cliente || 'este cliente'
+  const ok = await confirmarModal('Cancelar agendamento', `Cancelar o agendamento de ${nomeCliente}?`, { labelOk: 'Cancelar' })
+  if (!ok) return
   await sb.from('agendamentos').update({ status: 'cancelado' }).eq('id', id)
   notificarEmail('cancelado', id)
   toast('Agendamento cancelado.', 'err')
@@ -1577,16 +2216,26 @@ async function cancAg(id) {
 // ═══════════════════════════════════════
 function renderBloqueios() {
   const el = document.getElementById('bloqueios-lista')
+  if (!el) return
   if (!bloqueios.length) { el.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem">Nenhum bloqueio.</p>'; return }
   const f = dt => new Date(dt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-  el.innerHTML = bloqueios.map(b => `
-    <div class="svc-row">
+
+  el.innerHTML = ''
+  bloqueios.forEach(b => {
+    const row = document.createElement('div')
+    row.className = 'svc-row'
+    row.innerHTML = `
       <div style="flex:1">
-        <div style="font-weight:500;font-size:0.9rem">${esc(b.motivo || 'Bloqueado')}</div>
+        <div style="font-weight:500;font-size:0.9rem">${esc(b.motivo)}</div>
         <small style="color:var(--text-muted)">${f(b.data_hora_inicio)} → ${f(b.data_hora_fim)}</small>
-      </div>
-      <button class="btn btn-sm btn-danger" onclick="remBlq('${esc(b.id)}')">Remover</button>
-    </div>`).join('')
+      </div>`
+    const btnRem = document.createElement('button')
+    btnRem.className = 'btn btn-sm btn-danger'
+    btnRem.textContent = 'Remover'
+    btnRem.addEventListener('click', () => remBlq(b.id))
+    row.appendChild(btnRem)
+    el.appendChild(row)
+  })
 }
 
 async function bloquear() {
@@ -1615,7 +2264,7 @@ async function bloquear() {
   btn.disabled = false
   btn.textContent = 'Bloquear'
 
-  if (error) { toast('Erro ao bloquear: ' + error.message, 'err'); return }
+  if (error) { toast('Erro ao bloquear: ' + esc(error.message), 'err'); return }
 
   document.getElementById('blq-ini').value = ''
   document.getElementById('blq-fim').value = ''
@@ -1640,10 +2289,20 @@ function previewCfgImg(event, tipo) {
   reader.onload = e => {
     if (tipo === 'logo') {
       logoBase64 = e.target.result
-      document.getElementById('cfg-logo-preview').innerHTML = `<img src="${logoBase64}" style="width:100%;height:100%;object-fit:cover;"/>`
+      const prev = document.getElementById('cfg-logo-preview')
+      prev.innerHTML = ''
+      const img = document.createElement('img')
+      img.src = logoBase64
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover'
+      prev.appendChild(img)
     } else {
       capaBase64 = e.target.result
-      document.getElementById('cfg-capa-preview').innerHTML = `<img src="${capaBase64}" style="width:100%;height:100%;object-fit:cover;"/>`
+      const prev = document.getElementById('cfg-capa-preview')
+      prev.innerHTML = ''
+      const img = document.createElement('img')
+      img.src = capaBase64
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover'
+      prev.appendChild(img)
     }
   }
   reader.readAsDataURL(file)
@@ -1657,14 +2316,33 @@ function preencherCfg(b) {
   document.getElementById('cfg-tel').value = b.telefone || ''
   document.getElementById('cfg-slug').value = b.slug || ''
   previewLink()
-  if (b.logo_url) document.getElementById('cfg-logo-preview').innerHTML = `<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>`
-  if (b.capa_url) document.getElementById('cfg-capa-preview').innerHTML = `<img src="${b.capa_url}" style="width:100%;height:100%;object-fit:cover;"/>`
+  if (b.logo_url) {
+    const prev = document.getElementById('cfg-logo-preview')
+    prev.innerHTML = ''
+    const img = document.createElement('img')
+    img.src = b.logo_url
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover'
+    img.alt = 'Logo'
+    prev.appendChild(img)
+  }
+  if (b.capa_url) {
+    const prev = document.getElementById('cfg-capa-preview')
+    prev.innerHTML = ''
+    const img = document.createElement('img')
+    img.src = b.capa_url
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover'
+    img.alt = 'Capa'
+    prev.appendChild(img)
+  }
 }
 
 function previewLink() {
   const s = document.getElementById('cfg-slug').value
-  const baseUrl = window.location.href.split('#')[0].replace(/\/$/, '')
-  document.getElementById('cfg-preview').textContent = s ? `Link: ${baseUrl}/${s}` : ''
+  if (!s) { document.getElementById('cfg-preview').textContent = ''; return }
+  const base = BASE_PATH
+    ? `${window.location.origin}/${BASE_PATH}`
+    : window.location.origin
+  document.getElementById('cfg-preview').textContent = `Link: ${base}/${s}`
 }
 
 function copiarLink() {
@@ -1674,16 +2352,24 @@ function copiarLink() {
 }
 
 async function salvarBarbearia() {
+  // Proteção: só o dono pode salvar configurações
+  if (role !== 'dono') { toast('Sem permissão.', 'err'); return }
+
   const btn = document.getElementById('cfg-btn')
   btn.disabled = true
   btn.innerHTML = '<span class="spinner spinner-dark"></span> Salvando...'
   document.getElementById('cfg-msg').innerHTML = ''
 
+  const slugRaw = document.getElementById('cfg-slug').value.trim()
+  // Normaliza slug mesmo que oninput não tenha sido disparado (ex: colagem)
+  const slugNorm = slugRaw.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
   const payload = {
     nome: document.getElementById('cfg-nome').value.trim(),
     endereco: document.getElementById('cfg-end').value.trim(),
     telefone: document.getElementById('cfg-tel').value.trim(),
-    slug: document.getElementById('cfg-slug').value.trim()
+    slug: slugNorm
   }
 
   if (!payload.nome) {
@@ -1691,15 +2377,22 @@ async function salvarBarbearia() {
     btn.disabled = false; btn.textContent = 'Salvar configurações'; return
   }
 
-  if (barbearia) {
-    payload.id = barbearia.id
-    payload.logo_url = barbearia.logo_url
-    payload.capa_url = barbearia.capa_url
+  let data, error
+
+  if (barbearia?.id) {
+    // UPDATE — barbearia já existe
+    ;({ data, error } = await sb.from('barbearias')
+      .update({ ...payload, logo_url: barbearia.logo_url, capa_url: barbearia.capa_url })
+      .eq('id', barbearia.id)
+      .eq('owner_id', session.user.id) // segurança extra no cliente
+      .select())
   } else {
-    payload.owner_id = session.user.id
+    // INSERT — primeira vez criando
+    ;({ data, error } = await sb.from('barbearias')
+      .insert([{ ...payload, owner_id: session.user.id }])
+      .select())
   }
 
-  const { data, error } = await sb.from('barbearias').upsert([payload]).select()
   if (error) {
     btn.disabled = false; btn.textContent = 'Salvar configurações'
     document.getElementById('cfg-msg').innerHTML = `<div class="msg msg-err">${esc(error.message)}</div>`
@@ -1727,8 +2420,11 @@ async function salvarBarbearia() {
   }
 
   if (precisaAtualizar) {
-    const { data: d2 } = await sb.from('barbearias').update({ logo_url: b_atual.logo_url, capa_url: b_atual.capa_url }).eq('id', b_atual.id).select()
-    if (d2) b_atual = d2[0]
+    const { data: d2 } = await sb.from('barbearias')
+      .update({ logo_url: b_atual.logo_url, capa_url: b_atual.capa_url })
+      .eq('id', b_atual.id)
+      .select()
+    if (d2?.[0]) b_atual = d2[0]
   }
 
   barbearia = b_atual
@@ -1817,34 +2513,56 @@ function renderClientes(lista) {
   const inicio = (paginaAtual - 1) * POR_PAGINA
   const fatia = lista.slice(inicio, inicio + POR_PAGINA)
 
-  el.innerHTML = fatia.map((c, i) => {
+  el.innerHTML = ''
+  fatia.forEach((c, i) => {
     const idxGlobal = inicio + i
     const ultimo = c.agendamentos[0]
-    const dtUltimo = ultimo ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'
+    const dtUltimo = ultimo
+      ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+      : '—'
     const medalha = idxGlobal === 0 ? '🥇' : idxGlobal === 1 ? '🥈' : idxGlobal === 2 ? '🥉' : ''
-    return `<div class="cli-card" onclick="abrirDetalheCliente('${esc(c.user_id || '')}','${encodeURIComponent(c.nome)}')">
+
+    const card = document.createElement('div')
+    card.className = 'cli-card'
+    card.innerHTML = `
       <div class="cli-card-top">
         <span class="cli-card-nome">${medalha} ${esc(c.nome)}</span>
         <span class="cli-card-gasto">${fmt(c.total)}</span>
       </div>
       <div class="cli-card-info">
-        <small>📅 ${c.agendamentos.length} visita${c.agendamentos.length > 1 ? 's' : ''}</small>
-        <small>🕐 Último: ${dtUltimo}</small>
+        <small>📅 ${esc(String(c.agendamentos.length))} visita${c.agendamentos.length > 1 ? 's' : ''}</small>
+        <small>🕐 Último: ${esc(dtUltimo)}</small>
         ${c.telefone ? `<small>📱 ${esc(c.telefone)}</small>` : ''}
         <small style="color:var(--gold);font-weight:500">Ticket médio: ${fmt(c.total / c.agendamentos.length)}</small>
-      </div>
-    </div>`
-  }).join('')
+      </div>`
+    card.addEventListener('click', () => abrirDetalheCliente(c.user_id || '', c.nome))
+    el.appendChild(card)
+  })
 
-  // Paginação
   if (pgEl) {
     if (totalPaginas <= 1) { pgEl.style.display = 'none'; return }
     pgEl.style.display = 'flex'
-    pgEl.innerHTML = `
-      <button class="btn btn-line btn-sm" onclick="irPagina(${paginaAtual - 1})" ${paginaAtual === 1 ? 'disabled' : ''}>←</button>
-      <span class="pg-info">Página ${paginaAtual} de ${totalPaginas}</span>
-      <button class="btn btn-line btn-sm" onclick="irPagina(${paginaAtual + 1})" ${paginaAtual === totalPaginas ? 'disabled' : ''}>→</button>
-    `
+    pgEl.innerHTML = ''
+
+    const btnAnterior = document.createElement('button')
+    btnAnterior.className = 'btn btn-line btn-sm'
+    btnAnterior.textContent = '←'
+    btnAnterior.disabled = paginaAtual === 1
+    btnAnterior.addEventListener('click', () => irPagina(paginaAtual - 1))
+
+    const info = document.createElement('span')
+    info.className = 'pg-info'
+    info.textContent = `Página ${paginaAtual} de ${totalPaginas}`
+
+    const btnProximo = document.createElement('button')
+    btnProximo.className = 'btn btn-line btn-sm'
+    btnProximo.textContent = '→'
+    btnProximo.disabled = paginaAtual === totalPaginas
+    btnProximo.addEventListener('click', () => irPagina(paginaAtual + 1))
+
+    pgEl.appendChild(btnAnterior)
+    pgEl.appendChild(info)
+    pgEl.appendChild(btnProximo)
   }
 }
 
@@ -1853,17 +2571,22 @@ function irPagina(n) {
   const termo = document.getElementById('clientes-search')?.value.toLowerCase() || ''
   const lista = termo ? todosClientes.filter(c => c.nome.toLowerCase().includes(termo)) : todosClientes
   renderClientes(lista)
-  document.getElementById('panel-clientes')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  // Scroll para o topo do painel, compensando header fixo em mobile
+  const panel = document.getElementById('panel-clientes')
+  if (panel) {
+    const top = panel.getBoundingClientRect().top + window.scrollY - 80
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+  }
 }
 
-function filtrarClientes() {
-  const termo = document.getElementById('clientes-search').value.toLowerCase()
+// Debounce na busca de clientes — evita render a cada tecla
+const filtrarClientesDebounce = debounce(() => {
+  const termo = document.getElementById('clientes-search')?.value.toLowerCase() || ''
   paginaAtual = 1
   renderClientes(termo ? todosClientes.filter(c => c.nome.toLowerCase().includes(termo)) : todosClientes)
-}
+}, 200)
 
-function abrirDetalheCliente(userId, nomeEnc) {
-  const nome = decodeURIComponent(nomeEnc)
+function abrirDetalheCliente(userId, nome) {
   const cliente = todosClientes.find(c => (userId && c.user_id === userId) || c.nome === nome)
   if (!cliente) return
 
@@ -1878,17 +2601,25 @@ function abrirDetalheCliente(userId, nomeEnc) {
     ? new Date(ultimo.data_hora).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
     : '—'
 
-  document.getElementById('cli-det-historico').innerHTML = cliente.agendamentos.map(ag => {
-    const dt = new Date(ag.data_hora).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
-    const bc = ag.status === 'confirmado' ? 'badge-ok' : ag.status === 'cancelado' ? 'badge-err' : 'badge-warn'
-    return `<div class="tl-item">
-      <div class="tl-dot ${esc(ag.status)}"></div>
-      <div class="tl-body">
-        <div class="tl-top"><span class="tl-name">${esc(ag.servicos?.nome || '—')}</span><span style="font-weight:700;color:var(--success);font-size:0.9rem">${fmt(ag.servicos?.preco)}</span></div>
-        <small>${dt} · ${esc(ag.barbeiros?.nome || '—')}</small>
-      </div>
-    </div>`
-  }).join('') || '<p style="color:var(--text-muted);font-size:0.88rem">Sem histórico.</p>'
+  const histEl = document.getElementById('cli-det-historico')
+  histEl.innerHTML = ''
+  if (!cliente.agendamentos.length) {
+    histEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.88rem">Sem histórico.</p>'
+  } else {
+    cliente.agendamentos.forEach(ag => {
+      const dt = new Date(ag.data_hora).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+      const bc = ag.status === 'confirmado' ? 'badge-ok' : ag.status === 'cancelado' ? 'badge-err' : 'badge-warn'
+      const item = document.createElement('div')
+      item.className = 'tl-item'
+      item.innerHTML = `
+        <div class="tl-dot ${esc(ag.status)}"></div>
+        <div class="tl-body">
+          <div class="tl-top"><span class="tl-name">${esc(ag.servicos?.nome || '—')}</span><span style="font-weight:700;color:var(--success);font-size:0.9rem">${fmt(ag.servicos?.preco)}</span></div>
+          <small>${esc(dt)} · ${esc(ag.barbeiros?.nome || '—')}</small>
+        </div>`
+      histEl.appendChild(item)
+    })
+  }
 
   document.getElementById('cli-detalhe-overlay').classList.add('open')
 }
@@ -1913,13 +2644,21 @@ async function loadCliente() {
     dadosCliente = cliPerfil
     document.getElementById('cli-email').textContent = cliPerfil.nome
   } else {
-    document.getElementById('cli-email').textContent = session.user.user_metadata?.nome || (session.user.email ? session.user.email.split('@')[0] : 'Usuário')
+    document.getElementById('cli-email').textContent = session.user.user_metadata?.nome || session.user.email.split('@')[0]
   }
 
   let b = null
   if (slug) {
-    const { data, error } = await sb.from('barbearias').select('*').ilike('slug', slug).limit(1).maybeSingle()
+    // Busca pelo slug da URL
+    const slugLimpo = slug.toLowerCase().trim()
+    const { data, error } = await sb.from('barbearias').select('*').ilike('slug', slugLimpo).limit(1).maybeSingle()
     if (!error) b = data
+  }
+
+  if (!b) {
+    // Sem slug na URL — tenta encontrar a única barbearia disponível
+    const { data: bFallback } = await sb.from('barbearias').select('*').not('slug', 'is', null).limit(1).maybeSingle()
+    if (bFallback) b = bFallback
   }
 
   if (!b) {
@@ -1939,7 +2678,16 @@ async function loadCliente() {
 
   const elLogo = document.getElementById('cli-logo')
   elLogo.style.display = 'flex'
-  elLogo.innerHTML = b.logo_url ? `<img src="${b.logo_url}" style="width:100%;height:100%;object-fit:cover;"/>` : '✂'
+  if (b.logo_url) {
+    elLogo.innerHTML = ''
+    const img = document.createElement('img')
+    img.src = b.logo_url
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover'
+    img.alt = b.nome
+    elLogo.appendChild(img)
+  } else {
+    elLogo.textContent = '✂'
+  }
 
   const [{ data: sv }, { data: barb }, { data: ag }] = await Promise.all([
     sb.from('servicos').select('*').eq('barbearia_id', b.id),
@@ -1954,24 +2702,46 @@ async function loadCliente() {
   renderBarbsCli()
   renderMeusAgs(ag || [])
 
-  const hoje = new Date().toISOString().split('T')[0]
+  const hoje = hojeLocal()
   const cliDia = document.getElementById('cli-dia')
   if (cliDia) { cliDia.min = hoje; cliDia.value = hoje }
 }
 
 function renderBarbsCli() {
   const el = document.getElementById('barbs-cli')
-  if (!barbeiros.length) { el.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem">Nenhum barbeiro cadastrado.</p>'; return }
-  el.innerHTML = barbeiros.map(b => `
-    <div class="sel-card" id="barb-${esc(b.id)}" onclick="selBarb2('${esc(b.id)}')">
-      <div style="width:44px;height:44px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden">
-        ${b.foto_url ? `<img src="${esc(b.foto_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : '✂'}
-      </div>
-      <div style="flex:1">
-        <div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${esc(b.nome)}</div>
-        <div style="font-size:0.78rem;color:var(--text-muted)">${esc(b.especialidade || 'Especialista em cortes')}</div>
-      </div>
-    </div>`).join('')
+  if (!barbeiros.length) {
+    el.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem">Nenhum barbeiro cadastrado.</p>'
+    return
+  }
+  el.innerHTML = ''
+  barbeiros.forEach(b => {
+    const card = document.createElement('div')
+    card.className = 'sel-card'
+    card.id = 'barb-' + b.id
+
+    const avatar = document.createElement('div')
+    avatar.style.cssText = 'width:44px;height:44px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden'
+    if (b.foto_url) {
+      const img = document.createElement('img')
+      img.src = b.foto_url
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'
+      img.alt = b.nome
+      avatar.appendChild(img)
+    } else {
+      avatar.textContent = '✂'
+    }
+
+    const info = document.createElement('div')
+    info.style.flex = '1'
+    info.innerHTML = `
+      <div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${esc(b.nome)}</div>
+      <div style="font-size:0.78rem;color:var(--text-muted)">${esc(b.especialidade || 'Especialista em cortes')}</div>`
+
+    card.appendChild(avatar)
+    card.appendChild(info)
+    card.addEventListener('click', () => selBarb2(b.id))
+    el.appendChild(card)
+  })
 }
 
 function selBarb2(id) {
@@ -1987,15 +2757,24 @@ function renderSvCli() {
   const el = document.getElementById('svcs-cli')
   selSv = null
   const btn = document.getElementById('btn-e2'); if (btn) btn.disabled = true
-  if (!servicos.length) { el.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem">Nenhum serviço disponível.</p>'; return }
-  el.innerHTML = servicos.map(s => `
-    <div class="sel-card" id="sc-${esc(s.id)}" onclick="selSvc('${esc(s.id)}')">
+  el.innerHTML = ''
+  if (!servicos.length) {
+    el.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem">Nenhum serviço disponível.</p>'
+    return
+  }
+  servicos.forEach(s => {
+    const card = document.createElement('div')
+    card.className = 'sel-card'
+    card.id = 'sc-' + s.id
+    card.innerHTML = `
       <div style="flex:1">
         <div style="font-weight:500;font-size:0.9rem;margin-bottom:2px">${esc(s.nome)}</div>
-        <div style="font-size:0.78rem;color:var(--text-muted)">${esc(s.duracao_minutos)} min</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">${esc(String(s.duracao_minutos))} min</div>
       </div>
-      <span style="font-weight:500;font-size:0.9rem">${fmt(s.preco)}</span>
-    </div>`).join('')
+      <span style="font-weight:500;font-size:0.9rem">${fmt(s.preco)}</span>`
+    card.addEventListener('click', () => selSvc(s.id))
+    el.appendChild(card)
+  })
 }
 
 function selSvc(id) {
@@ -2008,8 +2787,12 @@ function selSvc(id) {
 
 async function renderHorarios() {
   const dia = document.getElementById('cli-dia').value
-  // Guard defensivo: garante que barbeiro foi selecionado
-  if (!dia || !selBarb?.id) return
+  // Guard: sem barbeiro selecionado, exibe aviso e retorna
+  if (!dia) return
+  if (!selBarb?.id) {
+    document.getElementById('horarios-grid').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;grid-column:1/-1;text-align:center;padding:1rem">Volte e selecione um barbeiro.</p>'
+    return
+  }
 
   selHora = null
   const btn = document.getElementById('btn-e3'); if (btn) btn.disabled = true
@@ -2028,29 +2811,51 @@ async function renderHorarios() {
     slots.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'))
 
   const el = document.getElementById('horarios-grid')
-  el.innerHTML = slots.map(slot => {
+  el.innerHTML = ''
+  slots.forEach(slot => {
     const dtSlot = new Date(dia + 'T' + slot + ':00')
     const ocupado = agsBarb.some(a => a.status !== 'cancelado' && Math.abs(new Date(a.data_hora) - dtSlot) < 60000)
     const bloqueado = blqsBarb.some(b => dtSlot >= new Date(b.data_hora_inicio) && dtSlot < new Date(b.data_hora_fim))
     const passado = dtSlot < new Date()
+
+    const div = document.createElement('div')
+    div.style.cssText = 'padding:10px;border-radius:8px;text-align:center;font-size:0.82rem;font-weight:500'
+    div.textContent = slot
+
     if (ocupado || bloqueado || passado) {
-      return `<div style="padding:10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);text-align:center;font-size:0.82rem;color:var(--text-dim);text-decoration:${ocupado ? 'line-through' : 'none'};cursor:not-allowed">${slot}</div>`
+      div.style.background = 'var(--surface-2)'
+      div.style.border = '1px solid var(--border)'
+      div.style.color = 'var(--text-dim)'
+      div.style.cursor = 'not-allowed'
+      if (ocupado) div.style.textDecoration = 'line-through'
+    } else {
+      div.style.background = 'var(--surface)'
+      div.style.border = '1.5px solid var(--border)'
+      div.style.cursor = 'pointer'
+      div.addEventListener('mouseenter', () => { if (!div.dataset.sel) div.style.borderColor = 'var(--text)' })
+      div.addEventListener('mouseleave', () => { if (!div.dataset.sel) div.style.borderColor = 'var(--border)' })
+      div.addEventListener('click', () => selSlot(slot, div))
     }
-    return `<div id="slot-${slot.replace(':', '-')}" onclick="selSlot('${slot}')" style="padding:10px;border-radius:8px;background:var(--surface);border:1.5px solid var(--border);text-align:center;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--text)'" onmouseout="if(this.dataset.sel!='1')this.style.borderColor='var(--border)'">${slot}</div>`
-  }).join('')
+    el.appendChild(div)
+  })
 }
 
-function selSlot(hora) {
+function selSlot(hora, elClicado) {
   selHora = hora
-  document.querySelectorAll('[id^="slot-"]').forEach(el => {
-    el.style.background = 'var(--surface)'
-    el.style.color = 'var(--text)'
-    el.style.borderColor = 'var(--border)'
-    delete el.dataset.sel
+  // Limpa seleção anterior
+  document.querySelectorAll('#horarios-grid > div').forEach(d => {
+    if (d.dataset.sel) {
+      d.style.background = 'var(--surface)'
+      d.style.color = 'var(--text)'
+      d.style.borderColor = 'var(--border)'
+      delete d.dataset.sel
+    }
   })
-  const el = document.getElementById('slot-' + hora.replace(':', '-'))
-  if (el) {
-    el.style.background = 'var(--text)'; el.style.color = 'var(--white)'; el.style.borderColor = 'var(--text)'; el.dataset.sel = '1'
+  if (elClicado) {
+    elClicado.style.background = 'var(--text)'
+    elClicado.style.color = 'var(--white)'
+    elClicado.style.borderColor = 'var(--text)'
+    elClicado.dataset.sel = '1'
   }
   const btn = document.getElementById('btn-e3'); if (btn) btn.disabled = false
 }
@@ -2064,17 +2869,20 @@ async function irE(n) {
   if (n === 3) { selHora = null; const btn = document.getElementById('btn-e3'); if (btn) btn.disabled = true; await renderHorarios() }
   if (n === 4 && selBarb && selSv && selHora) {
     const dia = document.getElementById('cli-dia').value
-    const el = id => document.getElementById(id)
-    el('res-barb').textContent = 'Barbeiro: ' + selBarb.nome
-    el('res-sv').textContent = 'Serviço: ' + selSv.nome + ' — ' + fmt(selSv.preco)
+    document.getElementById('res-barb').textContent = 'Barbeiro: ' + selBarb.nome
+    document.getElementById('res-sv').textContent = 'Serviço: ' + selSv.nome + ' — ' + fmt(selSv.preco)
     const dtFmt = new Date(dia + 'T' + selHora + ':00').toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-    el('res-det').textContent = dtFmt + ' · ' + selSv.duracao_minutos + ' min'
-    el('cli-msg-conf').innerHTML = ''
+    document.getElementById('res-det').textContent = dtFmt + ' · ' + selSv.duracao_minutos + ' min'
+    document.getElementById('cli-msg-conf').innerHTML = ''
   }
 }
 
 async function confirmar() {
+  // Flag de mutex — evita double-submit (race condition)
+  if (_confirmando) return
   if (!selBarb?.id || !selSv?.id || !selHora) return
+
+  _confirmando = true
   const btn = document.getElementById('btn-conf')
   btn.disabled = true
   btn.innerHTML = '<span class="spinner"></span> Confirmando...'
@@ -2082,41 +2890,54 @@ async function confirmar() {
   const dia = document.getElementById('cli-dia').value
   const dataHoraISO = new Date(dia + 'T' + selHora + ':00').toISOString()
 
-  // Verifica conflito de horário antes de inserir
-  const { data: conf } = await sb.from('agendamentos')
-    .select('id')
-    .eq('barbeiro_id', selBarb.id)
-    .eq('data_hora', dataHoraISO)
-    .neq('status', 'cancelado')
-    .maybeSingle()
+  try {
+    // Verifica conflito de horário imediatamente antes do insert
+    const { data: conf } = await sb.from('agendamentos')
+      .select('id')
+      .eq('barbeiro_id', selBarb.id)
+      .eq('data_hora', dataHoraISO)
+      .neq('status', 'cancelado')
+      .maybeSingle()
 
-  if (conf) {
-    document.getElementById('cli-msg-conf').innerHTML = '<div class="msg msg-err">Este horário acabou de ser ocupado. Escolha outro.</div>'
-    btn.disabled = false; btn.textContent = 'Confirmar agendamento'; return
-  }
+    if (conf) {
+      document.getElementById('cli-msg-conf').innerHTML = '<div class="msg msg-err">Este horário acabou de ser ocupado. Escolha outro.</div>'
+      return
+    }
 
-  const nomeCliente = dadosCliente?.nome || session.user.user_metadata?.nome || (session.user.email ? session.user.email.split('@')[0] : 'Cliente')
+    const nomeCliente = dadosCliente?.nome || session.user.user_metadata?.nome || session.user.email.split('@')[0]
 
-  const { data: novoAg, error } = await sb.from('agendamentos').insert([{
-    barbearia_id: barbearia.id,
-    user_id: session.user.id,
-    servico_id: selSv.id,
-    barbeiro_id: selBarb.id,
-    nome_cliente: nomeCliente,
-    telefone_cliente: dadosCliente?.whatsapp || '',
-    data_hora: dataHoraISO,
-    status: 'pendente'
-  }]).select('id').single()
+    const { data: novoAg, error } = await sb.from('agendamentos').insert([{
+      barbearia_id: barbearia.id,
+      user_id: session.user.id,
+      servico_id: selSv.id,
+      barbeiro_id: selBarb.id,
+      nome_cliente: nomeCliente,
+      telefone_cliente: dadosCliente?.whatsapp || '',
+      data_hora: dataHoraISO,
+      status: 'pendente'
+    }]).select('id').single()
 
-  btn.disabled = false; btn.textContent = 'Confirmar agendamento'
-
-  if (!error && novoAg) {
-    notificarEmail('novo_agendamento', novoAg.id)
-    document.getElementById('cli-msg-conf').innerHTML = '<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
-    setTimeout(() => loadCliente(), 1500)
-  } else {
-    document.getElementById('cli-msg-conf').innerHTML = '<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
-    console.error('Erro ao confirmar agendamento:', error)
+    if (!error && novoAg) {
+      notificarEmail('novo_agendamento', novoAg.id)
+      document.getElementById('cli-msg-conf').innerHTML = '<div class="msg msg-ok">Agendamento realizado! Aguarde confirmação.</div>'
+      // Recarrega apenas os agendamentos do cliente, sem refazer todo o loadCliente
+      const { data: ag } = await sb.from('agendamentos')
+        .select('*,servicos(nome),barbeiros(nome)')
+        .eq('user_id', session.user.id)
+        .order('data_hora', { ascending: false })
+      renderMeusAgs(ag || [])
+      // Reseta o wizard de agendamento
+      selBarb = null; selSv = null; selHora = null
+      servicos = todosServicos
+      setTimeout(() => { irE(1); renderBarbsCli() }, 1500)
+    } else {
+      document.getElementById('cli-msg-conf').innerHTML = '<div class="msg msg-err">Erro ao agendar. Tente novamente.</div>'
+      console.error('Erro ao confirmar agendamento:', error)
+    }
+  } finally {
+    _confirmando = false
+    btn.disabled = false
+    btn.textContent = 'Confirmar agendamento'
   }
 }
 
@@ -2127,21 +2948,28 @@ function renderMeusAgs(ags) {
     return
   }
   const bm = { confirmado: 'badge-ok', pendente: 'badge-warn', cancelado: 'badge-err' }
-  el.innerHTML = ags.map(a => {
+  el.innerHTML = ''
+  ags.forEach(a => {
     const dt = new Date(a.data_hora).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
     const barb = a.barbeiros?.nome ? ` · ${esc(a.barbeiros.nome)}` : ''
-    return `<div class="tl-item" onclick="abrirModalCliente('${esc(a.id)}')" style="cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--text)'" onmouseout="this.style.borderColor='var(--border)'">
+    const item = document.createElement('div')
+    item.className = 'tl-item'
+    item.style.cursor = 'pointer'
+    item.innerHTML = `
       <div class="tl-dot ${esc(a.status)}"></div>
       <div class="tl-body">
         <div class="tl-top">
           <span class="tl-name">${esc(a.servicos?.nome || '—')}</span>
           <span class="badge ${bm[a.status] || 'badge-warn'}">${esc(a.status)}</span>
         </div>
-        <small>${dt}${barb}</small>
+        <small>${esc(dt)}${barb}</small>
       </div>
-      <span style="color:var(--text-dim);font-size:1.2rem;margin-left:8px">›</span>
-    </div>`
-  }).join('')
+      <span style="color:var(--text-dim);font-size:1.2rem;margin-left:8px">›</span>`
+    item.addEventListener('mouseenter', () => item.style.borderColor = 'var(--text)')
+    item.addEventListener('mouseleave', () => item.style.borderColor = 'var(--border)')
+    item.addEventListener('click', () => abrirModalCliente(a.id))
+    el.appendChild(item)
+  })
 }
 
 // ═══════════════════════════════════════
@@ -2185,15 +3013,32 @@ async function abrirModalCliente(id) {
     const tel = telContato.replace(/\D/g, '')
     const dtFmt = new Date(ag.data_hora).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
     const msgWa = encodeURIComponent(`Olá ${nomeContato}! Gostaria de falar sobre meu agendamento de ${dtFmt}.`)
-    acoes.innerHTML += `<a href="https://wa.me/55${tel}?text=${msgWa}" target="_blank" rel="noopener noreferrer" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none"><span style="font-size:1.1rem">📱</span> WhatsApp ${ag.barbeiros?.telefone ? 'do barbeiro' : 'da barbearia'}</a>`
+    const linkWa = document.createElement('a')
+    linkWa.href = `https://wa.me/55${tel}?text=${msgWa}`
+    linkWa.target = '_blank'
+    linkWa.rel = 'noopener noreferrer'
+    linkWa.style.cssText = 'flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;background:#25D366;color:white;border-radius:8px;font-family:var(--sans);font-size:0.875rem;font-weight:600;text-decoration:none'
+    linkWa.innerHTML = `<span style="font-size:1.1rem">📱</span> WhatsApp ${ag.barbeiros?.telefone ? 'do barbeiro' : 'da barbearia'}`
+    acoes.appendChild(linkWa)
   }
 
   const agData = new Date(ag.data_hora)
   const agFuturo = agData > new Date()
   if (ag.status === 'pendente' || (ag.status === 'confirmado' && agFuturo)) {
-    acoes.innerHTML += `<button class="btn btn-danger" style="width:100%" onclick="cancAgCliente('${esc(ag.id)}')">✕ Cancelar agendamento</button>`
+    const btnCanc = document.createElement('button')
+    btnCanc.className = 'btn btn-danger'
+    btnCanc.style.width = '100%'
+    btnCanc.textContent = '✕ Cancelar agendamento'
+    btnCanc.addEventListener('click', () => cancAgCliente(ag.id))
+    acoes.appendChild(btnCanc)
   }
-  acoes.innerHTML += `<button class="btn btn-line" style="width:100%" onclick="fecharModalCliente()">Fechar</button>`
+
+  const btnFechar = document.createElement('button')
+  btnFechar.className = 'btn btn-line'
+  btnFechar.style.width = '100%'
+  btnFechar.textContent = 'Fechar'
+  btnFechar.addEventListener('click', () => fecharModalCliente())
+  acoes.appendChild(btnFechar)
 
   document.getElementById('modal-cli-ag').classList.add('open')
 }
@@ -2206,45 +3051,48 @@ function fecharModalCliente(e) {
 
 /**
  * Cancelamento pelo cliente.
- * Usa .eq('user_id', session.user.id) para garantir que só o dono pode cancelar.
- * IMPORTANTE: Configure no Supabase a RLS policy para UPDATE na tabela agendamentos:
- *   USING (user_id = auth.uid())
- * Sem isso, usuários autenticados podem cancelar agendamentos de outros via API direta.
+ * A query usa .eq('user_id', session.user.id) como camada extra de segurança no cliente.
+ * OBRIGATÓRIO no Supabase: RLS UPDATE policy em agendamentos com USING (user_id = auth.uid())
  */
 async function cancAgCliente(id) {
-  if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return
+  const ok = await confirmarModal('Cancelar agendamento', 'Tem certeza que deseja cancelar este agendamento?', { labelOk: 'Cancelar agendamento' })
+  if (!ok) return
 
-  const acoesEl = document.getElementById('mc-acoes')
-  const originalHTML = acoesEl.innerHTML
-  acoesEl.innerHTML = '<div class="msg" style="width:100%;text-align:center;background:var(--surface-2);color:var(--text-muted)"><span class="spinner spinner-dark"></span> Cancelando...</div>'
+  const acoes = document.getElementById('mc-acoes')
+  const originalHTML = acoes.innerHTML
+  acoes.innerHTML = '<div class="msg" style="width:100%;text-align:center;background:var(--surface-2);color:var(--text-muted)"><span class="spinner spinner-dark"></span> Cancelando...</div>'
 
   const { data, error } = await sb.from('agendamentos')
     .update({ status: 'cancelado' })
     .eq('id', id)
-    .eq('user_id', session.user.id) // segurança no client — mas DEVE ter RLS no Supabase também
+    .eq('user_id', session.user.id) // segurança no cliente — RLS no Supabase é obrigatória também
     .select()
 
   if (error) {
-    acoesEl.innerHTML = originalHTML
-    toast('Erro ao cancelar: ' + error.message, 'err')
+    acoes.innerHTML = originalHTML
+    toast('Erro ao cancelar: ' + esc(error.message), 'err')
     return
   }
 
   if (!data || data.length === 0) {
-    acoesEl.innerHTML = originalHTML
-    // RLS bloqueou — o agendamento não pertence a este usuário ou RLS não está configurado
+    acoes.innerHTML = originalHTML
     toast('Não foi possível cancelar. Verifique suas permissões.', 'err', 5000)
-    console.warn('[cancAgCliente] Update bloqueado pelo Supabase. Verifique a RLS policy UPDATE em agendamentos: USING (user_id = auth.uid())')
+    console.warn('[cancAgCliente] RLS bloqueou o update. Configure: ALTER POLICY em agendamentos WITH CHECK (user_id = auth.uid())')
     return
   }
 
   notificarEmail('cancelado_pelo_cliente', id)
-  acoesEl.innerHTML = '<div class="msg msg-ok" style="width:100%;text-align:center">Agendamento cancelado com sucesso!</div>'
+  acoes.innerHTML = '<div class="msg msg-ok" style="width:100%;text-align:center">Agendamento cancelado com sucesso!</div>'
   toast('Agendamento cancelado.', 'ok')
 
+  // Atualiza apenas a lista de agendamentos, sem recarregar a página inteira
   setTimeout(async () => {
     document.getElementById('modal-cli-ag').classList.remove('open')
-    await loadCliente()
+    const { data: ag } = await sb.from('agendamentos')
+      .select('*,servicos(nome),barbeiros(nome)')
+      .eq('user_id', session.user.id)
+      .order('data_hora', { ascending: false })
+    renderMeusAgs(ag || [])
   }, 1500)
 }
 
@@ -2258,7 +3106,12 @@ function previewFoto(event) {
   reader.onload = e => {
     fotoBase64 = e.target.result
     const prev = document.getElementById('perfil-avatar-preview')
-    prev.innerHTML = `<img src="${fotoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+    prev.innerHTML = ''
+    const img = document.createElement('img')
+    img.src = fotoBase64
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'
+    img.alt = 'Foto de perfil'
+    prev.appendChild(img)
   }
   reader.readAsDataURL(file)
 }
@@ -2272,7 +3125,16 @@ async function carregarPerfil() {
   document.getElementById('perfil-tel').value = b.telefone || ''
   document.getElementById('perfil-esp').value = b.especialidade || ''
   const prev = document.getElementById('perfil-avatar-preview')
-  prev.innerHTML = b.foto_url ? `<img src="${b.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : '✂'
+  if (b.foto_url) {
+    prev.innerHTML = ''
+    const img = document.createElement('img')
+    img.src = b.foto_url
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%'
+    img.alt = b.nome
+    prev.appendChild(img)
+  } else {
+    prev.innerHTML = '✂'
+  }
 }
 
 async function salvarPerfil() {
@@ -2325,6 +3187,8 @@ async function salvarPerfil() {
 
 // ═══════════════════════════════════════
 // NOTIFICAÇÕES EMAIL (fire-and-forget)
+// Nota: a anon key é usada aqui apenas para autenticar a Edge Function
+// com as permissões do usuário logado. Não expõe a service_role key.
 // ═══════════════════════════════════════
 async function notificarEmail(tipo, agendamento_id) {
   try {
