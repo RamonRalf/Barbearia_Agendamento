@@ -1222,20 +1222,22 @@ let _iniciado = false
 
   sb.auth.onAuthStateChange(async (event, s) => {
     if (event === 'PASSWORD_RECOVERY') { isRecoveryMode = true; showView('nova-senha'); return }
-    // INITIAL_SESSION é disparado logo após getSession — já tratado acima, ignorar
-    if (event === 'INITIAL_SESSION') return
+    if (isRecoveryMode) return
+
+    // TOKEN_REFRESHED: só atualiza o token, não reinicializa a UI
+    if (event === 'TOKEN_REFRESHED') { if (s) session = s; return }
+
     if (s) {
-      if (!isRecoveryMode && !window.location.hash.includes('type=recovery')) {
-        // SIGNED_IN duplicado após getSession já ter inicializado — ignorar
-        if (event === 'SIGNED_IN' && _iniciado) return
-        // TOKEN_REFRESHED: atualiza a sessão sem reinicializar a UI
-        if (event === 'TOKEN_REFRESHED') { session = s; return }
-        _iniciado = true
-        await iniciar(s)
-      }
+      // SIGNED_IN duplicado logo após getSession já ter rodado — ignorar
+      if (_iniciado) return
+      _iniciado = true
+      await iniciar(s)
     } else {
       _iniciado = false
       session = null
+      // Zera estado do painel para não vazar entre sessões
+      barbearia = null; role = null; meuBarbeiro = null
+      agendamentos = []; servicos = []; bloqueios = []
       showView('landing')
     }
   })
@@ -1253,10 +1255,12 @@ function showView(id) {
   })
   const el = document.getElementById(id)
   if (!el) return
+  el.style.display = ''  // limpa inline antes de adicionar classe
+  el.classList.add('active')
+  // Força o display correto via inline (sobrescreve qualquer CSS herdado)
   if (id === 'auth' || id === 'nova-senha') el.style.display = 'flex'
   else if (id === 'barber') el.style.display = 'flex'
-  else el.style.display = 'block'
-  el.classList.add('active')
+  else if (id === 'cliente' || id === 'landing') el.style.display = 'block'
 }
 function showAuth() { showView('auth') }
 
