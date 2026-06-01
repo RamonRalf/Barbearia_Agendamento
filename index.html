@@ -936,6 +936,7 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <small id="cli-email" style="color:var(--text-muted)"></small>
+        <button class="btn btn-ghost btn-sm" id="btn-voltar-painel" style="display:none" onclick="voltarPainel()">⚙ Painel</button>
         <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="signOut()">Sair</button>
       </div>
     </div>
@@ -1396,6 +1397,17 @@ async function signOut() {
   showView('landing')
 }
 
+function voltarPainel() {
+  _iniciado = false
+  barbearia = null; role = null; meuBarbeiro = null
+  agendamentos = []; servicos = []; bloqueios = []
+  // Redireciona para a raiz (sem slug) para cair no painel
+  const base = BASE_PATH
+    ? `${window.location.origin}/${BASE_PATH}/`
+    : `${window.location.origin}/`
+  window.location.href = base
+}
+
 // ═══════════════════════════════════════
 // INICIAR SESSÃO — ROTEAMENTO POR ROLE
 // ═══════════════════════════════════════
@@ -1412,10 +1424,19 @@ async function iniciar(s) {
     sb.from('barbeiros').select('*,barbearias(*)').eq('email', email).maybeSingle()
   ])
 
-  // Dono sempre vai pro painel, independente da URL
+  // Se há slug na URL = acesso via link de agendamento
+  // Qualquer usuário (dono, barbeiro ou cliente) vai para a view de agendamento
+  if (slug) {
+    role = role || 'cliente'
+    await loadCliente()
+    return
+  }
+
+  // Sem slug — roteamento por tipo de conta
+  // Dono sempre vai pro painel
   if (bDono) { role = 'dono'; await loadBarbeiro(); return }
 
-  // Barbeiro convidado sempre vai pro painel dele
+  // Barbeiro convidado vai pro painel dele
   if (bBarb) {
     if (!bBarb.user_id) {
       await sb.from('barbeiros').update({ user_id: s.user.id }).eq('id', bBarb.id)
@@ -1426,7 +1447,7 @@ async function iniciar(s) {
     return
   }
 
-  // Cliente comum — vai para view de agendamento (com ou sem slug)
+  // Cliente comum
   role = 'cliente'
   await loadCliente()
 }
@@ -2642,6 +2663,10 @@ let agsBarb = [], blqsBarb = [], todosServicos = []
 
 async function loadCliente() {
   showView('cliente')
+
+  // Mostra botão "Painel" se o usuário for dono ou barbeiro acessando via slug
+  const btnPainel = document.getElementById('btn-voltar-painel')
+  if (btnPainel) btnPainel.style.display = (role === 'dono' || role === 'barbeiro') ? 'inline-flex' : 'none'
 
   const { data: cliPerfil } = await sb.from('clientes').select('*').eq('id', session.user.id).maybeSingle()
   if (cliPerfil) {
