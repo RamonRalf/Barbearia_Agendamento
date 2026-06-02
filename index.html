@@ -638,20 +638,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
         <div class="meta-bar"><div class="meta-bar-fill" id="meta-bar-fill" style="width:0%"></div></div>
         <div class="meta-sub"><span id="meta-sub-left">R$ 0,00 de R$ 0,00</span><span id="meta-sub-right"></span></div>
       </div>
-      <!-- Link de agendamento -->
-      <div class="link-card" id="link-wrap" style="display:none">
-        <div class="link-card-left">
-          <div class="link-card-icon">🔗</div>
-          <div>
-            <div class="link-card-title">Link de agendamento</div>
-            <div class="link-card-url" id="link-txt"></div>
-          </div>
-        </div>
-        <div class="link-card-btns">
-          <button class="btn btn-line btn-sm" onclick="copiarLink()">Copiar</button>
-          <button class="btn btn-wa btn-sm" id="btn-link-wa">📱 WhatsApp</button>
-        </div>
-      </div>
+      <!-- Link de agendamento — renderizado via JS só para o dono -->
+      <div id="link-wrap-container"></div>
       <!-- Tabs + lista -->
       <div class="dash-tabs">
         <button class="dash-tab active" id="tab-hoje" onclick="setFiltroDash('hoje')">📅 Hoje</button>
@@ -1252,20 +1240,18 @@ function showView(id) {
     const el = document.getElementById(v)
     if (!el) return
     el.classList.remove('active')
-    el.style.display = 'none'
+    el.style.display = 'none' // inline sobrescreve qualquer CSS, inclusive !important
   })
-  // Garante que o link do painel nunca aparece na view cliente
-  if (id === 'cliente') {
-    const lw = document.getElementById('link-wrap')
-    if (lw) lw.style.display = 'none'
-  }
+  const lc = document.getElementById('link-wrap-container')
+  if (lc && id !== 'barber') lc.innerHTML = ''
+
   const el = document.getElementById(id)
   if (!el) return
-  el.style.display = ''
+  el.style.display = '' // limpa o 'none' inline antes de setar o correto
   el.classList.add('active')
   if (id === 'auth' || id === 'nova-senha') el.style.display = 'flex'
   else if (id === 'barber') el.style.display = 'flex'
-  else if (id === 'cliente' || id === 'landing') el.style.display = 'block'
+  else el.style.display = 'block'
 }
 function showAuth() { showView('auth') }
 
@@ -1435,8 +1421,8 @@ async function iniciar(s) {
     // Garante que o painel do dono está completamente oculto
     const barberEl = document.getElementById('barber')
     if (barberEl) { barberEl.style.display = 'none'; barberEl.classList.remove('active') }
-    const linkWrap = document.getElementById('link-wrap')
-    if (linkWrap) linkWrap.style.display = 'none'
+    const linkContainer = document.getElementById('link-wrap-container')
+    if (linkContainer) linkContainer.innerHTML = ''
     await loadCliente()
     return
   }
@@ -1596,28 +1582,50 @@ async function recarregar() {
 
   carregarClientes()
 
-  if (barbearia.slug && role === 'dono') {
-    const base = BASE_PATH
-      ? `${window.location.origin}/${BASE_PATH}`
-      : window.location.origin
-    const linkUrl = `${base}/${barbearia.slug}`
-    const linkTxt = document.getElementById('link-txt')
-    const linkWrap = document.getElementById('link-wrap')
-    if (linkTxt) linkTxt.textContent = linkUrl
-    if (linkWrap) linkWrap.style.display = 'flex'
-    const btnWa = document.getElementById('btn-link-wa')
-    if (btnWa) {
-      btnWa.onclick = () => {
+  // Link de agendamento — só para o dono
+  const linkContainer = document.getElementById('link-wrap-container')
+  if (linkContainer) {
+    if (barbearia.slug && role === 'dono') {
+      const base = BASE_PATH
+        ? `${window.location.origin}/${BASE_PATH}`
+        : window.location.origin
+      const linkUrl = `${base}/${barbearia.slug}`
+      linkContainer.innerHTML = ''
+      const card = document.createElement('div')
+      card.className = 'link-card'
+      card.id = 'link-wrap'
+      card.innerHTML = `
+        <div class="link-card-left">
+          <div class="link-card-icon">🔗</div>
+          <div>
+            <div class="link-card-title">Link de agendamento</div>
+            <div class="link-card-url">${esc(linkUrl)}</div>
+          </div>
+        </div>
+        <div class="link-card-btns"></div>`
+      const btns = card.querySelector('.link-card-btns')
+      const btnCopy = document.createElement('button')
+      btnCopy.className = 'btn btn-line btn-sm'
+      btnCopy.textContent = 'Copiar'
+      btnCopy.addEventListener('click', () => {
+        navigator.clipboard.writeText(linkUrl)
+        toast('Link copiado!', 'ok', 2000)
+      })
+      const btnWa = document.createElement('button')
+      btnWa.className = 'btn btn-wa btn-sm'
+      btnWa.innerHTML = '📱 WhatsApp'
+      btnWa.addEventListener('click', () => {
         const tel = (barbearia.telefone || '').replace(/\D/g, '')
         const msg = encodeURIComponent(`Olá! Acesse aqui para agendar seu horário: ${linkUrl}`)
         if (tel) window.open(`https://wa.me/55${tel}?text=${msg}`, '_blank')
         else { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok') }
-      }
+      })
+      btns.appendChild(btnCopy)
+      btns.appendChild(btnWa)
+      linkContainer.appendChild(card)
+    } else {
+      linkContainer.innerHTML = ''
     }
-  } else {
-    // Esconde explicitamente para barbeiro funcionário
-    const linkWrap = document.getElementById('link-wrap')
-    if (linkWrap) linkWrap.style.display = 'none'
   }
 }
 
@@ -2380,9 +2388,8 @@ function previewLink() {
 }
 
 function copiarLink() {
-  navigator.clipboard.writeText(document.getElementById('link-txt').textContent).then(() => {
-    toast('Link copiado!', 'ok', 2000)
-  })
+  const el = document.querySelector('.link-card-url')
+  if (el) navigator.clipboard.writeText(el.textContent).then(() => toast('Link copiado!', 'ok', 2000))
 }
 
 async function salvarBarbearia() {
