@@ -1403,7 +1403,12 @@ async function iniciar(s) {
     showView('nova-senha')
     return
   }
+  // Zera estado anterior para não vazar entre sessões diferentes
   session = s
+  role = null
+  barbearia = null
+  meuBarbeiro = null
+  agendamentos = []; servicos = []; bloqueios = []
   const email = s.user.email.toLowerCase().trim()
 
   const [{ data: bDono }, { data: bBarb }] = await Promise.all([
@@ -2640,35 +2645,9 @@ async function loadCliente() {
   const btnPainel = document.getElementById('btn-voltar-painel')
   if (btnPainel) btnPainel.style.display = (role === 'dono' || role === 'barbeiro') ? 'inline-flex' : 'none'
 
-  // Renderiza card de link de agendamento só para o dono (para ele compartilhar)
+  // link-wrap-container será preenchido depois que barbearia for carregada
   const linkCont = document.getElementById('link-wrap-container')
-  if (linkCont) {
-    if (role === 'dono' && barbearia?.slug) {
-      const base = BASE_PATH ? `${window.location.origin}/${BASE_PATH}` : window.location.origin
-      const linkUrl = `${base}/${barbearia.slug}`
-      linkCont.innerHTML = ''
-      const card = document.createElement('div')
-      card.className = 'link-card'
-      card.style.marginBottom = '1.25rem'
-      card.innerHTML = `<div class="link-card-left"><div class="link-card-icon">🔗</div><div><div class="link-card-title">Link de agendamento</div><div class="link-card-url">${esc(linkUrl)}</div></div></div><div class="link-card-btns"></div>`
-      const btns = card.querySelector('.link-card-btns')
-      const btnCopy = document.createElement('button')
-      btnCopy.className = 'btn btn-line btn-sm'; btnCopy.textContent = 'Copiar'
-      btnCopy.addEventListener('click', () => { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok', 2000) })
-      const btnWa = document.createElement('button')
-      btnWa.className = 'btn btn-wa btn-sm'; btnWa.textContent = '📱 WhatsApp'
-      btnWa.addEventListener('click', () => {
-        const tel = (barbearia.telefone || '').replace(/\D/g, '')
-        const msg = encodeURIComponent(`Acesse para agendar: ${linkUrl}`)
-        if (tel) window.open(`https://wa.me/55${tel}?text=${msg}`, '_blank')
-        else { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok') }
-      })
-      btns.appendChild(btnCopy); btns.appendChild(btnWa)
-      linkCont.appendChild(card)
-    } else {
-      linkCont.innerHTML = ''
-    }
-  }
+  if (linkCont) linkCont.innerHTML = ''
 
   const { data: cliPerfil } = await sb.from('clientes').select('*').eq('id', session.user.id).maybeSingle()
   if (cliPerfil) {
@@ -2700,6 +2679,37 @@ async function loadCliente() {
   }
 
   barbearia = b
+
+  // Agora que barbearia está carregada, renderiza card de link só se for o dono
+  const _linkCont = document.getElementById('link-wrap-container')
+  if (_linkCont) {
+    if (role === 'dono' && b.slug) {
+      const _base = BASE_PATH ? `${window.location.origin}/${BASE_PATH}` : window.location.origin
+      const _linkUrl = `${_base}/${b.slug}`
+      _linkCont.innerHTML = ''
+      const _card = document.createElement('div')
+      _card.className = 'link-card'
+      _card.style.marginBottom = '1.25rem'
+      _card.innerHTML = `<div class="link-card-left"><div class="link-card-icon">🔗</div><div><div class="link-card-title">Link de agendamento</div><div class="link-card-url">${esc(_linkUrl)}</div></div></div><div class="link-card-btns"></div>`
+      const _btns = _card.querySelector('.link-card-btns')
+      const _btnCopy = document.createElement('button')
+      _btnCopy.className = 'btn btn-line btn-sm'; _btnCopy.textContent = 'Copiar'
+      _btnCopy.addEventListener('click', () => { navigator.clipboard.writeText(_linkUrl); toast('Link copiado!', 'ok', 2000) })
+      const _btnWa = document.createElement('button')
+      _btnWa.className = 'btn btn-wa btn-sm'; _btnWa.textContent = '📱 WhatsApp'
+      _btnWa.addEventListener('click', () => {
+        const _tel = (b.telefone || '').replace(/\D/g, '')
+        const _msg = encodeURIComponent(`Acesse para agendar: ${_linkUrl}`)
+        if (_tel) window.open(`https://wa.me/55${_tel}?text=${_msg}`, '_blank')
+        else { navigator.clipboard.writeText(_linkUrl); toast('Link copiado!', 'ok') }
+      })
+      _btns.appendChild(_btnCopy); _btns.appendChild(_btnWa)
+      _linkCont.appendChild(_card)
+    } else {
+      _linkCont.innerHTML = ''
+    }
+  }
+
   document.getElementById('cli-nome').textContent = b.nome
   document.getElementById('cli-end').textContent = b.endereco || ''
 
