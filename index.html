@@ -638,8 +638,6 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
         <div class="meta-bar"><div class="meta-bar-fill" id="meta-bar-fill" style="width:0%"></div></div>
         <div class="meta-sub"><span id="meta-sub-left">R$ 0,00 de R$ 0,00</span><span id="meta-sub-right"></span></div>
       </div>
-      <!-- Link de agendamento — renderizado via JS só para o dono -->
-      <div id="link-wrap-container"></div>
       <!-- Tabs + lista -->
       <div class="dash-tabs">
         <button class="dash-tab active" id="tab-hoje" onclick="setFiltroDash('hoje')">📅 Hoje</button>
@@ -930,6 +928,8 @@ html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--t
     </div>
   </header>
   <div class="cli-body">
+    <!-- Link de agendamento — visível só para o dono quando acessa via slug -->
+    <div id="link-wrap-container"></div>
     <div class="card" style="margin-bottom:1.25rem">
       <h2 style="font-family:var(--serif);font-weight:700;font-size:1.5rem;margin-bottom:4px;color:var(--text)">Agendar horário</h2>
       <p style="font-size:0.85rem;margin-bottom:1.25rem;color:var(--text-muted)">Escolha o barbeiro, serviço e horário disponível.</p>
@@ -1240,14 +1240,11 @@ function showView(id) {
     const el = document.getElementById(v)
     if (!el) return
     el.classList.remove('active')
-    el.style.display = 'none' // inline sobrescreve qualquer CSS, inclusive !important
+    el.style.display = 'none'
   })
-  const lc = document.getElementById('link-wrap-container')
-  if (lc && id !== 'barber') lc.innerHTML = ''
-
   const el = document.getElementById(id)
   if (!el) return
-  el.style.display = '' // limpa o 'none' inline antes de setar o correto
+  el.style.display = ''
   el.classList.add('active')
   if (id === 'auth' || id === 'nova-senha') el.style.display = 'flex'
   else if (id === 'barber') el.style.display = 'flex'
@@ -1582,51 +1579,10 @@ async function recarregar() {
 
   carregarClientes()
 
-  // Link de agendamento — só para o dono
+  // link-wrap-container agora fica no #cliente, não no painel do dono
+  // Limpar apenas se existir no contexto atual
   const linkContainer = document.getElementById('link-wrap-container')
-  if (linkContainer) {
-    if (barbearia.slug && role === 'dono') {
-      const base = BASE_PATH
-        ? `${window.location.origin}/${BASE_PATH}`
-        : window.location.origin
-      const linkUrl = `${base}/${barbearia.slug}`
-      linkContainer.innerHTML = ''
-      const card = document.createElement('div')
-      card.className = 'link-card'
-      card.id = 'link-wrap'
-      card.innerHTML = `
-        <div class="link-card-left">
-          <div class="link-card-icon">🔗</div>
-          <div>
-            <div class="link-card-title">Link de agendamento</div>
-            <div class="link-card-url">${esc(linkUrl)}</div>
-          </div>
-        </div>
-        <div class="link-card-btns"></div>`
-      const btns = card.querySelector('.link-card-btns')
-      const btnCopy = document.createElement('button')
-      btnCopy.className = 'btn btn-line btn-sm'
-      btnCopy.textContent = 'Copiar'
-      btnCopy.addEventListener('click', () => {
-        navigator.clipboard.writeText(linkUrl)
-        toast('Link copiado!', 'ok', 2000)
-      })
-      const btnWa = document.createElement('button')
-      btnWa.className = 'btn btn-wa btn-sm'
-      btnWa.innerHTML = '📱 WhatsApp'
-      btnWa.addEventListener('click', () => {
-        const tel = (barbearia.telefone || '').replace(/\D/g, '')
-        const msg = encodeURIComponent(`Olá! Acesse aqui para agendar seu horário: ${linkUrl}`)
-        if (tel) window.open(`https://wa.me/55${tel}?text=${msg}`, '_blank')
-        else { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok') }
-      })
-      btns.appendChild(btnCopy)
-      btns.appendChild(btnWa)
-      linkContainer.appendChild(card)
-    } else {
-      linkContainer.innerHTML = ''
-    }
-  }
+  if (linkContainer) linkContainer.innerHTML = ''
 }
 
 // ═══════════════════════════════════════
@@ -2683,6 +2639,36 @@ async function loadCliente() {
   // Mostra botão "Painel" se o usuário for dono ou barbeiro acessando via slug
   const btnPainel = document.getElementById('btn-voltar-painel')
   if (btnPainel) btnPainel.style.display = (role === 'dono' || role === 'barbeiro') ? 'inline-flex' : 'none'
+
+  // Renderiza card de link de agendamento só para o dono (para ele compartilhar)
+  const linkCont = document.getElementById('link-wrap-container')
+  if (linkCont) {
+    if (role === 'dono' && barbearia?.slug) {
+      const base = BASE_PATH ? `${window.location.origin}/${BASE_PATH}` : window.location.origin
+      const linkUrl = `${base}/${barbearia.slug}`
+      linkCont.innerHTML = ''
+      const card = document.createElement('div')
+      card.className = 'link-card'
+      card.style.marginBottom = '1.25rem'
+      card.innerHTML = `<div class="link-card-left"><div class="link-card-icon">🔗</div><div><div class="link-card-title">Link de agendamento</div><div class="link-card-url">${esc(linkUrl)}</div></div></div><div class="link-card-btns"></div>`
+      const btns = card.querySelector('.link-card-btns')
+      const btnCopy = document.createElement('button')
+      btnCopy.className = 'btn btn-line btn-sm'; btnCopy.textContent = 'Copiar'
+      btnCopy.addEventListener('click', () => { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok', 2000) })
+      const btnWa = document.createElement('button')
+      btnWa.className = 'btn btn-wa btn-sm'; btnWa.textContent = '📱 WhatsApp'
+      btnWa.addEventListener('click', () => {
+        const tel = (barbearia.telefone || '').replace(/\D/g, '')
+        const msg = encodeURIComponent(`Acesse para agendar: ${linkUrl}`)
+        if (tel) window.open(`https://wa.me/55${tel}?text=${msg}`, '_blank')
+        else { navigator.clipboard.writeText(linkUrl); toast('Link copiado!', 'ok') }
+      })
+      btns.appendChild(btnCopy); btns.appendChild(btnWa)
+      linkCont.appendChild(card)
+    } else {
+      linkCont.innerHTML = ''
+    }
+  }
 
   const { data: cliPerfil } = await sb.from('clientes').select('*').eq('id', session.user.id).maybeSingle()
   if (cliPerfil) {
